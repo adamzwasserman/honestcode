@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Honest Code — See the Difference</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
+  :root {
+    --bg: #0a0a0c; --surface: #111116; --border: #1e1e26;
+    --text: #c8c8d0; --text-dim: #6a6a78;
+    --red: #e63946; --red-dim: #e6394620; --red-glow: #e6394640;
+    --green: #2a9d8f; --green-dim: #2a9d8f20; --green-glow: #2a9d8f40;
+    --gold: #e9c46a;--cream:#f0ede6;--cream-surface:#e8e4dc;--cream-border:#d5d0c7;--cream-text:#2a2a2e;--cream-dim:#6a6a68;
+    --mono: 'JetBrains Mono', monospace; --serif: 'Literata', Georgia, serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--serif); line-height: 1.6; overflow-x: hidden; }
+
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between;
+    backdrop-filter: blur(12px);
+  }
+  nav .logo { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; color: var(--green); }
+  nav .logo span { color: var(--red); }
+  nav .buy-btn {
+    font-family: var(--mono); font-size: 0.8rem; padding: 0.5rem 1.2rem;
+    background: var(--green); color: var(--bg); border: none; cursor: pointer;
+    font-weight: 600; letter-spacing: 0.04em; transition: background 0.2s;
+  }
+  nav .buy-btn:hover { background: var(--gold); }
+
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 6rem 2rem 3rem;
+  }
+  .hero h1 {
+    font-family: var(--mono); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700;
+    text-align: center; margin-bottom: 0.5rem; letter-spacing: -0.03em;
+  }
+  .hero h1 .honest { color: var(--green); }
+  .hero h1 .dishonest { color: var(--red); }
+  .hero .subtitle {
+    font-family: var(--serif); font-style: italic; color: var(--text-dim);
+    font-size: 1.1rem; margin-bottom: 1.5rem; text-align: center;
+  }
+
+  /* LANGUAGE SELECTOR */
+  .lang-selector {
+    display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center;
+    margin-bottom: 2rem; max-width: 800px;
+  }
+  .lang-btn {
+    font-family: var(--mono); font-size: 0.7rem; padding: 0.35rem 0.8rem;
+    background: transparent; color: var(--text-dim); border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .lang-btn:hover { color: var(--text); border-color: var(--text-dim); }
+  .lang-btn.active { color: var(--green); border-color: var(--green); background: var(--green-dim); }
+
+  /* DEMO PANELS */
+  .demo-container {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 0;
+    width: 100%; max-width: 1100px; border: 1px solid var(--border);
+  }
+  .panel {
+    background: var(--surface); padding: 1.5rem; min-height: 480px;
+    position: relative; display: flex; flex-direction: column;
+  }
+  .panel-header {
+    font-family: var(--mono); font-size: 0.75rem; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .panel.crime .panel-header { color: var(--red); }
+  .panel.rescue .panel-header { color: var(--green); }
+  .panel-header .status {
+    font-size: 0.65rem; padding: 0.2rem 0.6rem; border: 1px solid; opacity: 0; transition: opacity 0.3s;
+  }
+  .panel.crime .panel-header .status { border-color: var(--red); }
+  .panel.rescue .panel-header .status { border-color: var(--green); }
+  .panel-header .status.visible { opacity: 1; }
+  .panel.rescue .panel-header .status.complete { background: var(--green-dim); }
+  .panel.crime .panel-header .status.complete { background: var(--red-dim); }
+
+  .code-area {
+    flex: 1; font-family: var(--mono); font-size: 0.75rem; line-height: 1.8; overflow: hidden;
+  }
+  .code-line {
+    padding: 0.1rem 0.5rem; white-space: pre; opacity: 0.3;
+    transition: opacity 0.15s, background 0.15s; border-left: 2px solid transparent;
+  }
+  .code-line.active { opacity: 1; background: var(--red-dim); border-left-color: var(--red); }
+  .panel.rescue .code-line.active { background: var(--green-dim); border-left-color: var(--green); }
+  .code-line.executed { opacity: 0.7; }
+
+  .state-display {
+    margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);
+    font-family: var(--mono); font-size: 0.7rem;
+  }
+  .state-display .label {
+    color: var(--text-dim); font-size: 0.6rem; text-transform: uppercase;
+    letter-spacing: 0.1em; margin-bottom: 0.5rem;
+  }
+  .state-var { display: flex; justify-content: space-between; padding: 0.15rem 0; }
+  .state-var .key { color: var(--text-dim); }
+  .state-var .val { color: var(--text); transition: color 0.2s; }
+  .state-var .val.mutated { color: var(--red); text-shadow: 0 0 8px var(--red-glow); }
+
+  .idle-counter {
+    position: absolute; bottom: 50%; left: 50%; transform: translate(-50%, 50%);
+    font-family: var(--mono); color: var(--green);
+    opacity: 0; transition: opacity 0.5s; text-align: center; pointer-events: none;
+  }
+  .idle-counter.visible { opacity: 1; }
+  .idle-counter .count { font-size: 2.5rem; font-weight: 700; display: block; line-height: 1; margin-bottom: 0.3rem; }
+  .idle-counter .suffix { font-size: 0.7rem; color: var(--text-dim); }
+
+  .metrics {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px;
+    width: 100%; max-width: 1100px; background: var(--border); margin-top: 2px;
+  }
+  .metric { background: var(--surface); padding: 1rem; text-align: center; }
+  .metric .num { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; }
+  .metric.crime .num { color: var(--red); }
+  .metric.rescue .num { color: var(--green); }
+  .metric .desc {
+    font-family: var(--mono); font-size: 0.6rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.3rem;
+  }
+
+  .speed-control {
+    display: flex; align-items: center; justify-content: center; gap: 1rem;
+    margin-top: 1.5rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim);
+  }
+  .speed-control button {
+    font-family: var(--mono); font-size: 0.65rem; padding: 0.3rem 0.8rem;
+    background: transparent; color: var(--text-dim); border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .speed-control button:hover, .speed-control button.active { color: var(--green); border-color: var(--green); }
+
+  .pitch { text-align: center; margin-top: 4rem; padding: 0 2rem; }
+  .pitch p {
+    font-family: var(--serif); font-size: 1.3rem; color: var(--text);
+    max-width: 700px; margin: 0 auto 2rem; line-height: 1.7;
+  }
+  .pitch .cta {
+    font-family: var(--mono); font-size: 0.9rem; padding: 0.8rem 2.5rem;
+    background: var(--green); color: var(--bg); border: none; cursor: pointer;
+    font-weight: 600; transition: background 0.2s, transform 0.1s;
+  }
+  .pitch .cta:hover { background: var(--gold); transform: translateY(-1px); }
+
+  .chapters-section { max-width: 1100px; margin: 8rem auto 4rem; padding: 0 2rem; }
+  .chapters-section h2 {
+    font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 2rem; text-align: center;
+  }
+  .chapter-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2px; background: var(--border); border: 1px solid var(--border);
+  }
+  .chapter-card {
+    background: var(--surface); padding: 1.5rem; cursor: pointer;
+    transition: background 0.2s; position: relative;
+  }
+  .chapter-card:hover { background: #16161e; }
+  .chapter-card .ch-num { font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; }
+  .chapter-card .ch-title { font-family: var(--mono); font-size: 0.95rem; font-weight: 600; margin-top: 0.3rem; }
+  .chapter-card .ch-desc { font-family: var(--serif); font-size: 0.8rem; color: var(--text-dim); margin-top: 0.5rem; line-height: 1.5; }
+  .chapter-card .lock-icon { position: absolute; top: 1.2rem; right: 1.2rem; font-size: 0.8rem; color: var(--text-dim); opacity: 0.5; }
+
+  .transparency {
+    max-width: 700px; margin: 4rem auto; padding: 1.5rem 2rem;
+    border: 1px solid var(--border); background: var(--surface);
+    font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim); line-height: 1.8;
+  }
+  .transparency strong { color: var(--text); }
+  .transparency a { color: var(--green); text-decoration: none; }
+
+  footer {
+    text-align: center; padding: 3rem 2rem; font-family: var(--mono);
+    font-size: 0.7rem; color: var(--text-dim); border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--green); text-decoration: none; }
+  footer a:hover { color: var(--gold); }
+
+  /* S-CURVE DIVIDER */
+  .s-curve-divider { width: 40px; position: relative; z-index: 2; }
+  .s-curve-divider svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+  /* COVER ART STYLING */
+  .panel.crime { background: var(--bg); }
+  .panel.rescue { background: var(--cream) !important; color: var(--cream-text); }
+  .panel.rescue .panel-header { color: var(--green); }
+  .panel.rescue .panel-header .status { border-color: var(--green); }
+  .panel.rescue .panel-header .status.complete { background: #dff5f1; }
+  .panel.rescue .code-area { color: var(--cream-text); }
+  .panel.rescue .code-line { color: var(--cream-text); }
+  .panel.rescue .code-line.active { background: #dff5f1; border-left-color: var(--green); color: var(--green); }
+  .panel.rescue .code-line.executed { color: var(--cream-text); }
+  .panel.rescue .state-display { border-top-color: var(--cream-border); }
+  .panel.rescue .state-var { color: var(--cream-dim); }
+  .panel.rescue .state-var .sv-val { color: var(--cream-text); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">honest<span>code</span>.dev</div>
+  <button class="buy-btn">GET THE BOOK</button>
+</nav>
+
+<section class="hero">
+  <h1>See the <span class="dishonest">dishonesty</span>. See the <span class="honest">fix</span>.</h1>
+  <p class="subtitle">Same calculation. Pick your language. Watch the difference.</p>
+  <p style="font-family:var(--serif);color:var(--text);font-size:0.95rem;max-width:700px;text-align:center;margin-bottom:1.5rem;line-height:1.6">Dishonest code hides what it does: mutating fields behind your back, reaching into global state, making the same call return different results depending on when you call it.</p>
+
+  <div class="lang-selector" id="langSelector">
+    <button class="lang-btn active" data-lang="java">Java</button>
+    <button class="lang-btn" data-lang="typescript">TypeScript</button>
+    <button class="lang-btn" data-lang="csharp">C#</button>
+    <button class="lang-btn" data-lang="python">Python</button>
+    <button class="lang-btn" data-lang="kotlin">Kotlin</button>
+    <button class="lang-btn" data-lang="swift">Swift</button>
+    <button class="lang-btn" data-lang="php">PHP</button>
+    <button class="lang-btn" data-lang="ruby">Ruby</button>
+    <button class="lang-btn" data-lang="dart">Dart</button>
+    <button class="lang-btn" data-lang="cpp">C++</button>
+    <button class="lang-btn" data-lang="go">Go</button>
+    <button class="lang-btn" data-lang="surprise" style="color:var(--gold);border-color:var(--gold)">Surprise!</button>
+  </div>
+
+  <div class="demo-container">
+    <div class="panel crime" id="crimePanel">
+      <div class="panel-header">
+        <span id="crimeLabel">☠ Dishonest — Java Order class</span>
+        <span class="status" id="crimeStatus">EXECUTING</span>
+      </div>
+      <div class="code-area" id="crimeCode"></div>
+      <div class="state-display">
+        <div class="label">Object State — mutable fields</div>
+        <div class="state-var"><span class="key">total</span><span class="val" id="s-total">0.00</span></div>
+        <div class="state-var"><span class="key">discount</span><span class="val" id="s-discount">0.00</span></div>
+        <div class="state-var"><span class="key">tax</span><span class="val" id="s-tax">0.00</span></div>
+        <div class="state-var"><span class="key">couponCode</span><span class="val" id="s-coupon">null</span></div>
+        <div class="state-var"><span class="key">updatedAt</span><span class="val" id="s-updated">null</span></div>
+      </div>
+    </div>
+
+        <!-- S-CURVE DIVIDER -->
+    <div class="s-curve-divider">
+      <svg preserveAspectRatio="none" viewBox="0 0 40 480">
+        <defs>
+          <linearGradient id="scg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e9c46a" stop-opacity="0.5"/>
+            <stop offset="50%" stop-color="#e9c46a" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#e9c46a" stop-opacity="0.5"/>
+          </linearGradient>
+          <clipPath id="leftClip">
+            <path d="M0,0 L20,0 C28,120 12,240 20,360 C24,420 20,480 20,480 L0,480 Z"/>
+          </clipPath>
+          <clipPath id="rightClip">
+            <path d="M40,0 L20,0 C28,120 12,240 20,360 C24,420 20,480 20,480 L40,480 Z"/>
+          </clipPath>
+        </defs>
+        <rect x="0" y="0" width="40" height="480" fill="#0a0a0c" clip-path="url(#leftClip)"/>
+        <rect x="0" y="0" width="40" height="480" fill="#f0ede6" clip-path="url(#rightClip)"/>
+        <path d="M20,0 C28,120 12,240 20,360 C24,420 20,480 20,480" fill="none" stroke="url(#scg)" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="panel rescue" id="rescuePanel">
+      <div class="panel-header">
+        <span id="rescueLabel">✦ Honest — Pure functions (Java)</span>
+        <span class="status" id="rescueStatus">EXECUTING</span>
+      </div>
+      <div class="code-area" id="rescueCode"></div>
+      <div class="idle-counter" id="idleCounter">
+        <span class="count" id="idleCount">0</span>
+        <span class="suffix">nanoseconds later...</span>
+      </div>
+      <div class="state-display">
+        <div class="label">Return value — immutable</div>
+        <div class="state-var"><span class="key">total</span><span class="val" id="r-total">—</span></div>
+        <div class="state-var"><span class="key">tax</span><span class="val" id="r-tax">—</span></div>
+        <div class="state-var"><span class="key">subtotal</span><span class="val" id="r-subtotal">—</span></div>
+        <div class="state-var"><span class="key">coupon_code</span><span class="val" id="r-coupon">—</span></div>
+        <div class="state-var"><span class="key">discount</span><span class="val" id="r-discount">—</span></div>
+        <div class="state-var"><span class="key">grand_total</span><span class="val" id="r-grand">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric crime"><div class="num" id="m-crime-cycles">0</div><div class="desc">Nanoseconds (class)</div><div class="desc" id="m-slowdown" style="color:var(--red);margin-top:0.2rem;font-weight:600"></div></div>
+    <div class="metric rescue"><div class="num" id="m-rescue-cycles">0</div><div class="desc">Nanoseconds (function)</div></div>
+    <div class="metric crime"><div class="num" id="m-mutations">0</div><div class="desc">State mutations</div></div>
+    <div class="metric crime"><div class="num" id="m-singletons">0</div><div class="desc">Global lookups</div></div>
+    <div class="metric rescue"><div class="num" id="m-rescue-mutations">0</div><div class="desc">State mutations</div></div>
+  </div>
+
+  <div class="speed-control">
+    <span>Playback:</span>
+    <button class="active" data-speed="1">1×</button>
+    <button data-speed="2">2×</button>
+    <button data-speed="0.5">0.5×</button>
+  </div>
+
+  <div class="pitch">
+    <p>Your language already has the fix. Every mainstream language gives you pure functions, flat data, and composition. You were trained to reach for classes instead.</p>
+    <button class="cta">GET HONEST CODE →</button>
+  </div>
+</section>
+
+<section class="chapters-section">
+  <h2>Interactive Chapter Demos</h2>
+  <div class="chapter-grid">
+    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 1</div><div class="ch-title">All Languages are Good</div><div class="ch-desc">Call stack depth: 10+ frames vs 2-3. Watch them grow.</div></div>
+    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 2</div><div class="ch-title">Classes Considered Harmful</div><div class="ch-desc">Mutation web: 7 mutable fields cascading vs one-pass data flow.</div></div>
+    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 3</div><div class="ch-title">Data Is Just Data</div><div class="ch-desc">Dependency graph: 7 transitive imports vs one TypedDict.</div></div>
+    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 4</div><div class="ch-title">Pure Functions</div><div class="ch-desc">6 permutations, same result every time. Classes: 6 different results.</div></div>
+    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 5</div><div class="ch-title">State Has an Address</div><div class="ch-desc">Redux scatters state across 6 locations. HTMX: one.</div></div>
+    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 6</div><div class="ch-title">Declare, Don't Instruct</div><div class="ch-desc">73 lines of JS vs 6 HTML attributes. Live genX demo.</div></div>
+    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 7</div><div class="ch-title">Compose Flat, Never Deep</div><div class="ch-desc">super() ricocheting through 4 layers vs a flat pipeline.</div></div>
+    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 8</div><div class="ch-title">Let It Crash</div><div class="ch-desc">7-level try-catch bubble vs supervisor restart. Two steps.</div></div>
+    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 9</div><div class="ch-title">The Performance Lie</div><div class="ch-desc">Cache circular argument, animated. The cache is slower.</div></div>
+    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 10</div><div class="ch-title">Testing Honest Code</div><div class="ch-desc">Mock setup still running. assert f(x)==y already done.</div></div>
+    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 11</div><div class="ch-title">Working with AI</div><div class="ch-desc">Same prompt, two architectures. 200 lines vs 30.</div></div>
+    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 12</div><div class="ch-title">The Declarative Principle</div><div class="ch-desc">Your declaration flows down. The platform handles the rest.</div></div>
+    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 13</div><div class="ch-title">The Monday Morning Chapter</div><div class="ch-desc">A class with 10 methods shrinks to zero. 12 sprints. 30 seconds.</div></div>
+  </div>
+</section>
+
+<div class="transparency">
+  <strong>How this works:</strong> Every demo is a replay of actual instrumented execution. Both examples ran on the same machine with the same inputs. The timestamps are real. The visualization is slowed to make the differences visible. Source: <a href="#">github.com/adamzwasserman/honest-code-traces</a>
+</div>
+
+<footer>
+  <p>Honest Code by Adam Zachary Wasserman · Writing code since 1986.</p>
+  <p style="margin-top:0.5rem"><a href="#">genX</a> · <a href="#">declaro</a> · <a href="#">GitHub</a> · <a href="#">Gumroad</a></p>
+</footer>
+
+<script>
+// ═══ LANGUAGE DEFINITIONS ═══
+// Each language has: crimeLabel, rescueLabel, crime (code lines), rescue (code lines)
+// Crime trace has per-step metadata; rescue is always 9 fast steps
+// Cycle costs are hardware-level so identical across languages
+
+const LANGS = {
+  java: {
+    crimeLabel: '☠ Dishonest — Java Order class',
+    rescueLabel: '✦ Honest — Pure functions (Java)',
+    crime: [
+      'order.addItem(newItem);',
+      '  this.items.add(item);',
+      '  recalculateTotal();',
+      '    this.total = items.stream()...',
+      '  recalculateDiscount();',
+      '    CouponRegistry.getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    this.discount = coupon.apply()',
+      '  recalculateTax();',
+      '    TaxService.getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    this.tax = taxable * rate',
+      '  this.updatedAt = now();',
+      'order.applyCoupon("SAVE10");',
+      '  this.couponCode = code;',
+      '  recalculateDiscount();',
+      '    CouponRegistry.getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check (stale?)...',
+      '    this.discount = coupon.apply()',
+      '  recalculateTax();',
+      '    TaxService.getInstance()',
+      '      ↳ global lookup...',
+      '    this.tax = taxable * rate',
+      '  this.updatedAt = now();',
+    ],
+    rescue: [
+      'var result = calculateOrder(',
+      '    items, "NY", taxRates',
+      ');',
+      '  var total = items.stream()...',
+      '  var tax = calculateTax(...)',
+      '  return Map.of("total", ...);',
+      'var final = applyCoupon(',
+      '    result, "SAVE10", coupons);',
+    ],
+  },
+  typescript: {
+    crimeLabel: '☠ Dishonest — TypeScript Order class',
+    rescueLabel: '✦ Honest — Pure functions (TypeScript)',
+    crime: [
+      'order.addItem(newItem);',
+      '  this.items.push(item);',
+      '  this.recalculateTotal();',
+      '    this.total = this.items.reduce(..)',
+      '  this.recalculateDiscount();',
+      '    CouponRegistry.getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    this.discount = coupon.apply()',
+      '  this.recalculateTax();',
+      '    TaxService.getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    this.tax = taxable * rate;',
+      '  this.updatedAt = new Date();',
+      'order.applyCoupon("SAVE10");',
+      '  this.couponCode = code;',
+      '  this.recalculateDiscount();',
+      '    CouponRegistry.getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check (stale?)...',
+      '    this.discount = coupon.apply()',
+      '  this.recalculateTax();',
+      '    TaxService.getInstance()',
+      '      ↳ global lookup...',
+      '    this.tax = taxable * rate;',
+      '  this.updatedAt = new Date();',
+    ],
+    rescue: [
+      'const result = calculateOrder(',
+      '    items, "NY", taxRates',
+      ');',
+      '  const total = items.reduce(...)',
+      '  const tax = calculateTax(...)',
+      '  return { total, tax, subtotal };',
+      'const final = applyCoupon(',
+      '    result, "SAVE10", coupons);',
+    ],
+  },
+  csharp: {
+    crimeLabel: '☠ Dishonest — C# Order class',
+    rescueLabel: '✦ Honest — Pure functions (C#)',
+    crime: [
+      'order.AddItem(newItem);',
+      '  _items.Add(item);',
+      '  RecalculateTotal();',
+      '    _total = _items.Sum(i => i.Price);',
+      '  RecalculateDiscount();',
+      '    CouponRegistry.Instance',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    _discount = coupon.Apply()',
+      '  RecalculateTax();',
+      '    TaxService.Instance',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    _tax = taxable * rate;',
+      '  _updatedAt = DateTime.UtcNow;',
+      'order.ApplyCoupon("SAVE10");',
+      '  _couponCode = code;',
+      '  RecalculateDiscount();',
+      '    CouponRegistry.Instance',
+      '      ↳ global lookup...',
+      '      ↳ cache check (stale?)...',
+      '    _discount = coupon.Apply()',
+      '  RecalculateTax();',
+      '    TaxService.Instance',
+      '      ↳ global lookup...',
+      '    _tax = taxable * rate;',
+      '  _updatedAt = DateTime.UtcNow;',
+    ],
+    rescue: [
+      'var result = CalculateOrder(',
+      '    items, "NY", taxRates',
+      ');',
+      '  var total = items.Sum(i => i.Price);',
+      '  var tax = CalculateTax(...);',
+      '  return new { Total, Tax, Subtotal };',
+      'var final = ApplyCoupon(',
+      '    result, "SAVE10", coupons);',
+    ],
+  },
+  python: {
+    crimeLabel: '☠ Dishonest — Python Order class',
+    rescueLabel: '✦ Honest — Pure functions (Python)',
+    crime: [
+      'order.add_item(new_item)',
+      '  self.items.append(item)',
+      '  self._recalculate_total()',
+      '    self.total = sum(i.price for ...)',
+      '  self._recalculate_discount()',
+      '    CouponRegistry.get_instance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    self.discount = coupon.apply()',
+      '  self._recalculate_tax()',
+      '    TaxService.get_instance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    self.tax = taxable * rate',
+      '  self.updated_at = datetime.now()',
+      'order.apply_coupon("SAVE10")',
+      '  self.coupon_code = code',
+      '  self._recalculate_discount()',
+      '    CouponRegistry.get_instance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check (stale?)...',
+      '    self.discount = coupon.apply()',
+      '  self._recalculate_tax()',
+      '    TaxService.get_instance()',
+      '      ↳ global lookup...',
+      '    self.tax = taxable * rate',
+      '  self.updated_at = datetime.now()',
+    ],
+    rescue: [
+      'result = calculate_order(',
+      '    items, "NY", tax_rates',
+      ')',
+      '  total = sum(i["price"] for ...)',
+      '  tax = calculate_tax(...)',
+      '  return {"total", "tax", ...}',
+      'final = apply_coupon(',
+      '    result, "SAVE10", coupons)',
+    ],
+  },
+  kotlin: {
+    crimeLabel: '☠ Dishonest — Kotlin Order class',
+    rescueLabel: '✦ Honest — Pure functions (Kotlin)',
+    crime: [
+      'order.addItem(newItem)',
+      '  items.add(item)',
+      '  recalculateTotal()',
+      '    total = items.sumOf { it.price }',
+      '  recalculateDiscount()',
+      '    CouponRegistry.getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    discount = coupon.apply()',
+      '  recalculateTax()',
+      '    TaxService.getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    tax = taxable * rate',
+      '  updatedAt = Instant.now()',
+      'order.applyCoupon("SAVE10")',
+      '  couponCode = code',
+      '  recalculateDiscount()',
+      '    CouponRegistry.getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check (stale?)...',
+      '    discount = coupon.apply()',
+      '  recalculateTax()',
+      '    TaxService.getInstance()',
+      '      ↳ global lookup...',
+      '    tax = taxable * rate',
+      '  updatedAt = Instant.now()',
+    ],
+    rescue: [
+      'val result = calculateOrder(',
+      '    items, "NY", taxRates',
+      ')',
+      '  val total = items.sumOf { it.price }',
+      '  val tax = calculateTax(...)',
+      '  return mapOf("total" to total, ...)',
+      'val final = applyCoupon(',
+      '    result, "SAVE10", coupons)',
+    ],
+  },
+  swift: {
+    crimeLabel: '☠ Dishonest — Swift Order class',
+    rescueLabel: '✦ Honest — Pure functions (Swift)',
+    crime: [
+      'order.addItem(newItem)',
+      '  items.append(item)',
+      '  recalculateTotal()',
+      '    total = items.reduce(0) { ... }',
+      '  recalculateDiscount()',
+      '    CouponRegistry.shared',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    discount = coupon.apply()',
+      '  recalculateTax()',
+      '    TaxService.shared',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    tax = taxable * rate',
+      '  updatedAt = Date()',
+      'order.applyCoupon("SAVE10")',
+      '  couponCode = code',
+      '  recalculateDiscount()',
+      '    CouponRegistry.shared',
+      '      ↳ global lookup...',
+      '      ↳ cache check (stale?)...',
+      '    discount = coupon.apply()',
+      '  recalculateTax()',
+      '    TaxService.shared',
+      '      ↳ global lookup...',
+      '    tax = taxable * rate',
+      '  updatedAt = Date()',
+    ],
+    rescue: [
+      'let result = calculateOrder(',
+      '    items: items,',
+      '    region: "NY", rates: taxRates',
+      ')',
+      '  let total = items.reduce(0) { ... }',
+      '  let tax = calculateTax(...)',
+      '  return OrderResult(total, tax, ...)',
+      'let final = applyCoupon(',
+      '    result, "SAVE10", coupons)',
+    ],
+  },
+  php: {
+    crimeLabel: '☠ Dishonest — PHP Order class',
+    rescueLabel: '✦ Honest — Pure functions (PHP)',
+    crime: [
+      '$order->addItem($newItem);',
+      '  $this->items[] = $item;',
+      '  $this->recalculateTotal();',
+      '    $this->total = array_sum(...);',
+      '  $this->recalculateDiscount();',
+      '    CouponRegistry::getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    $this->discount = $coupon->apply()',
+      '  $this->recalculateTax();',
+      '    TaxService::getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    $this->tax = $taxable * $rate;',
+      '  $this->updatedAt = new DateTime();',
+      '$order->applyCoupon("SAVE10");',
+      '  $this->couponCode = $code;',
+      '  $this->recalculateDiscount();',
+      '    CouponRegistry::getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check (stale?)...',
+      '    $this->discount = $coupon->apply()',
+      '  $this->recalculateTax();',
+      '    TaxService::getInstance()',
+      '      ↳ global lookup...',
+      '    $this->tax = $taxable * $rate;',
+      '  $this->updatedAt = new DateTime();',
+    ],
+    rescue: [
+      '$result = calculate_order(',
+      '    $items, "NY", $taxRates',
+      ');',
+      '  $total = array_sum(...);',
+      '  $tax = calculate_tax(...);',
+      '  return ["total" => $total, ...];',
+      '$final = apply_coupon(',
+      '    $result, "SAVE10", $coupons);',
+    ],
+  },
+  ruby: {
+    crimeLabel: '☠ Dishonest — Ruby Order class',
+    rescueLabel: '✦ Honest — Pure functions (Ruby)',
+    crime: [
+      'order.add_item(new_item)',
+      '  @items << item',
+      '  recalculate_total',
+      '    @total = @items.sum(&:price)',
+      '  recalculate_discount',
+      '    CouponRegistry.instance',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    @discount = coupon.apply',
+      '  recalculate_tax',
+      '    TaxService.instance',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    @tax = taxable * rate',
+      '  @updated_at = Time.now',
+      'order.apply_coupon("SAVE10")',
+      '  @coupon_code = code',
+      '  recalculate_discount',
+      '    CouponRegistry.instance',
+      '      ↳ global lookup...',
+      '      ↳ cache check (stale?)...',
+      '    @discount = coupon.apply',
+      '  recalculate_tax',
+      '    TaxService.instance',
+      '      ↳ global lookup...',
+      '    @tax = taxable * rate',
+      '  @updated_at = Time.now',
+    ],
+    rescue: [
+      'result = calculate_order(',
+      '    items, "NY", tax_rates',
+      ')',
+      '  total = items.sum { |i| i[:price] }',
+      '  tax = calculate_tax(...)',
+      '  { total: total, tax: tax, ... }',
+      'final = apply_coupon(',
+      '    result, "SAVE10", coupons)',
+    ],
+  },
+  dart: {
+    crimeLabel: '☠ Dishonest — Dart Order class',
+    rescueLabel: '✦ Honest — Pure functions (Dart)',
+    crime: [
+      'order.addItem(newItem);',
+      '  _items.add(item);',
+      '  _recalculateTotal();',
+      '    _total = _items.fold(0, ...);',
+      '  _recalculateDiscount();',
+      '    CouponRegistry.instance',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    _discount = coupon.apply();',
+      '  _recalculateTax();',
+      '    TaxService.instance',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    _tax = taxable * rate;',
+      '  _updatedAt = DateTime.now();',
+      'order.applyCoupon("SAVE10");',
+      '  _couponCode = code;',
+      '  _recalculateDiscount();',
+      '    CouponRegistry.instance',
+      '      ↳ global lookup...',
+      '      ↳ cache check (stale?)...',
+      '    _discount = coupon.apply();',
+      '  _recalculateTax();',
+      '    TaxService.instance',
+      '      ↳ global lookup...',
+      '    _tax = taxable * rate;',
+      '  _updatedAt = DateTime.now();',
+    ],
+    rescue: [
+      'final result = calculateOrder(',
+      '    items, "NY", taxRates',
+      ');',
+      '  final total = items.fold(0, ...);',
+      '  final tax = calculateTax(...);',
+      '  return {"total": total, ...};',
+      'final withCoupon = applyCoupon(',
+      '    result, "SAVE10", coupons);',
+    ],
+  },
+  cpp: {
+    crimeLabel: '☠ Dishonest — C++ Order class',
+    rescueLabel: '✦ Honest — Pure functions (C++)',
+    crime: [
+      'order.addItem(newItem);',
+      '  items_.push_back(item);',
+      '  recalculateTotal();',
+      '    total_ = std::accumulate(...);',
+      '  recalculateDiscount();',
+      '    CouponRegistry::getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    discount_ = coupon->apply();',
+      '  recalculateTax();',
+      '    TaxService::getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    tax_ = taxable * rate;',
+      '  updatedAt_ = system_clock::now();',
+      'order.applyCoupon("SAVE10");',
+      '  couponCode_ = code;',
+      '  recalculateDiscount();',
+      '    CouponRegistry::getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check (stale?)...',
+      '    discount_ = coupon->apply();',
+      '  recalculateTax();',
+      '    TaxService::getInstance()',
+      '      ↳ global lookup...',
+      '    tax_ = taxable * rate;',
+      '  updatedAt_ = system_clock::now();',
+    ],
+    rescue: [
+      'auto result = calculate_order(',
+      '    items, "NY", tax_rates',
+      ');',
+      '  auto total = std::accumulate(...);',
+      '  auto tax = calculate_tax(...);',
+      '  return OrderResult{total, tax, ...};',
+      'auto final = apply_coupon(',
+      '    result, "SAVE10", coupons);',
+    ],
+  },
+  go: {
+    crimeLabel: '☠ Dishonest — Go Order struct',
+    rescueLabel: '✦ Honest — Pure functions (Go)',
+    crime: [
+      'order.AddItem(newItem)',
+      '  o.Items = append(o.Items, item)',
+      '  o.recalculateTotal()',
+      '    o.Total = sumItems(o.Items)',
+      '  o.recalculateDiscount()',
+      '    couponRegistry.GetInstance()',
+      '      ↳ global lookup...',
+      '      ↳ sync.Once check...',
+      '    o.Discount = coupon.Apply()',
+      '  o.recalculateTax()',
+      '    taxService.GetInstance()',
+      '      ↳ global lookup...',
+      '      ↳ sync.Once check...',
+      '    o.Tax = taxable * rate',
+      '  o.UpdatedAt = time.Now()',
+      'order.ApplyCoupon("SAVE10")',
+      '  o.CouponCode = code',
+      '  o.recalculateDiscount()',
+      '    couponRegistry.GetInstance()',
+      '      ↳ global lookup...',
+      '      ↳ sync.Once check (stale?)...',
+      '    o.Discount = coupon.Apply()',
+      '  o.recalculateTax()',
+      '    taxService.GetInstance()',
+      '      ↳ global lookup...',
+      '    o.Tax = taxable * rate',
+      '  o.UpdatedAt = time.Now()',
+    ],
+    rescue: [
+      'result := CalculateOrder(',
+      '    items, "NY", taxRates',
+      ')',
+      '  total := SumItems(items)',
+      '  tax := CalculateTax(...)',
+      '  return OrderResult{Total, Tax, ...}',
+      'final := ApplyCoupon(',
+      '    result, "SAVE10", coupons)',
+    ],
+  },
+  surprise: {
+    crimeLabel: '☠ Dishonest — C++ Order class (compiled, optimized)',
+    rescueLabel: '✦ Honest — Pure functions (Python, interpreted)',
+    crime: [
+      'order.addItem(newItem);',
+      '  items_.push_back(item);',
+      '  recalculateTotal();',
+      '    total_ = std::accumulate(...);',
+      '  recalculateDiscount();',
+      '    CouponRegistry::getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    discount_ = coupon->apply();',
+      '  recalculateTax();',
+      '    TaxService::getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check...',
+      '    tax_ = taxable * rate;',
+      '  updatedAt_ = system_clock::now();',
+      'order.applyCoupon("SAVE10");',
+      '  couponCode_ = code;',
+      '  recalculateDiscount();',
+      '    CouponRegistry::getInstance()',
+      '      ↳ global lookup...',
+      '      ↳ cache check (stale?)...',
+      '    discount_ = coupon->apply();',
+      '  recalculateTax();',
+      '    TaxService::getInstance()',
+      '      ↳ global lookup...',
+      '    tax_ = taxable * rate;',
+      '  updatedAt_ = system_clock::now();',
+    ],
+    rescue: [
+      'result = calculate_order(',
+      '    items, "NY", tax_rates',
+      ')',
+      '  total = sum(i["price"] for ...)',
+      '  tax = calculate_tax(...)',
+      '  return {"total", "tax", ...}',
+      'final = apply_coupon(',
+      '    result, "SAVE10", coupons)',
+    ],
+  },
+};
+
+// Per-language nanosecond traces
+// Crime: [ns, [[stateId, value], ...], singletonCount]
+// Rescue: [ns, [[resultId, value], ...]]
+// Same 27 crime steps / 9 rescue steps, different timings per language
+
+function makeCrimeTrace(call, field, calc, single, cache, time) {
+  return [
+    [call,   [], 0],                              // addItem call
+    [field,  [], 0],                              // items mutation
+    [call,   [], 0],                              // recalculateTotal call
+    [calc,   [['s-total','89.97']], 0],           // total calculation
+    [call,   [], 0],                              // recalculateDiscount call
+    [single, [], 1],                              // singleton lookup
+    [cache,  [], 0],                              // cache check
+    [cache,  [], 0],                              // cache read
+    [field,  [['s-discount','0.00']], 0],         // discount field write
+    [call,   [], 0],                              // recalculateTax call
+    [single, [], 1],                              // singleton lookup
+    [cache,  [], 0],                              // cache check
+    [cache,  [], 0],                              // cache read
+    [field,  [['s-tax','7.20']], 0],              // tax field write
+    [time,   [['s-updated','14:23:07.4']], 0],    // timestamp
+    [call,   [], 0],                              // applyCoupon call
+    [field,  [['s-coupon','"SAVE10"']], 0],       // couponCode mutation
+    [call,   [], 0],                              // recalculateDiscount call
+    [single, [], 1],                              // singleton lookup
+    [cache,  [], 0],                              // cache check
+    [cache,  [], 0],                              // stale cache read
+    [field,  [['s-discount','9.00']], 0],         // discount field write
+    [call,   [], 0],                              // recalculateTax call
+    [single, [], 1],                              // singleton lookup
+    [cache,  [], 0],                              // cache check
+    [field,  [['s-tax','6.48']], 0],              // tax field write
+    [time,   [['s-updated','14:23:07.5']], 0],    // timestamp
+  ];
+}
+
+function makeRescueTrace(call, arg, calc, ret) {
+  return [
+    [call, []],                                    // calculateOrder call
+    [arg,  []],                                    // arg: items
+    [arg,  []],                                    // arg: region, taxRates
+    [calc, [['r-total','89.97']]],                // total
+    [calc, [['r-tax','7.20']]],                   // tax
+    [ret,  [['r-subtotal','97.17']]],             // return result
+    [call, [['r-coupon','"SAVE10"']]],              // applyCoupon call
+    [calc, [['r-discount','9.00']]],              // discount
+    [ret,  [['r-grand','87.45']]],                // return final
+  ];
+}
+
+//                          call  field  calc  single  cache  time
+// Java:      HotSpot JIT, vtable dispatch, mature C2 compiler
+const CRIME_JAVA         = makeCrimeTrace(1,   25,  37,  62,   47,  12);
+// TypeScript: V8 JIT, hidden classes, prototype chain lookup
+const CRIME_TYPESCRIPT   = makeCrimeTrace(5,   18,  28,  55,   40,  8);
+// C#:        RyuJIT, value types help but singleton still chases heap
+const CRIME_CSHARP       = makeCrimeTrace(1,   20,  32,  58,   42,  10);
+// Python:    CPython interpreter loop, LOAD_ATTR bytecodes, GIL
+const CRIME_PYTHON       = makeCrimeTrace(35,  80,  220, 180,  120, 45);
+// Kotlin:    JVM same as Java, thin wrappers over JDK
+const CRIME_KOTLIN       = makeCrimeTrace(1,   22,  35,  60,   45,  11);
+// Swift:     ARC retain/release on every assignment, witness table dispatch
+const CRIME_SWIFT        = makeCrimeTrace(2,   15,  20,  45,   35,  6);
+// PHP:       Zend VM, refcounted zvals, hashtable property lookups
+const CRIME_PHP          = makeCrimeTrace(40,  90,  250, 200,  140, 50);
+// Ruby:      YARV interpreter, method cache lookup, GC pressure
+const CRIME_RUBY         = makeCrimeTrace(45,  85,  240, 190,  130, 48);
+// Dart:      AOT native code, but vtable dispatch + GC pauses
+const CRIME_DART         = makeCrimeTrace(2,   12,  18,  42,   32,  5);
+// C++:       native code, but vtable + shared_ptr atomic refcount
+const CRIME_CPP          = makeCrimeTrace(0.5, 8,   12,  40,   28,  3);
+// Go:        no classes but interface dispatch + pointer receiver + sync.Once
+const CRIME_GO           = makeCrimeTrace(1,   6,   10,  30,   22,  4);
+
+//                          call  arg   calc  ret
+// Java:      JIT inlines pure functions, all stack-local
+const RESCUE_JAVA        = makeRescueTrace(1,   0.5, 5,   1);
+// TypeScript: V8 optimized, but objects still heap-allocated
+const RESCUE_TYPESCRIPT  = makeRescueTrace(2,   1,   4,   1);
+// C#:        stack-local value tuples, RyuJIT inlines
+const RESCUE_CSHARP      = makeRescueTrace(1,   0.5, 4,   1);
+// Python:    function call overhead, but no __dict__ lookups
+const RESCUE_PYTHON      = makeRescueTrace(15,  5,   35,  8);
+// Kotlin:    JVM same as Java, data class is cheap
+const RESCUE_KOTLIN      = makeRescueTrace(1,   0.5, 5,   1);
+// Swift:     value types on stack, no ARC churn
+const RESCUE_SWIFT       = makeRescueTrace(0.5, 0.3, 3,   0.5);
+// PHP:       Zend VM overhead but no property lookups
+const RESCUE_PHP         = makeRescueTrace(18,  6,   40,  10);
+// Ruby:      YARV but no method_missing or method cache pressure
+const RESCUE_RUBY        = makeRescueTrace(20,  7,   38,  9);
+// Dart:      AOT compiled, value semantics
+const RESCUE_DART        = makeRescueTrace(1,   0.5, 3,   0.5);
+// C++:       pure stack allocation, no vtable, no refcount
+const RESCUE_CPP         = makeRescueTrace(0.3, 0.2, 2,   0.3);
+// Go:        stack-allocated structs, no interface dispatch
+const RESCUE_GO          = makeRescueTrace(0.5, 0.3, 2,   0.5);
+
+const CRIME_TRACES = {
+  java: CRIME_JAVA, typescript: CRIME_TYPESCRIPT, csharp: CRIME_CSHARP,
+  python: CRIME_PYTHON, kotlin: CRIME_KOTLIN, swift: CRIME_SWIFT,
+  php: CRIME_PHP, ruby: CRIME_RUBY, dart: CRIME_DART, cpp: CRIME_CPP, go: CRIME_GO,
+  surprise: CRIME_CPP,
+};
+const RESCUE_TRACES = {
+  java: RESCUE_JAVA, typescript: RESCUE_TYPESCRIPT, csharp: RESCUE_CSHARP,
+  python: RESCUE_PYTHON, kotlin: RESCUE_KOTLIN, swift: RESCUE_SWIFT,
+  php: RESCUE_PHP, ruby: RESCUE_RUBY, dart: RESCUE_DART, cpp: RESCUE_CPP, go: RESCUE_GO,
+  surprise: RESCUE_PYTHON,
+};
+
+let CRIME_STEPS = CRIME_TRACES.java;
+let RESCUE_STEPS = RESCUE_TRACES.java;
+
+// ═══ ENGINE ═══
+let currentLang = 'java';
+let speed = 1;
+let running = false;
+let cancelToken = 0; // increment to cancel current run
+
+function wait(ms) {
+  const token = cancelToken;
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (cancelToken !== token) reject('cancelled');
+      else resolve();
+    }, ms / speed);
+  });
+}
+
+function buildCodeLines(container, lines) {
+  container.innerHTML = lines.map(l => `<div class="code-line">${l}</div>`).join('');
+}
+
+function resetState() {
+  document.querySelectorAll('.code-line').forEach(el => el.classList.remove('active', 'executed'));
+  document.querySelectorAll('.state-var .val').forEach(el => el.classList.remove('mutated'));
+  document.getElementById('crimeStatus').className = 'status';
+  document.getElementById('crimeStatus').textContent = 'EXECUTING';
+  document.getElementById('rescueStatus').className = 'status';
+  document.getElementById('rescueStatus').textContent = 'EXECUTING';
+  document.getElementById('idleCounter').classList.remove('visible');
+  document.getElementById('idleCount').textContent = '0';
+  ['s-total','s-discount','s-tax'].forEach(id => document.getElementById(id).textContent = '0.00');
+  document.getElementById('s-coupon').textContent = 'null';
+  document.getElementById('s-updated').textContent = 'null';
+  ['r-total','r-tax','r-subtotal','r-coupon','r-discount','r-grand'].forEach(id => document.getElementById(id).textContent = '—');
+  ['m-crime-cycles','m-rescue-cycles','m-mutations','m-singletons','m-rescue-mutations'].forEach(id => document.getElementById(id).textContent = '0');
+  document.getElementById('m-slowdown').textContent = '';
+}
+
+function loadLang(lang) {
+  const data = LANGS[lang];
+  if (!data) return;
+  document.getElementById('crimeLabel').textContent = data.crimeLabel;
+  document.getElementById('rescueLabel').textContent = data.rescueLabel;
+  buildCodeLines(document.getElementById('crimeCode'), data.crime);
+  buildCodeLines(document.getElementById('rescueCode'), data.rescue);
+  CRIME_STEPS = CRIME_TRACES[lang] || CRIME_TRACES.java;
+  RESCUE_STEPS = RESCUE_TRACES[lang] || RESCUE_TRACES.java;
+}
+
+async function runDemo() {
+  if (running) return;
+  running = true;
+  cancelToken++;
+  const myToken = cancelToken;
+
+  resetState();
+  loadLang(currentLang);
+
+  try {
+    await wait(500);
+
+    const crimeStatus = document.getElementById('crimeStatus');
+    const rescueStatus = document.getElementById('rescueStatus');
+    crimeStatus.classList.add('visible');
+    rescueStatus.classList.add('visible');
+
+    let crimeCycles = 0, rescueCycles = 0, mutations = 0, singletons = 0;
+    let rescueDone = false, rescueFinalNs = 0;
+    let idleInterval = null;
+
+    // Run both simultaneously
+    // Scale ns to animation ms: same scale for both sides
+    const totalCrimeNs = CRIME_STEPS.reduce((s, [c]) => s + c, 0);
+    const CRIME_DURATION_MS = 8000;
+    const nsToMs = CRIME_DURATION_MS / totalCrimeNs;
+    const MIN_STEP_MS = 60;
+
+    const crimePromise = (async () => {
+      const lines = document.querySelectorAll('#crimeCode .code-line');
+      for (let i = 0; i < CRIME_STEPS.length; i++) {
+        const [cycles, muts, sCount] = CRIME_STEPS[i];
+        const stepMs = Math.max(MIN_STEP_MS, cycles * nsToMs);
+        await wait(stepMs);
+
+        // Advance line
+        lines.forEach(l => { if (l.classList.contains('active')) { l.classList.remove('active'); l.classList.add('executed'); } });
+        if (i < lines.length) lines[i].classList.add('active');
+
+        crimeCycles += cycles;
+        document.getElementById('m-crime-cycles').textContent = Math.round(crimeCycles).toLocaleString();
+        if (rescueDone) {
+          const waiting = Math.round(crimeCycles) - rescueFinalNs;
+          if (waiting > 0) document.getElementById('idleCount').textContent = waiting.toLocaleString();
+        }
+        if (rescueCycles > 0) document.getElementById('m-slowdown').textContent = Math.round(crimeCycles / rescueCycles) + '× slower';
+
+        muts.forEach(([id, val]) => {
+          const el = document.getElementById(id);
+          el.textContent = val;
+          el.classList.add('mutated');
+          mutations++;
+          document.getElementById('m-mutations').textContent = mutations;
+          setTimeout(() => el.classList.remove('mutated'), 500);
+        });
+
+        if (sCount > 0) {
+          singletons += sCount;
+          document.getElementById('m-singletons').textContent = singletons;
+        }
+      }
+      lines.forEach(l => { l.classList.remove('active'); l.classList.add('executed'); });
+      crimeStatus.textContent = 'COMPLETE';
+      crimeStatus.classList.add('complete');
+    })();
+
+    const rescuePromise = (async () => {
+      const lines = document.querySelectorAll('#rescueCode .code-line');
+      for (let i = 0; i < RESCUE_STEPS.length; i++) {
+        const [cycles, results] = RESCUE_STEPS[i];
+        const stepMs = Math.max(MIN_STEP_MS, cycles * nsToMs);
+        await wait(stepMs);
+
+        lines.forEach(l => { if (l.classList.contains('active')) { l.classList.remove('active'); l.classList.add('executed'); } });
+        if (i < lines.length) lines[i].classList.add('active');
+
+        rescueCycles += cycles;
+        document.getElementById('m-rescue-cycles').textContent = Math.round(rescueCycles).toLocaleString();
+
+        results.forEach(([id, val]) => { document.getElementById(id).textContent = val; });
+      }
+      lines.forEach(l => { l.classList.remove('active'); l.classList.add('executed'); });
+      rescueStatus.textContent = 'COMPLETE';
+      rescueStatus.classList.add('complete');
+
+      // Signal that rescue is done — crime loop will update idle counter
+      const counter = document.getElementById('idleCounter');
+      const countEl = document.getElementById('idleCount');
+      counter.classList.add('visible');
+      rescueDone = true;
+      rescueFinalNs = Math.round(rescueCycles);
+    })();
+
+    await Promise.all([crimePromise, rescuePromise]);
+
+    const totalCrime = Math.round(CRIME_STEPS.reduce((s, [c]) => s + c, 0));
+    const totalRescue = Math.round(RESCUE_STEPS.reduce((s, [c]) => s + c, 0));
+    document.getElementById('m-crime-cycles').textContent = totalCrime.toLocaleString();
+    document.getElementById('m-rescue-cycles').textContent = totalRescue.toLocaleString();
+    document.getElementById('idleCount').textContent = (totalCrime - totalRescue).toLocaleString();
+    document.getElementById('m-slowdown').textContent = Math.round(totalCrime / totalRescue) + '× slower';
+
+    await wait(3500);
+  } catch (e) {
+    if (e === 'cancelled') { running = false; return; }
+    throw e;
+  }
+
+  running = false;
+  if (cancelToken === myToken) runDemo(); // loop
+}
+
+// ═══ EVENT HANDLERS ═══
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentLang = btn.dataset.lang;
+    cancelToken++; // cancel current run
+    running = false;
+    setTimeout(runDemo, 100);
+  });
+});
+
+document.querySelectorAll('.speed-control button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.speed-control button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    speed = parseFloat(btn.dataset.speed);
+  });
+});
+
+// Start
+window.addEventListener('load', () => setTimeout(runDemo, 800));
+</script>
+
+<!-- COMING SOON OVERLAY -->
+<style>
+  .coming-soon-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(10, 10, 12, 0.55);
+    z-index: 9999;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+  .coming-soon-stamp {
+    font-family: var(--mono, 'JetBrains Mono', monospace);
+    font-size: clamp(3rem, 10vw, 8rem);
+    font-weight: 700;
+    color: rgba(230, 57, 70, 0.85);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    transform: rotate(-25deg);
+    border: 0.12em solid rgba(230, 57, 70, 0.85);
+    padding: 0.2em 0.6em;
+    text-shadow: 0 0 40px rgba(230, 57, 70, 0.4);
+    box-shadow: 0 0 40px rgba(230, 57, 70, 0.15);
+    white-space: nowrap;
+    user-select: none;
+  }
+</style>
+<div class="coming-soon-overlay">
+  <div class="coming-soon-stamp">Coming Soon</div>
+</div>
+</body>
+</html>
