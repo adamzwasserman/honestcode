@@ -435,44 +435,32 @@ async function runDemo() {
   const cursor = document.getElementById('crimeCursor');
   const rescueCursor = document.getElementById('rescueCursor');
 
-  // ═══ PHASE 1: ALLOCATION — both sides allocate simultaneously ═══
-  const crimeAllocPromise = (async () => {
+  // Fixed scale: 1 ns = NS_TO_MS milliseconds
+  const NS_TO_MS = 3;
+  const MIN_CHASE_MS = 60;
+  const TICK_MS = 80;
+
+  let rescueDone = false, rescueFinalNs = 0;
+
+  // ═══ CRIME: allocate objects, then chase pointers ═══
+  const crimePromise = (async () => {
+    const crimeEl = document.getElementById('m-crime-cycles');
+    const slowEl = document.getElementById('m-slowdown');
+    const cl = document.getElementById('cl-1');
+
+    // Allocate objects one by one
     const allocOrder = ['obj-ratetable','obj-items','obj-order','obj-taxregion','obj-customer','obj-address'];
     const allocBytes = [128, 192, 128, 48, 96, 80];
     for (let i = 0; i < allocOrder.length; i++) {
-      const obj = document.getElementById(allocOrder[i]);
-      obj.classList.add('visible');
+      document.getElementById(allocOrder[i]).classList.add('visible');
       document.getElementById('ss-crime-alloc').textContent = i + 1;
       crimeBytes += allocBytes[i];
       document.getElementById('m-crime-bytes').textContent = crimeBytes.toLocaleString();
       await wait(300);
     }
-  })();
 
-  const rescueAllocPromise = (async () => {
-    const dictObj = document.getElementById('obj-dict');
-    dictObj.classList.add('visible');
-    document.getElementById('ss-rescue-alloc').textContent = '1';
-    document.getElementById('m-rescue-bytes').textContent = '312';
-  })();
-
-  await Promise.all([crimeAllocPromise, rescueAllocPromise]);
-  await wait(600);
-
-  // ═══ PHASE 2: READ — both sides start at the same moment ═══
-  // Fixed scale: 1 ns = NS_TO_MS milliseconds
-  const NS_TO_MS = 3;
-  const MIN_CHASE_MS = 60;
-
-  let rescueDone = false, rescueFinalNs = 0;
-
-  const TICK_MS = 80;
-  const crimeChasePromise = (async () => {
+    // Chase pointers through scattered objects
     cursor.classList.add('visible');
-    const crimeEl = document.getElementById('m-crime-cycles');
-    const slowEl = document.getElementById('m-slowdown');
-    const cl = document.getElementById('cl-1');
-
     for (let i = 0; i < crimeSteps.length; i++) {
       const step = crimeSteps[i];
 
@@ -488,7 +476,6 @@ async function runDemo() {
 
       crimeMisses += step.miss;
       crimePtrs += step.ptr;
-
       document.getElementById('ss-crime-miss').textContent = crimeMisses;
       document.getElementById('ss-crime-ptr').textContent = crimePtrs;
 
@@ -510,16 +497,21 @@ async function runDemo() {
     }
   })();
 
-  const rescueReadPromise = (async () => {
-    // Cursor appears at same instant as crime cursor
+  // ═══ RESCUE: single dict, one read ═══
+  const rescuePromise = (async () => {
+    // Allocate — instant
+    const dictObj = document.getElementById('obj-dict');
+    dictObj.classList.add('visible');
+    document.getElementById('ss-rescue-alloc').textContent = '1';
+    document.getElementById('m-rescue-bytes').textContent = '312';
+
+    // Read — 3ns, done
     rescueCursor.classList.add('visible');
     rescueCursor.style.top = '5%';
     rescueCursor.style.height = '120px';
-
     const cl2 = document.getElementById('cl-2');
     cl2.classList.add('visible');
 
-    // Brief read — 3ns, done
     await wait(400);
 
     document.getElementById('m-rescue-cycles').textContent = '3';
@@ -533,7 +525,7 @@ async function runDemo() {
     rescueCursor.style.background = 'var(--green)';
   })();
 
-  await Promise.all([crimeChasePromise, rescueReadPromise]);
+  await Promise.all([crimePromise, rescuePromise]);
 
   await wait(4000);
   running = false;
