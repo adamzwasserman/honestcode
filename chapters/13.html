@@ -271,7 +271,7 @@
 </section>
 
 <div class="transparency">
-  <strong>How this works:</strong> This demo visualizes the execution difference between dishonest and honest code. Timing is proportional to real captured nanosecond costs. Instrumented source code, Dockerfile, and raw trace data: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
+  <strong>How this works:</strong> This demo uses a cost model to visualize the strangler pattern. Nanosecond values are derived from per-operation costs (vtable dispatch: 15ns, field lookup: 8ns, singleton: 80ns, direct call: 3ns) applied to each method's structure. These are representative costs, not captured traces from a specific harness run. Source: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
 </div>
 
 <div class="ch-nav-bottom">

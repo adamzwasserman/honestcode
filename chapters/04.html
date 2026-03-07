@@ -241,7 +241,7 @@
 </section>
 
 <div class="transparency">
-  <strong>How this works:</strong> This demo visualizes the execution difference between dishonest and honest code. Timing is proportional to real captured nanosecond costs. Instrumented source code, Dockerfile, and raw trace data: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
+  <strong>How this works:</strong> This demo visualizes a correctness property, not timing. Mutable methods that read shared state produce different results depending on call order (1 of 6 permutations correct). Pure functions that take all data as arguments produce the same result in any order (6 of 6 correct). Source: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
 </div>
 
 <div class="ch-nav-bottom">

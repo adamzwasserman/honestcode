@@ -348,7 +348,7 @@
 </section>
 
 <div class="transparency">
-  <strong>How this works:</strong> This demo visualizes the execution difference between dishonest and honest code. Timing is proportional to real captured nanosecond costs. Instrumented source code, Dockerfile, and raw trace data: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
+  <strong>How this works:</strong> This demo visualizes error recovery complexity, not timing. The try/catch side touches 6 address spaces during recovery (heap, Redis, RDBMS, filesystem, message broker). The let-it-crash side touches 2 (process, supervisor). Counts are architectural facts. Java harness confirms the cost: try/catch recovery is 16.8× slower in nanoseconds. Source: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
 </div>
 
 <div class="ch-nav-bottom">

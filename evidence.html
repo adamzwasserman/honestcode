@@ -249,8 +249,56 @@
 </div>
 
 <!-- ═══════════════════════════════════════ -->
+<h2>4. Beyond Method Dispatch</h2>
+
+<p>The numbers above measure one anti-pattern: mutable classes with singleton lookups. But dishonest code takes many forms. We built separate Java harnesses for six additional architectural crimes, each run under the same conditions (OpenJDK 21, Docker, 5000 warmup iterations, 1000 measured runs, median nanoseconds).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Anti-pattern</th>
+      <th>Chapter</th>
+      <th class="num">Dishonest</th>
+      <th class="num">Honest</th>
+      <th class="num">Ratio</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Try/catch recovery chain</td><td>8</td><td class="num dishonest">2,084 ns</td><td class="num honest">124 ns</td><td class="num ratio">16.8x</td></tr>
+    <tr><td>Mock-heavy test setup</td><td>10</td><td class="num dishonest">1,376 ns</td><td class="num honest">334 ns</td><td class="num ratio">4.1x</td></tr>
+    <tr><td>Scattered state (6 locations)</td><td>5</td><td class="num dishonest">335 ns</td><td class="num honest">84 ns</td><td class="num ratio">4.0x</td></tr>
+    <tr><td>13-frame middleware chain</td><td>1</td><td class="num dishonest">623 ns</td><td class="num honest">166 ns</td><td class="num ratio">3.8x</td></tr>
+    <tr><td>Object graph pointer chasing</td><td>3</td><td class="num dishonest">251 ns</td><td class="num honest">83 ns</td><td class="num ratio">3.0x</td></tr>
+    <tr><td>ORM + cache miss path</td><td>9</td><td class="num dishonest">454 ns</td><td class="num honest">166 ns</td><td class="num ratio">2.7x</td></tr>
+  </tbody>
+</table>
+
+<div id="chapter-chart"></div>
+
+<div class="surprise-card">
+  <div class="vs"><span class="dishonest">Try/catch recovery</span> vs <span class="honest">let it crash</span></div>
+  <div class="factor">16.8x slower</div>
+  <p>Most developers think try/catch is free. It isn't. On the JVM, creating an exception object fills in the entire stack trace — walking every frame, allocating strings, building arrays. The crime path catches the exception, wraps it with context (allocating a second exception), checks a retry counter in a HashMap (simulating Redis), updates a circuit breaker, appends to an error log, and builds a dead letter queue entry. Six address spaces touched during "recovery." The honest path: the process dies. The supervisor notices. A fresh process starts with clean state. Three operations, 124 nanoseconds, zero stale state.</p>
+</div>
+
+<div class="surprise-card">
+  <div class="vs"><span class="dishonest">Mock-heavy test</span> vs <span class="honest">pure function test</span></div>
+  <div class="factor">4.1x slower</div>
+  <p>The dishonest test creates a mock CouponRegistry, a mock TaxService, a mock Logger, a dependency injection container, resolves three services, constructs an OrderService with injected dependencies, calls the method under test, verifies mock interactions, and tears down. Ten steps before you even check the result. The honest test calls <code>calculateOrder(100.0, 10.0, 0.08)</code> and asserts the return value. Two steps. The 10 mocks aren't just ceremony — they're 10 hidden dependencies your code can't function without. The pure function needs nothing but its arguments.</p>
+</div>
+
+<div class="surprise-card">
+  <div class="vs"><span class="dishonest">ORM + cache</span> vs <span class="honest">SQL JOIN</span></div>
+  <div class="factor">2.7x slower</div>
+  <p>The ORM path: receive request, check cache key (miss), load Customer entity, pointer-chase through Orders, pointer-chase through LineItems, pointer-chase through Addresses, assemble a response DTO into a HashMap, store the DTO in cache, return. Ten steps. The honest path: receive request, execute a flat query (simulating a single SQL JOIN that returns all fields), return the result dict. Three steps. The cache exists because the object graph is slow to traverse. The object graph is slow because data is scattered across the heap. <span class="dishonest">The cache is solving a problem the architecture created.</span></p>
+</div>
+
+<h3>The pattern holds across every anti-pattern</h3>
+<p>Method dispatch overhead (Section 1) is not a special case. The same structural tax appears when you scatter state across locations, when you build deep middleware chains, when you chase pointers through object graphs, when you wrap exceptions in recovery ceremony, and when you bury your test logic under mock scaffolding. In every case, the honest alternative does less work because it has fewer steps, fewer address spaces, fewer indirections. The ratio varies (2.7x to 16.8x), but the direction never does.</p>
+
+<!-- ═══════════════════════════════════════ -->
 <div class="the-point">
-  <h2>4. The Point</h2>
+  <h2>5. The Point</h2>
   <p>Performance is a <em>happy side effect</em>. It is not why honest code matters.</p>
   <p>The dishonest path has 8 state mutations and 4 global singleton lookups per business operation. Each mutation is a place where state can be corrupted. Each singleton is a place where two threads can disagree about reality. Each cache check is a place where stale data can silently produce wrong results. The rescue path has <strong>zero mutations, zero globals, zero caches</strong>. The same values arrive at the same answer through pure computation.</p>
   <p>When your Order class has 5 mutable fields that can be written from 7 different call sites, your test suite needs to cover the interaction of every possible mutation sequence. When your <code>calculate_order()</code> function takes items, a region, and tax rates, and returns a total, a tax, and a subtotal, you test it with one assertion. <code>assert calculate_order(items, "NY", rates) == (89.97, 7.20, 97.17)</code>. Done.</p>
@@ -278,21 +326,36 @@ const data = [
   ['Python', 2165, 1335], ['TypeScript', 2919, 1416],
   ['Ruby', 3542, 1792], ['PHP', 3994, 2123]
 ];
-const max = Math.max(...data.map(d => d[1]));
-const chart = document.getElementById('chart');
-data.forEach(([lang, crime, rescue]) => {
-  const row = document.createElement('div');
-  row.className = 'bar-row';
-  row.innerHTML = `
-    <div class="bar-label">${lang}</div>
-    <div class="bar-track">
-      <div class="bar-crime" style="width:${(crime/max*100).toFixed(1)}%"></div>
-      <div class="bar-rescue" style="width:${(rescue/max*100).toFixed(1)}%"></div>
-    </div>
-    <div class="bar-val"><span style="color:var(--red)">${crime.toLocaleString()}</span> / <span style="color:var(--green)">${rescue.toLocaleString()}</span></div>
-  `;
-  chart.appendChild(row);
-});
+function buildChart(containerId, chartData) {
+  const max = Math.max(...chartData.map(d => d[1]));
+  const el = document.getElementById(containerId);
+  chartData.forEach(([label, crime, rescue]) => {
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <div class="bar-label">${label}</div>
+      <div class="bar-track">
+        <div class="bar-crime" style="width:${(crime/max*100).toFixed(1)}%"></div>
+        <div class="bar-rescue" style="width:${(rescue/max*100).toFixed(1)}%"></div>
+      </div>
+      <div class="bar-val"><span style="color:var(--red)">${crime.toLocaleString()}</span> / <span style="color:var(--green)">${rescue.toLocaleString()}</span></div>
+    `;
+    el.appendChild(row);
+  });
+}
+
+buildChart('chart', data);
+
+// Chapter harness chart (Java, OpenJDK 21)
+const chapterData = [
+  ['Try/catch', 2084, 124],
+  ['Mock tests', 1376, 334],
+  ['Middleware', 623, 166],
+  ['ORM+cache', 454, 166],
+  ['State×6', 335, 84],
+  ['Ptr chase', 251, 83],
+];
+buildChart('chapter-chart', chapterData);
 </script>
 
 </body>
