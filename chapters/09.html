@@ -167,10 +167,12 @@
   .s-curve-divider { width: 40px; position: relative; z-index: 2; }
   .s-curve-divider svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 
-  .vs-panel.rescue { background: var(--cream) !important; color: var(--cream-text); }
-  .vs-panel.rescue .vs-step { border-color: var(--cream-border); background: var(--cream-surface); color: var(--cream-text); }
+  .vs-panel.rescue { background: var(--cream) !important; color: var(--cream-text); border-color: var(--cream-border); }
+  .vs-panel.rescue .vs-step { color: var(--cream-text); }
+  .vs-panel.rescue .vs-step .cycles { color: var(--cream-dim); }
+  .vs-panel.rescue .vs-step.active { color: var(--cream-text); }
+  .vs-panel.rescue .vs-step.active .cycles { color: var(--green); }
   .vs-panel.rescue .vs-label { color: var(--green); }
-  .vs-panel.rescue .vs-cyc { color: var(--cream-dim); }
 
 
   /* SLOWDOWN SUBSCRIPT */
@@ -259,9 +261,7 @@
       <div class="vs-step" id="vs-c9">Return response <span class="cycles">5 cyc</span></div>
     </div>
 
-    <div class="vs-divider">vs</div>
-
-        <!-- S-CURVE DIVIDER -->
+    <!-- S-CURVE DIVIDER -->
     <div class="s-curve-divider">
       <svg preserveAspectRatio="none" viewBox="0 0 40 450">
         <defs>
