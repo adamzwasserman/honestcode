@@ -226,7 +226,7 @@
   }
   .ticker-track {
     display: flex; gap: 1.5rem; width: max-content;
-    animation: ticker 60s linear infinite;
+    animation: ticker 45s linear infinite;
   }
   .ticker-track:hover { animation-play-state: paused; }
   @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
@@ -752,16 +752,16 @@ window.addEventListener('load', () => setTimeout(runDemo, 800));
 (function() {
   var track = document.getElementById('ticker-track');
   if (!track) return;
-  // Shuffle
-  var cards = Array.from(track.children);
-  for (var i = cards.length - 1; i > 0; i--) {
+  // Collect all card HTML into array, shuffle with Fisher-Yates
+  var items = [];
+  for (var c = 0; c < track.children.length; c++) items.push(track.children[c].outerHTML);
+  for (var i = items.length - 1; i > 0; i--) {
     var j = Math.floor(Math.random() * (i + 1));
-    track.insertBefore(cards[j], cards[i]);
-    var tmp = cards[i]; cards[i] = cards[j]; cards[j] = tmp;
+    var tmp = items[i]; items[i] = items[j]; items[j] = tmp;
   }
-  // Duplicate for seamless loop
-  var originals = Array.from(track.children);
-  originals.forEach(function(card) { track.appendChild(card.cloneNode(true)); });
+  // Set shuffled cards, then duplicate the full set for seamless loop
+  var html = items.join('');
+  track.innerHTML = html + html;
 })();
 </script>
 
