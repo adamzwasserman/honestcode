@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Honest Code — Enter License Key</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
+  :root {
+    --bg: #0a0a0c; --surface: #111116; --border: #1e1e26;
+    --text: #c8c8d0; --text-dim: #6a6a78;
+    --red: #e63946; --green: #2a9d8f; --gold: #e9c46a;
+    --mono: 'JetBrains Mono', monospace; --serif: 'Literata', Georgia, serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--serif); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+
+  .login-box {
+    width: 100%; max-width: 440px; padding: 3rem 2.5rem;
+    background: var(--surface); border: 1px solid var(--border);
+  }
+
+  .login-box .logo {
+    font-family: var(--mono); font-weight: 700; font-size: 1.3rem;
+    letter-spacing: -0.02em; margin-bottom: 0.5rem;
+  }
+  .login-box .logo span { color: var(--red); }
+  .login-box .logo em { color: var(--green); font-style: normal; }
+
+  .login-box .tagline {
+    font-family: var(--serif); font-style: italic;
+    color: var(--text-dim); font-size: 0.9rem; margin-bottom: 2.5rem;
+  }
+
+  .login-box label {
+    font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.5rem;
+  }
+
+  .login-box input {
+    width: 100%; padding: 0.8rem 1rem;
+    font-family: var(--mono); font-size: 1rem;
+    background: var(--bg); border: 1px solid var(--border); color: var(--text);
+    outline: none; transition: border-color 0.2s; letter-spacing: 0.15em; text-align: center;
+  }
+  .login-box input:focus { border-color: var(--green); }
+  .login-box input::placeholder { color: var(--text-dim); letter-spacing: 0.05em; font-size: 0.8rem; }
+
+  .login-box button {
+    width: 100%; margin-top: 1.5rem; padding: 0.8rem;
+    font-family: var(--mono); font-size: 0.85rem; font-weight: 600;
+    background: var(--green); color: var(--bg); border: none;
+    cursor: pointer; letter-spacing: 0.04em; transition: background 0.2s;
+  }
+  .login-box button:hover { background: var(--gold); }
+  .login-box button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .login-box .error {
+    font-family: var(--mono); font-size: 0.75rem; color: var(--red);
+    margin-top: 1rem; text-align: center; min-height: 1.2em;
+  }
+
+  .login-box .help {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim);
+    margin-top: 2rem; line-height: 1.7; text-align: center;
+  }
+  .login-box .help a { color: var(--green); text-decoration: none; }
+  .login-box .help a:hover { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<div class="login-box">
+  <a href="/" style="text-decoration:none"><div class="logo"><em>honest</em><span>code</span>.software</div></a>
+  <div class="tagline">Interactive chapter demos for book buyers</div>
+
+  <label for="key">License Key</label>
+  <input type="text" id="key" placeholder="Enter your Gumroad license key" autocomplete="off" spellcheck="false">
+  <button id="btn" onclick="verifyKey()">UNLOCK CHAPTERS</button>
+  <div class="error" id="error"></div>
+
+  <div class="help">
+    Your license key is on your Gumroad receipt.<br>
+    Paper book? Check the inside back cover.<br><br>
+    <a href="/">← Back to home</a>
+  </div>
+</div>
+
+<script>
+// All product IDs that grant companion site access
+// Replace these with actual Gumroad product IDs from your dashboard
+const PRODUCT_IDS = [
+  'oejesf',   // Honest Code: Ebook (First 100 Copies)
+  'gpsggg',   // Honest Code: Ebook (Early release version)
+  'tnsxnx',   // Honest Code: Paperback
+  'eroxj',    // Honest Code: Hardcover
+];
+
+function getNextUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('next') || '/chapters/02.html';
+}
+
+async function tryVerify(productId, key) {
+  const resp = await fetch('https://api.gumroad.com/v2/licenses/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: 'product_id=' + encodeURIComponent(productId) + '&license_key=' + encodeURIComponent(key)
+  });
+  const data = await resp.json();
+  return data.success;
+}
+
+async function verifyKey() {
+  const key = document.getElementById('key').value.trim();
+  const btn = document.getElementById('btn');
+  const error = document.getElementById('error');
+
+  if (!key) {
+    error.textContent = 'Please enter a license key.';
+    return;
+  }
+
+  error.textContent = '';
+  btn.disabled = true;
+  btn.textContent = 'VERIFYING...';
+
+  try {
+    for (const productId of PRODUCT_IDS) {
+      if (await tryVerify(productId, key)) {
+        localStorage.setItem('hc_license', key);
+        window.location.href = getNextUrl();
+        return;
+      }
+    }
+    error.textContent = 'Invalid license key. Check your Gumroad receipt.';
+    btn.disabled = false;
+    btn.textContent = 'UNLOCK CHAPTERS';
+  } catch (e) {
+    error.textContent = 'Network error. Please try again.';
+    btn.disabled = false;
+    btn.textContent = 'UNLOCK CHAPTERS';
+  }
+}
+
+document.getElementById('key').addEventListener('keydown', e => {
+  if (e.key === 'Enter') verifyKey();
+});
+
+// If already authenticated, redirect
+if (localStorage.getItem('hc_license')) {
+  window.location.href = getNextUrl();
+}
+</script>
+
+</body>
+</html>

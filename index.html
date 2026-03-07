@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Honest Code — See the Difference</title>
+<meta name="description" content="Your language already has the fix. See dishonest code patterns side-by-side with honest alternatives in 12 languages. The book that shows you how to stop hiding state behind classes.">
+<meta property="og:title" content="Honest Code: Keep Your State Out of My Code">
+<meta property="og:description" content="See dishonest code patterns side-by-side with honest alternatives in 12 languages. Interactive demos, real nanosecond traces.">
+<meta property="og:url" content="https://honestcode.software">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Honest Code: Keep Your State Out of My Code">
+<meta name="twitter:description" content="Your language already has the fix. See the difference in real nanoseconds.">
+<link rel="canonical" href="https://honestcode.software">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
   :root {
@@ -154,6 +163,63 @@
   }
   .pitch .cta:hover { background: var(--gold); transform: translateY(-1px); }
 
+  /* PURCHASE SECTION */
+  .purchase-section { max-width: 1100px; margin: 6rem auto 2rem; padding: 0 2rem; }
+  .purchase-section h2 {
+    font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 2rem; text-align: center;
+  }
+  .product-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px;
+    background: var(--border); border: 1px solid var(--border);
+  }
+  @media (max-width: 640px) { .product-grid { grid-template-columns: 1fr; } }
+  .product-card {
+    background: var(--surface); padding: 2rem; display: flex; flex-direction: column;
+  }
+  .product-card .product-title {
+    font-family: var(--mono); font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;
+  }
+  .product-card .product-desc {
+    font-family: var(--serif); font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 1rem; flex: 1;
+  }
+  .product-card .product-price {
+    font-family: var(--mono); font-size: 1.2rem; font-weight: 700; color: var(--gold); margin-bottom: 1rem;
+  }
+  .product-card .product-cta {
+    font-family: var(--mono); font-size: 0.8rem; padding: 0.6rem 1.2rem;
+    background: var(--green); color: var(--bg); border: none; cursor: pointer;
+    font-weight: 600; letter-spacing: 0.04em; transition: background 0.2s;
+    text-align: center; text-decoration: none; display: block;
+  }
+  .product-card .product-cta:hover { background: var(--gold); }
+  .product-card .product-cta.free { background: transparent; border: 1px solid var(--green); color: var(--green); }
+  .product-card .product-cta.free:hover { background: var(--green); color: var(--bg); }
+
+  /* AUTHOR SECTION */
+  .author-section {
+    max-width: 700px; margin: 4rem auto; padding: 2.5rem 2rem;
+    border: 1px solid var(--border); background: var(--surface);
+  }
+  .author-section h3 {
+    font-family: var(--mono); font-size: 1rem; font-weight: 700; color: var(--green); margin-bottom: 0.3rem;
+  }
+  .author-section .author-sig {
+    font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim); margin-bottom: 1.5rem; font-style: italic;
+  }
+  .author-section p {
+    font-family: var(--serif); font-size: 0.9rem; color: var(--text); line-height: 1.7; margin-bottom: 1rem;
+  }
+
+  /* CHAPTER CARD ENHANCEMENTS */
+  .chapter-card a { text-decoration: none; color: inherit; display: block; }
+  .chapter-card .ch-langs {
+    font-family: var(--mono); font-size: 0.6rem; color: var(--gold); margin-top: 0.5rem;
+    letter-spacing: 0.03em;
+  }
+  .chapter-card.unlocked { border-left: 2px solid var(--green); }
+  .chapter-card.unlocked .lock-icon { display: none; }
+
   .chapters-section { max-width: 1100px; margin: 8rem auto 4rem; padding: 0 2rem; }
   .chapters-section h2 {
     font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim);
@@ -211,7 +277,7 @@
 
 <nav>
   <div class="logo">honest<span>code</span>.software</div>
-  <button class="buy-btn">GET THE BOOK</button>
+  <a class="gumroad-button buy-btn" href="https://adamzwasserman.gumroad.com/l/honest-code-ebook" style="text-decoration:none">GET THE BOOK</a>
 </nav>
 
 <section class="hero">
@@ -311,36 +377,82 @@
 
   <div class="pitch">
     <p>Your language already has the fix. Every mainstream language gives you pure functions, flat data, and composition. You were trained to reach for classes instead.</p>
-    <button class="cta">GET HONEST CODE →</button>
+    <a class="gumroad-button cta" href="https://adamzwasserman.gumroad.com/l/honest-code-ebook" style="text-decoration:none;display:inline-block">GET HONEST CODE →</a>
   </div>
+</section>
+
+<section class="purchase-section">
+  <h2>Get the Book</h2>
+  <div class="product-grid">
+    <div class="product-card">
+      <div class="product-title">First 100 Copies</div>
+      <div class="product-desc">The complete ebook, free. Same content as the paid version. Limited to 100 copies — when they're gone, they're gone.</div>
+      <div class="product-price">Free</div>
+      <a class="gumroad-button product-cta free" href="https://adamzwasserman.gumroad.com/l/honest-code-first-100">GET FREE COPY</a>
+    </div>
+    <div class="product-card">
+      <div class="product-title">Ebook (PDF)</div>
+      <div class="product-desc">The complete book with interactive companion site access. All 13 chapters, code traces, and cheat sheet. A small section of the Dishonest AI chapter is embargoed until mid-April — updated copies will be available for free re-download.</div>
+      <div class="product-price">$24.50</div>
+      <a class="gumroad-button product-cta" href="https://adamzwasserman.gumroad.com/l/honest-code-ebook">BUY EBOOK</a>
+    </div>
+    <div class="product-card">
+      <div class="product-title">Paperback</div>
+      <div class="product-desc">Physical copy plus ebook and companion site access. Ships mid-April with the full unredacted Dishonest AI chapter.</div>
+      <div class="product-price">$39.99</div>
+      <a class="gumroad-button product-cta" href="https://adamzwasserman.gumroad.com/l/honest-code-paperback">PREORDER</a>
+    </div>
+    <div class="product-card">
+      <div class="product-title">Hardcover</div>
+      <div class="product-desc">Hardcover edition with ebook and companion site access. Ships mid-April with the full unredacted Dishonest AI chapter.</div>
+      <div class="product-price">$59.99</div>
+      <a class="gumroad-button product-cta" href="https://adamzwasserman.gumroad.com/l/honest-code-hardcover">PREORDER</a>
+    </div>
+    <div class="product-card">
+      <div class="product-title">Free Sampler</div>
+      <div class="product-desc">Chapters 1-2 plus the cheat sheet. See if the style clicks before you buy.</div>
+      <div class="product-price">Free</div>
+      <a class="gumroad-button product-cta free" href="https://adamzwasserman.gumroad.com/l/honest-code-sampler">DOWNLOAD FREE</a>
+    </div>
+  </div>
+  <div class="original-supporters-note" style="font-family:var(--mono);font-size:0.75rem;color:var(--text-dim);text-align:center;margin-top:1.5rem;line-height:1.7;">
+    The first 100 paid buyers — ebook, paperback, or hardcover — will be listed on the <strong style="color:var(--gold)">Original Supporters</strong> page on this site.
+  </div>
+</section>
+
+<section class="author-section">
+  <h3>Adam Zachary Wasserman</h3>
+  <div class="author-sig">Writing code since 1986. Not bad for a boomer.</div>
+  <p>Former CTO at IATA, where the software handles $900 billion in airline transactions per year. After that, Director at CGI leading 150+ programmers specializing in telecoms enterprise web sites. Now focused on three startups. Massive web and mobile app experience at all scales — from solo prototypes to systems serving every airline on earth.</p>
+  <p>I've spent four decades watching smart people write bad code — not because they're bad at programming, but because they were trained to reach for classes, inheritance, and mutable state when their language already had the fix. This book is everything I wish someone had told me in 1986.</p>
 </section>
 
 <section class="chapters-section">
   <h2>Interactive Chapter Demos</h2>
   <div class="chapter-grid">
-    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 1</div><div class="ch-title">All Languages are Good</div><div class="ch-desc">Call stack depth: 10+ frames vs 2-3. Watch them grow.</div></div>
-    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 2</div><div class="ch-title">Classes Considered Harmful</div><div class="ch-desc">Mutation web: 7 mutable fields cascading vs one-pass data flow.</div></div>
-    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 3</div><div class="ch-title">Data Is Just Data</div><div class="ch-desc">Dependency graph: 7 transitive imports vs one TypedDict.</div></div>
-    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 4</div><div class="ch-title">Pure Functions</div><div class="ch-desc">6 permutations, same result every time. Classes: 6 different results.</div></div>
-    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 5</div><div class="ch-title">State Has an Address</div><div class="ch-desc">Redux scatters state across 6 locations. HTMX: one.</div></div>
-    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 6</div><div class="ch-title">Declare, Don't Instruct</div><div class="ch-desc">73 lines of JS vs 6 HTML attributes. Live genX demo.</div></div>
-    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 7</div><div class="ch-title">Compose Flat, Never Deep</div><div class="ch-desc">super() ricocheting through 4 layers vs a flat pipeline.</div></div>
-    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 8</div><div class="ch-title">Let It Crash</div><div class="ch-desc">7-level try-catch bubble vs supervisor restart. Two steps.</div></div>
-    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 9</div><div class="ch-title">The Performance Lie</div><div class="ch-desc">Cache circular argument, animated. The cache is slower.</div></div>
-    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 10</div><div class="ch-title">Testing Honest Code</div><div class="ch-desc">Mock setup still running. assert f(x)==y already done.</div></div>
-    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 11</div><div class="ch-title">Working with AI</div><div class="ch-desc">Same prompt, two architectures. 200 lines vs 30.</div></div>
-    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 12</div><div class="ch-title">The Declarative Principle</div><div class="ch-desc">Your declaration flows down. The platform handles the rest.</div></div>
-    <div class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 13</div><div class="ch-title">The Monday Morning Chapter</div><div class="ch-desc">A class with 10 methods shrinks to zero. 12 sprints. 30 seconds.</div></div>
+    <a href="/login.html?next=/chapters/01.html" class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 1</div><div class="ch-title">All Languages are Good</div><div class="ch-desc">Call stack depth: 10+ frames vs 2-3. Watch them grow. Every mainstream language already has the fix — you were just trained to ignore it.</div><div class="ch-langs">call stacks, dispatch, runtime cost</div></a>
+    <a href="/chapters/02.html" class="chapter-card unlocked"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 2</div><div class="ch-title">Classes Considered Harmful</div><div class="ch-desc">Mutation web: 7 mutable fields cascading vs one-pass data flow. The Order class mutates itself into a different object on every call.</div><div class="ch-langs">mutation, singletons, hidden state</div></a>
+    <a href="/login.html?next=/chapters/03.html" class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 3</div><div class="ch-title">Data Is Just Data</div><div class="ch-desc">Dependency graph: 7 transitive imports vs one TypedDict. Your data doesn't need methods — it needs a shape declaration.</div><div class="ch-langs">TypedDict, flat data, json.dumps</div></a>
+    <a href="/login.html?next=/chapters/04.html" class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 4</div><div class="ch-title">Pure Functions: The Original Abstraction</div><div class="ch-desc">6 permutations, same result every time. Classes: 6 different results. Call order should not change the answer.</div><div class="ch-langs">referential transparency, dict lookup</div></a>
+    <a href="/login.html?next=/chapters/05.html" class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 5</div><div class="ch-title">The State That Cannot Be Named</div><div class="ch-desc">Redux scatters state across 6 locations. The DOM is the state — HTMX proves it with zero JavaScript.</div><div class="ch-langs">HTMX, DOM-as-state, single source of truth</div></a>
+    <a href="/login.html?next=/chapters/06.html" class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 6</div><div class="ch-title">Compose Flat, Never Deep</div><div class="ch-desc">super() ricocheting through 4 layers vs a flat pipeline. Inheritance is a one-way ticket to debugging someone else's constructor.</div><div class="ch-langs">pipe, composition, no inheritance</div></a>
+    <a href="/login.html?next=/chapters/07.html" class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 7</div><div class="ch-title">Let It Crash</div><div class="ch-desc">7-level try-catch bubble vs supervisor restart. Two steps. The Erlang supervision tree has been doing this since 1986.</div><div class="ch-langs">supervision, typed exceptions, boundaries</div></a>
+    <a href="/login.html?next=/chapters/08.html" class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 8</div><div class="ch-title">The Performance Lie</div><div class="ch-desc">The cache circular argument, animated. The cache is slower than the query it was supposed to speed up.</div><div class="ch-langs">caching myths, SQL joins, profiling</div></a>
+    <a href="/login.html?next=/chapters/09.html" class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 9</div><div class="ch-title">Dishonest Tests</div><div class="ch-desc">Mock setup still running. assert f(x)==y already done. Nine mocks means nine hidden dependencies.</div><div class="ch-langs">mocks, pure function tests, Gherkin</div></a>
+    <a href="/login.html?next=/chapters/10.html" class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 10</div><div class="ch-title">Dishonest AI</div><div class="ch-desc">Same prompt, two architectures. 200 lines vs 30. LLMs generate crime-scene code fluently — this chapter shows why, and how to stop it.</div><div class="ch-langs">LLM output, architecture constraints</div></a>
+    <a href="/login.html?next=/chapters/11.html" class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 11</div><div class="ch-title">The Declarative Principle</div><div class="ch-desc">Your declaration flows down. The platform handles the rest. One principle that unifies every chapter.</div><div class="ch-langs">declarations, types, constraints</div></a>
+    <a href="/login.html?next=/chapters/12.html" class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 12</div><div class="ch-title">Declare, Don't Instruct</div><div class="ch-desc">73 lines of JS vs 6 HTML attributes. Live genX demo showing declarative UI that writes itself.</div><div class="ch-langs">HTML attributes, genX, HTMX</div></a>
+    <a href="/login.html?next=/chapters/13.html" class="chapter-card"><span class="lock-icon">🔒</span><div class="ch-num">Chapter 13</div><div class="ch-title">The Monday Morning Chapter</div><div class="ch-desc">A class with 10 methods shrinks to zero over 12 sprints. The strangler pattern, animated in 30 seconds.</div><div class="ch-langs">strangler pattern, incremental rescue</div></a>
   </div>
 </section>
 
 <div class="transparency">
-  <strong>How this works:</strong> Every demo is a replay of actual instrumented execution. Both examples ran on the same machine with the same inputs. The timestamps are real. The visualization is slowed to make the differences visible. Source: <a href="#">github.com/adamzwasserman/honest-code-traces</a>
+  <strong>How this works:</strong> Every demo on this site visualizes the execution difference between dishonest and honest code. Timing is currently proportional to estimated nanosecond costs per language runtime. Instrumented source code with real captured traces is coming soon: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
 </div>
 
 <footer>
   <p>Honest Code by Adam Zachary Wasserman · Writing code since 1986.</p>
-  <p style="margin-top:0.5rem"><a href="#">genX</a> · <a href="#">declaro</a> · <a href="#">GitHub</a> · <a href="#">Gumroad</a></p>
+  <p style="margin-top:0.5rem"><a href="https://github.com/nicbudd/genX">genX</a> · <a href="https://github.com/nicbudd/declaro">declaro</a> · <a href="https://github.com/adamzwasserman">GitHub</a> · <a href="https://adamzwasserman.gumroad.com">Gumroad</a></p>
 </footer>
 
 <script>
@@ -1168,33 +1280,6 @@ document.querySelectorAll('.speed-control button').forEach(btn => {
 window.addEventListener('load', () => setTimeout(runDemo, 800));
 </script>
 
-<!-- COMING SOON OVERLAY -->
-<style>
-  .coming-soon-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(10, 10, 12, 0.55);
-    z-index: 9999;
-    display: flex; align-items: center; justify-content: center;
-    pointer-events: none;
-  }
-  .coming-soon-stamp {
-    font-family: var(--mono, 'JetBrains Mono', monospace);
-    font-size: clamp(3rem, 10vw, 8rem);
-    font-weight: 700;
-    color: rgba(230, 57, 70, 0.85);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    transform: rotate(-25deg);
-    border: 0.12em solid rgba(230, 57, 70, 0.85);
-    padding: 0.2em 0.6em;
-    text-shadow: 0 0 40px rgba(230, 57, 70, 0.4);
-    box-shadow: 0 0 40px rgba(230, 57, 70, 0.15);
-    white-space: nowrap;
-    user-select: none;
-  }
-</style>
-<div class="coming-soon-overlay">
-  <div class="coming-soon-stamp">Coming Soon</div>
-</div>
+<script src="https://gumroad.com/js/gumroad.js"></script>
 </body>
 </html>

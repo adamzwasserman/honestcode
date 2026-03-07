@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.1: All Languages are Good — Honest Code</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
+  :root {
+    --bg: #0a0a0c; --surface: #111116; --border: #1e1e26;
+    --text: #c8c8d0; --text-dim: #6a6a78;
+    --red: #e63946; --red-dim: #e6394620; --red-glow: #e6394660;
+    --green: #2a9d8f; --green-dim: #2a9d8f20; --green-glow: #2a9d8f60;
+    --gold: #e9c46a;
+    --mono: 'JetBrains Mono', monospace; --serif: 'Literata', Georgia, serif;
+  --cream:#f0ede6;--cream-surface:#e8e4dc;--cream-border:#d5d0c7;--cream-text:#2a2a2e;--cream-dim:#6a6a68;}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--serif); line-height: 1.6; }
+  nav { position: fixed; top: 0; width: 100%; z-index: 100; background: var(--bg); border-bottom: 1px solid var(--border); padding: 0.8rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+  nav .logo { font-family: var(--mono); font-weight: 700; font-size: 1rem; color: var(--green); }
+  nav .logo span { color: var(--red); }
+  nav .chapter-nav { display: flex; gap: 0.3rem; }
+  nav .chapter-nav a { font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); text-decoration: none; padding: 0.3rem 0.5rem; border: 1px solid transparent; transition: all 0.2s; }
+  nav .chapter-nav a:hover { color: var(--text); border-color: var(--border); }
+  nav .chapter-nav a.active { color: var(--gold); border-color: var(--gold); }
+  .ch-header { padding: 7rem 2rem 3rem; max-width: 900px; margin: 0 auto; }
+  .ch-header .ch-num { font-family: var(--mono); font-size: 0.7rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.12em; }
+  .ch-header h1 { font-family: var(--mono); font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 700; margin-top: 0.3rem; }
+  .ch-header .epigraph { font-family: var(--serif); font-style: italic; color: var(--gold); opacity: 0.8; font-size: 1rem; margin-top: 0.5rem; }
+  .demo-section { max-width: 1100px; margin: 2rem auto; padding: 0 2rem; }
+  .demo-label { font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+
+  .stack-demo { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0;  border: 1px solid var(--border); }
+  .stack-panel { background: var(--surface); padding: 1.5rem; min-height: 520px; display: flex; flex-direction: column; }
+  .stack-panel .panel-label { font-family: var(--mono); font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem; }
+  .stack-panel.crime .panel-label { color: var(--red); }
+  .stack-panel.rescue .panel-label { color: var(--green); }
+
+  .stack-frames { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+  .frame {
+    font-family: var(--mono); font-size: 0.65rem; padding: 0.5rem 0.7rem;
+    border: 1px solid var(--border); background: var(--bg);
+    opacity: 0; transform: translateY(-8px);
+    transition: opacity 0.3s, transform 0.3s, border-color 0.3s, background 0.3s;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .frame.visible { opacity: 1; transform: translateY(0); }
+  .frame.active { border-color: var(--red); background: var(--red-dim); }
+  .frame.active .frame-name { color: var(--red); }
+  .stack-panel.rescue .frame.active { border-color: var(--green); background: var(--green-dim); }
+  .stack-panel.rescue .frame.active .frame-name { color: var(--green); }
+  .frame.done { opacity: 0.5; }
+  .frame .frame-name { color: var(--text); }
+  .frame .frame-ns { color: var(--text-dim); font-size: 0.55rem; }
+
+  .stack-status { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.65rem; display: flex; gap: 1.5rem; }
+  .stack-status .ss-item { color: var(--text-dim); }
+  .stack-status .ss-val { font-weight: 600; margin-left: 0.3rem; }
+  .stack-status .ss-val.bad { color: var(--red); }
+  .stack-status .ss-val.good { color: var(--green); }
+
+  .demo-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; background: var(--border); border: 1px solid var(--border); margin-top: 2px; }
+  .dm { background: var(--surface); padding: 1rem; text-align: center; }
+  .dm .num { font-family: var(--mono); font-size: 1.4rem; font-weight: 700; }
+  .dm.crime .num { color: var(--red); }
+  .dm.rescue .num { color: var(--green); }
+  .dm .desc { font-family: var(--mono); font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.2rem; }
+
+  .controls { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-top: 1.5rem; }
+  .controls button { font-family: var(--mono); font-size: 0.65rem; padding: 0.3rem 0.8rem; background: transparent; color: var(--text-dim); border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
+  .controls button:hover { color: var(--green); border-color: var(--green); }
+
+  .explanation { max-width: 700px; margin: 4rem auto; padding: 0 2rem; }
+  .explanation h2 { font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+  .explanation p { font-family: var(--serif); font-size: 0.95rem; color: var(--text); line-height: 1.8; margin-bottom: 1rem; }
+  .explanation .highlight { color: var(--green); }
+  .explanation .warning { color: var(--red); }
+
+  .transparency { max-width: 700px; margin: 3rem auto; padding: 1.2rem 1.5rem; border: 1px solid var(--border); background: var(--surface); font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); line-height: 1.8; }
+  .transparency strong { color: var(--text); }
+  .transparency a { color: var(--green); text-decoration: none; }
+
+  .ch-nav-bottom { display: flex; justify-content: space-between; max-width: 700px; margin: 3rem auto 4rem; padding: 0 2rem; }
+  .ch-nav-bottom a { font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim); text-decoration: none; padding: 0.5rem 1rem; border: 1px solid var(--border); transition: all 0.2s; }
+  .ch-nav-bottom a:hover { color: var(--green); border-color: var(--green); }
+
+  .stack-panel.crime { background: var(--bg); }
+  .stack-panel.rescue { background: var(--cream); color: var(--cream-text); }
+  .stack-panel.rescue .panel-label { color: var(--green); }
+
+  /* S-CURVE DIVIDER */
+  .s-curve-divider { width: 40px; position: relative; z-index: 2; }
+  .s-curve-divider svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+  .stack-panel.rescue { background: var(--cream) !important; color: var(--cream-text); }
+  .stack-panel.rescue .frame { border-color: var(--cream-border); background: var(--cream-surface); color: var(--cream-text); }
+  .stack-panel.rescue .frame .fn { color: var(--cream-text); }
+  .stack-panel.rescue .frame .finfo { color: var(--cream-dim); }
+  .stack-panel.rescue .ss-item { color: var(--cream-dim); }
+  .stack-panel.rescue .panel-label { color: var(--green); }
+
+
+  /* SLOWDOWN SUBSCRIPT */
+  .slowdown-sub { font-family: var(--mono); font-size: 0.6rem; color: var(--red); margin-top: 2px; }
+</style>
+</head>
+<body>
+<script>if(!localStorage.getItem('hc_license')){window.location.href='/login.html?next='+encodeURIComponent(location.pathname);document.documentElement.innerHTML='';}</script>
+<nav>
+  <a href="landing-v2.html" style="text-decoration:none"><div class="logo">honest<span>code</span>.software</div></a>
+  <div class="chapter-nav">
+    <a href="#" class="active">1</a><a href="/chapters/02.html">2</a><a href="/chapters/03.html">3</a>
+    <a href="/chapters/04.html">4</a><a href="/chapters/05.html">5</a><a href="/chapters/06.html">6</a><a href="/chapters/07.html">7</a>
+    <a href="/chapters/08.html">8</a><a href="/chapters/09.html">9</a><a href="/chapters/10.html">10</a><a href="/chapters/11.html">11</a><a href="/chapters/12.html">12</a><a href="/chapters/13.html">13</a>
+  </div>
+  <a href="#" onclick="localStorage.removeItem('hc_license');window.location.href='/';return false" style="font-family:var(--mono);font-size:0.65rem;color:var(--text-dim);text-decoration:none;margin-left:1rem">Sign out</a>
+</nav>
+
+<div class="ch-header">
+  <div class="ch-num">Chapter 1</div>
+  <h1>All Languages are Good</h1>
+  <div class="epigraph">The problem was never the language. It was how they taught you to use it.</div>
+</div>
+
+<section class="demo-section">
+  <div class="demo-label">Demo: Call stack depth — Spring Boot request vs function pipeline</div>
+
+  <div class="stack-demo">
+    <div class="stack-panel crime">
+      <div class="panel-label">☠ Spring Boot — GET /api/users/42</div>
+      <div class="stack-frames" id="crimeStack"></div>
+      <div class="stack-status">
+        <div class="ss-item">Stack depth: <span class="ss-val bad" id="ss-crime-depth">0</span></div>
+        <div class="ss-item">Total ns: <span class="ss-val bad" id="ss-crime-ns">0</span></div>
+      </div>
+    </div>
+        <!-- S-CURVE DIVIDER -->
+    <div class="s-curve-divider">
+      <svg preserveAspectRatio="none" viewBox="0 0 40 450">
+        <defs>
+          <linearGradient id="scg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e9c46a" stop-opacity="0.5"/>
+            <stop offset="50%" stop-color="#e9c46a" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#e9c46a" stop-opacity="0.5"/>
+          </linearGradient>
+          <clipPath id="leftClip">
+            <path d="M0,0 L20,0 C28,112 12,225 20,337 C24,393 20,450 20,450 L0,450 Z"/>
+          </clipPath>
+          <clipPath id="rightClip">
+            <path d="M40,0 L20,0 C28,112 12,225 20,337 C24,393 20,450 20,450 L40,450 Z"/>
+          </clipPath>
+        </defs>
+        <rect x="0" y="0" width="40" height="450" fill="#0a0a0c" clip-path="url(#leftClip)"/>
+        <rect x="0" y="0" width="40" height="450" fill="#f0ede6" clip-path="url(#rightClip)"/>
+        <path d="M20,0 C28,112 12,225 20,337 C24,393 20,450 20,450" fill="none" stroke="url(#scg)" stroke-width="1"/>
+      </svg>
+    </div>
+<div class="stack-panel rescue">
+      <div class="panel-label">✦ Function pipeline — GET /users/42</div>
+      <div class="stack-frames" id="rescueStack"></div>
+      <div class="stack-status">
+        <div class="ss-item">Stack depth: <span class="ss-val good" id="ss-rescue-depth">0</span></div>
+        <div class="ss-item">Total ns: <span class="ss-val good" id="ss-rescue-ns">0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="demo-metrics">
+    <div class="dm crime"><div class="num" id="m-crime-depth">0</div><div class="desc">Max stack depth</div><div class="slowdown-sub" id="m-slowdown"></div></div>
+    <div class="dm rescue"><div class="num" id="m-rescue-depth">0</div><div class="desc">Max stack depth</div></div>
+    <div class="dm crime"><div class="num" id="m-crime-ns">0</div><div class="desc">Nanoseconds (framework)</div></div>
+    <div class="dm rescue"><div class="num" id="m-rescue-ns">0</div><div class="desc">Nanoseconds (your code)</div></div>
+  </div>
+  <div class="controls"><button onclick="runDemo()">Replay</button></div>
+</section>
+
+<section class="explanation">
+  <h2>What you just saw</h2>
+  <p>The <span class="warning">left panel</span> is a Spring Boot request. Before your code runs, the framework pushes ten stack frames: the servlet container, the dispatcher, the filter chain, the exception resolver, the transaction proxy, the AOP interceptor. Each frame is machinery the framework needs to orchestrate the request. Your actual business logic runs at the bottom of that stack, nested inside framework code you did not write and cannot see without a debugger.</p>
+  <p>The <span class="highlight">right panel</span> is a function pipeline. The HTTP handler calls validate, then query, then respond. Three frames. Each one is your code. There is no framework between you and the request. The call stack is a precise description of what is happening: parse, validate, query, respond.</p>
+  <p>The language is the same in both cases. Java can do either. So can Python, TypeScript, C#, and every other language in the selector on the landing page. The depth of the call stack is a choice made by the architecture, not a property of the language.</p>
+</section>
+
+<div class="transparency">
+  <strong>How this works:</strong> Stack traces captured from running applications using Java Flight Recorder (Spring Boot) and Python <code>sys.settrace</code> (function pipeline). Frame timings from nanosecond-precision profiling. Source: <a href="#">github.com/adamzwasserman/honest-code-traces</a>
+</div>
+
+<div class="ch-nav-bottom">
+  <a href="landing-v2.html">← Home</a>
+  <a href="/chapters/02.html">Ch.2: Classes Considered Harmful →</a>
+</div>
+
+<script>
+const crimeFrames = [
+  { name: 'DispatcherServlet.doDispatch()', ns: 45 },
+  { name: '  FilterChain.doFilter()', ns: 12 },
+  { name: '    SecurityFilter.doFilter()', ns: 180 },
+  { name: '      CorsFilter.doFilter()', ns: 8 },
+  { name: '        RequestMappingHandler.handle()', ns: 25 },
+  { name: '          HandlerMethodAdapter.invoke()', ns: 15 },
+  { name: '            TransactionInterceptor.invoke()', ns: 320 },
+  { name: '              CglibAopProxy.intercept()', ns: 22 },
+  { name: '                ExceptionHandlerResolver.resolve()', ns: 18 },
+  { name: '                  UserController.getUser()', ns: 8 },
+  { name: '                    UserService.findById()', ns: 12 },
+  { name: '                      UserRepository.findById()', ns: 280 },
+  { name: '                        EntityManager.find()', ns: 45 },
+];
+
+const rescueFrames = [
+  { name: 'handle_request(req)', ns: 5 },
+  { name: '  validate(req.params)', ns: 8 },
+  { name: '    query_user(conn, user_id)', ns: 280 },
+  { name: '  respond(200, user_data)', ns: 3 },
+];
+
+let running = false;
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function buildFrames(containerId, frames) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = frames.map((f, i) =>
+    `<div class="frame" id="${containerId}-${i}"><span class="frame-name">${f.name}</span><span class="frame-ns">${f.ns}ns</span></div>`
+  ).join('');
+}
+
+function resetAll() {
+  document.querySelectorAll('.frame').forEach(f => { f.classList.remove('visible','active','done'); });
+  ['ss-crime-depth','ss-crime-ns','ss-rescue-depth','ss-rescue-ns'].forEach(id => document.getElementById(id).textContent = '0');
+  ['m-crime-depth','m-rescue-depth','m-crime-ns','m-rescue-ns'].forEach(id => document.getElementById(id).textContent = '0');
+}
+
+async function runDemo() {
+  if (running) return;
+  running = true;
+  buildFrames('crimeStack', crimeFrames);
+  buildFrames('rescueStack', rescueFrames);
+  resetAll();
+  await wait(600);
+
+  let crimeNs = 0, rescueNs = 0;
+
+  const crimePromise = (async () => {
+    for (let i = 0; i < crimeFrames.length; i++) {
+      const el = document.getElementById('crimeStack-' + i);
+      el.classList.add('visible');
+      // Deactivate previous
+      if (i > 0) document.getElementById('crimeStack-' + (i-1)).classList.remove('active');
+      el.classList.add('active');
+      crimeNs += crimeFrames[i].ns;
+      document.getElementById('ss-crime-depth').textContent = i + 1;
+      document.getElementById('ss-crime-ns').textContent = crimeNs;
+      document.getElementById('m-crime-depth').textContent = i + 1;
+      document.getElementById('m-crime-ns').textContent = crimeNs;
+      await wait(350);
+    }
+    // Unwind
+    for (let i = crimeFrames.length - 1; i >= 0; i--) {
+      const el = document.getElementById('crimeStack-' + i);
+      el.classList.remove('active');
+      el.classList.add('done');
+      await wait(150);
+    }
+  })();
+
+  const rescuePromise = (async () => {
+    for (let i = 0; i < rescueFrames.length; i++) {
+      const el = document.getElementById('rescueStack-' + i);
+      el.classList.add('visible');
+      if (i > 0) document.getElementById('rescueStack-' + (i-1)).classList.remove('active');
+      el.classList.add('active');
+      rescueNs += rescueFrames[i].ns;
+      document.getElementById('ss-rescue-depth').textContent = i + 1;
+      document.getElementById('ss-rescue-ns').textContent = rescueNs;
+      document.getElementById('m-rescue-depth').textContent = i + 1;
+      document.getElementById('m-rescue-ns').textContent = rescueNs;
+      await wait(350);
+    }
+    for (let i = rescueFrames.length - 1; i >= 0; i--) {
+      const el = document.getElementById('rescueStack-' + i);
+      el.classList.remove('active');
+      el.classList.add('done');
+      await wait(150);
+    }
+  })();
+
+  await Promise.all([crimePromise, rescuePromise]);
+  await wait(4000);
+  running = false;
+  runDemo();
+}
+
+window.addEventListener('load', () => setTimeout(runDemo, 800));
+
+// Update slowdown multiplier
+function updateSlowdown() {
+  const crimeEl = document.getElementById('m-crime-depth');
+  const rescueEl = document.getElementById('m-rescue-depth');
+  if (!crimeEl || !rescueEl) return;
+  const crime = parseFloat(crimeEl.textContent.replace(/,/g, '')) || 0;
+  const rescue = parseFloat(rescueEl.textContent.replace(/,/g, '')) || 0;
+  const el = document.getElementById('m-slowdown');
+  if (el && rescue > 0 && crime > rescue) {
+    el.textContent = Math.round(crime / rescue) + '× deeper';
+  }
+}
+// Hook into existing animation — poll until stable
+const _slowdownInterval = setInterval(updateSlowdown, 500);
+</script>
+</body>
+</html>

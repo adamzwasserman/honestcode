@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.13: The Monday Morning Chapter — Honest Code</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
+  :root { --bg:#0a0a0c;--surface:#111116;--border:#1e1e26;--text:#c8c8d0;--text-dim:#6a6a78;--red:#e63946;--red-dim:#e6394620;--red-glow:#e6394660;--green:#2a9d8f;--green-dim:#2a9d8f20;--green-glow:#2a9d8f60;--gold:#e9c46a;--gold-dim:#e9c46a20;--mono:'JetBrains Mono',monospace;--serif:'Literata',Georgia,serif; --cream:#f0ede6;--cream-surface:#e8e4dc;--cream-border:#d5d0c7;--cream-text:#2a2a2e;--cream-dim:#6a6a68;}
+  * { margin:0;padding:0;box-sizing:border-box; }
+  body { background:var(--bg);color:var(--text);font-family:var(--serif);line-height:1.6; }
+  nav { position:fixed;top:0;width:100%;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:0.8rem 2rem;display:flex;align-items:center;justify-content:space-between; }
+  nav .logo { font-family:var(--mono);font-weight:700;font-size:1rem;color:var(--green); } nav .logo span { color:var(--red); }
+  nav .chapter-nav { display:flex;gap:0.3rem; }
+  nav .chapter-nav a { font-family:var(--mono);font-size:0.65rem;color:var(--text-dim);text-decoration:none;padding:0.3rem 0.5rem;border:1px solid transparent;transition:all 0.2s; }
+  nav .chapter-nav a:hover { color:var(--text);border-color:var(--border); } nav .chapter-nav a.active { color: var(--gold);border-color: var(--gold); }
+  .ch-header { padding:7rem 2rem 3rem;max-width:900px;margin:0 auto; }
+  .ch-header .ch-num { font-family:var(--mono);font-size:0.7rem;color: var(--gold);text-transform:uppercase;letter-spacing:0.12em; }
+  .ch-header h1 { font-family:var(--mono);font-size:clamp(1.5rem,4vw,2.5rem);font-weight:700;margin-top:0.3rem; }
+  .ch-header .epigraph { font-family:var(--serif);font-style:italic;color: var(--gold); opacity: 0.8;font-size:1rem;margin-top:0.5rem; }
+  .demo-section { max-width:1100px;margin:2rem auto;padding:0 2rem; }
+  .demo-label { font-family:var(--mono);font-size:0.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem; }
+
+  .strangler { display:grid;grid-template-columns: 1fr auto 1fr;gap: 0;border:1px solid var(--border); }
+  .strangler-panel { background:var(--surface);padding:1.5rem;min-height:480px;display:flex;flex-direction:column; }
+  .strangler-panel .panel-label { font-family:var(--mono);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem; }
+  .strangler-panel.crime .panel-label { color:var(--red); }
+  .strangler-panel.rescue .panel-label { color:var(--green); }
+
+  .class-shell {
+    font-family:var(--mono);font-size:0.65rem;border:1px solid var(--border);
+    background:var(--bg);margin-top:0.5rem;transition:all 0.5s;overflow:hidden;
+  }
+  .class-header {
+    padding:0.5rem 0.8rem;border-bottom:1px solid var(--border);
+    color:var(--red);font-weight:600;transition:all 0.5s;
+  }
+  .class-header.dead { color:var(--text-dim);text-decoration:line-through;opacity:0.4; }
+  .class-header.gone { display:none; }
+
+  .method-block {
+    padding:0.4rem 0.8rem;border-bottom:1px solid var(--border);
+    color:var(--text);transition:all 0.5s;position:relative;overflow:hidden;
+  }
+  .method-block:last-child { border-bottom:none; }
+  .method-block.extracting {
+    background:var(--gold-dim);color:var(--gold);
+  }
+  .method-block.extracted {
+    max-height:0;padding:0 0.8rem;opacity:0;border-bottom:none;
+  }
+
+  .func-list { margin-top:0.5rem;display:flex;flex-direction:column;gap:3px; }
+  .func-block {
+    font-family:var(--mono);font-size:0.65rem;padding:0.4rem 0.8rem;
+    border:1px solid var(--border);background:var(--bg);color:var(--text);
+    opacity:0;transform:translateX(20px);
+    transition:opacity 0.4s,transform 0.4s,border-color 0.3s,background 0.3s;
+  }
+  .func-block.visible { opacity:1;transform:translateX(0); }
+  .func-block.arriving { border-color:var(--green);background:var(--green-dim);color:var(--green); }
+
+  .sprint-bar { margin-top:auto;padding-top:1rem;border-top:1px solid var(--border);font-family:var(--mono);font-size:0.7rem;display:flex;gap:1.5rem; }
+  .sprint-bar .sb-item { color:var(--text-dim); }
+  .sprint-bar .sb-val { font-weight:600;margin-left:0.3rem; }
+  .sprint-bar .sb-val.bad { color:var(--red); }
+  .sprint-bar .sb-val.good { color:var(--green); }
+
+  .sprint-counter {
+    text-align:center;margin-top:1rem;font-family:var(--mono);
+    font-size:0.8rem;color:var(--text-dim);
+  }
+  .sprint-counter .sprint-num { color:var(--gold);font-weight:700;font-size:1.1rem; }
+
+  .demo-metrics { display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--border);border:1px solid var(--border);margin-top:2px; }
+  .dm { background:var(--surface);padding:1rem;text-align:center; }
+  .dm .num { font-family:var(--mono);font-size:1.4rem;font-weight:700; }
+  .dm.crime .num { color:var(--red); } .dm.rescue .num { color:var(--green); }
+  .dm .desc { font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-top:0.2rem; }
+  .controls { display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:1.5rem; }
+  .controls button { font-family:var(--mono);font-size:0.65rem;padding:0.3rem 0.8rem;background:transparent;color:var(--text-dim);border:1px solid var(--border);cursor:pointer;transition:all 0.2s; }
+  .controls button:hover { color:var(--green);border-color:var(--green); }
+  .explanation { max-width:700px;margin:4rem auto;padding:0 2rem; }
+  .explanation h2 { font-family:var(--mono);font-size:0.8rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem; }
+  .explanation p { font-family:var(--serif);font-size:0.95rem;color:var(--text);line-height:1.8;margin-bottom:1rem; }
+  .explanation .highlight { color:var(--green); } .explanation .warning { color:var(--red); }
+  .transparency { max-width:700px;margin:3rem auto;padding:1.2rem 1.5rem;border:1px solid var(--border);background:var(--surface);font-family:var(--mono);font-size:0.65rem;color:var(--text-dim);line-height:1.8; }
+  .transparency strong { color:var(--text); } .transparency a { color:var(--green);text-decoration:none; }
+  .ch-nav-bottom { display:flex;justify-content:space-between;max-width:700px;margin:3rem auto 4rem;padding:0 2rem; }
+  .ch-nav-bottom a { font-family:var(--mono);font-size:0.75rem;color:var(--text-dim);text-decoration:none;padding:0.5rem 1rem;border:1px solid var(--border);transition:all 0.2s; }
+  .ch-nav-bottom a:hover { color:var(--green);border-color:var(--green); }
+
+  .strangler-panel.crime { background: var(--bg); }
+  .strangler-panel.rescue { background: var(--cream); color: var(--cream-text); }
+  .strangler-panel.rescue .panel-label { color: var(--green); }
+
+  /* S-CURVE DIVIDER */
+  .s-curve-divider { width: 40px; position: relative; z-index: 2; }
+  .s-curve-divider svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+  .strangler-panel.rescue { background: var(--cream) !important; color: var(--cream-text); }
+  .strangler-panel.rescue .module { border-color: var(--cream-border); background: var(--cream-surface); color: var(--cream-text); }
+  .strangler-panel.rescue .module .mname { color: var(--cream-text); }
+  .strangler-panel.rescue .module .mtype { color: var(--cream-dim); }
+  .strangler-panel.rescue .panel-label { color: var(--green); }
+
+
+  /* SLOWDOWN SUBSCRIPT */
+  .slowdown-sub { font-family: var(--mono); font-size: 0.6rem; color: var(--red); margin-top: 2px; }
+
+  /* TEST RUNNER PANEL */
+  .test-section-label {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.1em; margin: 2rem 0 1rem;
+  }
+  .test-runner { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0; border: 1px solid var(--border); }
+  .test-panel { padding: 1.2rem; min-height: 280px; display: flex; flex-direction: column; }
+  .test-panel.crime { background: var(--bg); }
+  .test-panel.rescue { background: var(--cream); color: var(--cream-text); }
+  .test-panel .panel-label { font-family: var(--mono); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+  .test-panel.crime .panel-label { color: var(--red); }
+  .test-panel.rescue .panel-label { color: var(--green); }
+
+  .test-line {
+    font-family: var(--mono); font-size: 0.6rem; padding: 0.2rem 0.5rem;
+    border-left: 2px solid transparent; color: var(--text-dim);
+    transition: all 0.3s; white-space: pre; line-height: 1.6;
+  }
+  .test-line.boilerplate { color: var(--text-dim); opacity: 0.5; }
+  .test-line.active { opacity: 1; border-left-color: var(--red); color: var(--red); background: var(--red-dim); }
+  .test-line.done { opacity: 0.6; }
+  .test-line.pass { border-left-color: var(--green); color: var(--green); }
+
+  .test-panel.rescue .test-line { color: var(--cream-dim); }
+  .test-panel.rescue .test-line.active { border-left-color: var(--green); color: var(--green); background: #dff5f1; }
+  .test-panel.rescue .test-line.done { color: var(--cream-dim); opacity: 0.6; }
+  .test-panel.rescue .test-line.pass { border-left-color: var(--green); color: var(--green); }
+
+  .test-result {
+    margin-top: auto; padding-top: 0.8rem; border-top: 1px solid var(--border);
+    font-family: var(--mono); font-size: 0.65rem;
+  }
+  .test-panel.rescue .test-result { border-top-color: var(--cream-border); }
+  .test-result .pass-count { color: var(--green); font-weight: 600; }
+  .test-result .time { color: var(--text-dim); }
+  .test-panel.rescue .test-result .time { color: var(--cream-dim); }
+</style>
+</head>
+<body>
+<script>if(!localStorage.getItem('hc_license')){window.location.href='/login.html?next='+encodeURIComponent(location.pathname);document.documentElement.innerHTML='';}</script>
+<nav>
+  <a href="landing-v2.html" style="text-decoration:none"><div class="logo">honest<span>code</span>.software</div></a>
+  <div class="chapter-nav">
+    <a href="/chapters/01.html">1</a><a href="/chapters/02.html">2</a><a href="/chapters/03.html">3</a>
+    <a href="/chapters/04.html">4</a><a href="/chapters/05.html">5</a><a href="/chapters/06.html">6</a><a href="/chapters/07.html">7</a>
+    <a href="/chapters/08.html">8</a><a href="/chapters/09.html">9</a><a href="/chapters/10.html">10</a><a href="/chapters/11.html">11</a>
+    <a href="/chapters/12.html">12</a><a href="#" class="active">13</a>
+  </div>
+  <a href="#" onclick="localStorage.removeItem('hc_license');window.location.href='/';return false" style="font-family:var(--mono);font-size:0.65rem;color:var(--text-dim);text-decoration:none;margin-left:1rem">Sign out</a>
+</nav>
+
+<div class="ch-header">
+  <div class="ch-num">Chapter 13</div>
+  <h1>The Monday Morning Chapter</h1>
+  <div class="epigraph">You don't rewrite. You strangle.</div>
+</div>
+
+<section class="demo-section">
+  <div class="demo-label">Demo: 10 methods, 12 sprints — watch the class disappear</div>
+
+  <div class="strangler">
+    <div class="strangler-panel crime">
+      <div class="panel-label">☠ class Order</div>
+      <div class="class-shell" id="classShell">
+        <div class="class-header" id="classHeader">class Order:</div>
+        <div class="method-block" id="m-0">def add_item(self, item)</div>
+        <div class="method-block" id="m-1">def remove_item(self, sku)</div>
+        <div class="method-block" id="m-2">def calculate_total(self)</div>
+        <div class="method-block" id="m-3">def apply_coupon(self, code)</div>
+        <div class="method-block" id="m-4">def calculate_tax(self)</div>
+        <div class="method-block" id="m-5">def calculate_discount(self)</div>
+        <div class="method-block" id="m-6">def validate(self)</div>
+        <div class="method-block" id="m-7">def serialize(self)</div>
+        <div class="method-block" id="m-8">def save(self)</div>
+        <div class="method-block" id="m-9">def send_confirmation(self)</div>
+      </div>
+      <div class="sprint-bar">
+        <div class="sb-item">Methods remaining: <span class="sb-val bad" id="sb-remaining">10</span></div>
+      </div>
+    </div>
+        <!-- S-CURVE DIVIDER -->
+    <div class="s-curve-divider">
+      <svg preserveAspectRatio="none" viewBox="0 0 40 450">
+        <defs>
+          <linearGradient id="scg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e9c46a" stop-opacity="0.5"/>
+            <stop offset="50%" stop-color="#e9c46a" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#e9c46a" stop-opacity="0.5"/>
+          </linearGradient>
+          <clipPath id="leftClip">
+            <path d="M0,0 L20,0 C28,112 12,225 20,337 C24,393 20,450 20,450 L0,450 Z"/>
+          </clipPath>
+          <clipPath id="rightClip">
+            <path d="M40,0 L20,0 C28,112 12,225 20,337 C24,393 20,450 20,450 L40,450 Z"/>
+          </clipPath>
+        </defs>
+        <rect x="0" y="0" width="40" height="450" fill="#0a0a0c" clip-path="url(#leftClip)"/>
+        <rect x="0" y="0" width="40" height="450" fill="#f0ede6" clip-path="url(#rightClip)"/>
+        <path d="M20,0 C28,112 12,225 20,337 C24,393 20,450 20,450" fill="none" stroke="url(#scg)" stroke-width="1"/>
+      </svg>
+    </div>
+<div class="strangler-panel rescue">
+      <div class="panel-label">✦ Pure functions</div>
+      <div class="func-list" id="funcList"></div>
+      <div class="sprint-bar">
+        <div class="sb-item">Functions extracted: <span class="sb-val good" id="sb-extracted">0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sprint-counter">Sprint <span class="sprint-num" id="sprintNum">0</span> / 12</div>
+
+  <div class="demo-metrics">
+    <div class="dm crime"><div class="num" id="m-exec-crime">0</div><div class="desc">Execution ns (class)</div><div class="slowdown-sub" id="m-exec-slowdown"></div></div>
+    <div class="dm rescue"><div class="num" id="m-exec-rescue">0</div><div class="desc">Execution ns (functions)</div></div>
+    <div class="dm crime"><div class="num" id="m-test-crime">0</div><div class="desc">Test ns (class)</div><div class="slowdown-sub" id="m-test-slowdown"></div></div>
+    <div class="dm rescue"><div class="num" id="m-test-rescue">0</div><div class="desc">Test ns (functions)</div></div>
+  </div>
+  <div class="controls"><button onclick="runDemo()">Replay</button></div>
+
+  <div class="test-section-label">Test suite — updates each sprint</div>
+  <div class="test-runner">
+    <div class="test-panel crime">
+      <div class="panel-label">☠ Class tests (mock ceremony)</div>
+      <div id="crimeTests"></div>
+      <div class="test-result">
+        <span class="pass-count" id="crime-pass">0</span> passed · <span class="time" id="crime-time">0 ns</span>
+      </div>
+    </div>
+    <div class="s-curve-divider">
+      <svg preserveAspectRatio="none" viewBox="0 0 40 280">
+        <defs>
+          <linearGradient id="scg2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e9c46a" stop-opacity="0.5"/>
+            <stop offset="50%" stop-color="#e9c46a" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#e9c46a" stop-opacity="0.5"/>
+          </linearGradient>
+          <clipPath id="leftClip2"><path d="M0,0 L20,0 C28,70 12,140 20,210 C24,245 20,280 20,280 L0,280 Z"/></clipPath>
+          <clipPath id="rightClip2"><path d="M40,0 L20,0 C28,70 12,140 20,210 C24,245 20,280 20,280 L40,280 Z"/></clipPath>
+        </defs>
+        <rect x="0" y="0" width="40" height="280" fill="#0a0a0c" clip-path="url(#leftClip2)"/>
+        <rect x="0" y="0" width="40" height="280" fill="#f0ede6" clip-path="url(#rightClip2)"/>
+        <path d="M20,0 C28,70 12,140 20,210 C24,245 20,280 20,280" fill="none" stroke="url(#scg2)" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="test-panel rescue">
+      <div class="panel-label">✦ Function tests (assert)</div>
+      <div id="rescueTests"></div>
+      <div class="test-result">
+        <span class="pass-count" id="rescue-pass">0</span> passed · <span class="time" id="rescue-time">0 ns</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="explanation">
+  <h2>What you just saw</h2>
+  <p>Each sprint extracts one method from the class into a pure function. The method disappears from the class. The function appears on the right. The class call that used to invoke <code>self.calculate_total()</code> now calls <code>calculate_total(items, coupons, tax_rates)</code>. The behavior is identical. The tests still pass. But the function is independently testable, has no hidden dependencies, and can be composed with other functions without instantiating the class.</p>
+  <p>By Sprint 10, the class is an empty shell: a declaration with no methods. Sprint 11 deletes the class declaration. Sprint 12 is the cleanup: remove the import, delete the file. Twelve sprints. Thirty seconds in the animation. Three weeks in a production codebase.</p>
+  <p>This is the strangler pattern. You do not rewrite the system. You extract from it, one piece at a time, until the original structure is gone and only the functions remain. Every sprint ships. Every sprint is safe. No big bang. No rewrite. Just steady, incremental improvement that compounds over time.</p>
+</section>
+
+<div class="transparency">
+  <strong>How this works:</strong> Each extraction step is a real git commit in the example repository. The Order class is the same one used throughout the book. The refactoring took 3 weeks in a production codebase. The animation compresses it to 30 seconds. Source: <a href="#">github.com/adamzwasserman/honest-code-traces</a>
+</div>
+
+<div class="ch-nav-bottom">
+  <a href="/chapters/12.html">← Ch.12: The Declarative Principle</a>
+  <a href="landing-v2.html">Home →</a>
+</div>
+
+<script>
+const methods = [
+  { id: 'm-0', func: 'add_item(items, new_item)', testName: 'test_add_item' },
+  { id: 'm-1', func: 'remove_item(items, sku)', testName: 'test_remove_item' },
+  { id: 'm-2', func: 'calculate_total(items)', testName: 'test_calculate_total' },
+  { id: 'm-3', func: 'apply_coupon(total, code, coupons)', testName: 'test_apply_coupon' },
+  { id: 'm-4', func: 'calculate_tax(subtotal, region, rates)', testName: 'test_calculate_tax' },
+  { id: 'm-5', func: 'calculate_discount(total, code, coupons)', testName: 'test_calculate_discount' },
+  { id: 'm-6', func: 'validate_order(items, rules)', testName: 'test_validate_order' },
+  { id: 'm-7', func: 'serialize_order(order_data)', testName: 'test_serialize_order' },
+  { id: 'm-8', func: 'save_order(conn, order_data)', testName: 'test_save_order' },
+  { id: 'm-9', func: 'send_confirmation(email_fn, order_data)', testName: 'test_send_confirmation' },
+];
+
+// Nanosecond costs per operation
+const NS = {
+  vtableDispatch: 15,       // virtual method dispatch via vtable
+  selfLookup: 8,            // self.field access (pointer chase)
+  singletonLookup: 80,      // Singleton.getInstance() cache miss
+  mockSetup: 120,           // mock object construction
+  mockInject: 45,           // mock injection into instance
+  setUp: 200,               // setUp() instance construction + wiring
+  tearDown: 50,             // tearDown() cleanup
+  directCall: 3,            // direct function call (no vtable)
+  registerArith: 2,         // arithmetic on data in registers
+  assertCall: 5,            // assert result == expected
+};
+
+// Per method: how many self lookups + whether it hits a singleton
+const methodCosts = [
+  { selfLookups: 2, singleton: false },  // add_item
+  { selfLookups: 2, singleton: false },  // remove_item
+  { selfLookups: 3, singleton: false },  // calculate_total
+  { selfLookups: 2, singleton: true },   // apply_coupon (CouponRegistry)
+  { selfLookups: 2, singleton: true },   // calculate_tax (TaxService)
+  { selfLookups: 2, singleton: true },   // calculate_discount (CouponRegistry)
+  { selfLookups: 3, singleton: false },  // validate
+  { selfLookups: 2, singleton: false },  // serialize
+  { selfLookups: 1, singleton: false },  // save
+  { selfLookups: 1, singleton: false },  // send_confirmation
+];
+
+function calcExecNs(numClassMethods, numFunctions) {
+  let crimeNs = 0, rescueNs = 0;
+  for (let i = 0; i < 10; i++) {
+    const mc = methodCosts[i];
+    if (i < numClassMethods) {
+      // Still a class method: vtable dispatch + self lookups + possible singleton
+      crimeNs += NS.vtableDispatch + (mc.selfLookups * NS.selfLookup);
+      if (mc.singleton) crimeNs += NS.singletonLookup;
+      crimeNs += NS.registerArith;
+    }
+    if (i < numFunctions) {
+      // Pure function: direct call + register arithmetic
+      rescueNs += NS.directCall + NS.registerArith;
+    }
+  }
+  return { crimeNs, rescueNs };
+}
+
+function calcTestNs(numClassMethods, numFunctions) {
+  // Class test: setUp + (mock creation per dependency) + test body + tearDown per test
+  // Each class method test needs instance construction, mocks for singletons, setUp/tearDown
+  let crimeNs = 0;
+  for (let i = 0; i < numClassMethods; i++) {
+    const mc = methodCosts[i];
+    crimeNs += NS.setUp;
+    if (mc.singleton) { crimeNs += NS.mockSetup + NS.mockInject; }
+    crimeNs += NS.vtableDispatch + (mc.selfLookups * NS.selfLookup);
+    crimeNs += NS.assertCall;
+    crimeNs += NS.tearDown;
+  }
+  // Function test: just call + assert
+  let rescueNs = 0;
+  for (let i = 0; i < numFunctions; i++) {
+    rescueNs += NS.directCall + NS.registerArith + NS.assertCall;
+  }
+  return { crimeNs, rescueNs };
+}
+
+// Class test boilerplate per method
+function classTestLines(methodIdx) {
+  const m = methods[methodIdx];
+  const mc = methodCosts[methodIdx];
+  const lines = [
+    `def ${m.testName}(self):`,
+    `    order = Order()          # setUp`,
+  ];
+  if (mc.singleton) {
+    lines.push(`    mock_svc = Mock()        # mock`);
+    lines.push(`    order.inject(mock_svc)   # inject`);
+  }
+  lines.push(`    order.${m.id.replace('m-','')}(...)     # call`);
+  lines.push(`    self.assertEqual(...)     # assert`);
+  lines.push(`    order.tearDown()          # cleanup`);
+  return lines;
+}
+
+// Function test: just call + assert
+function funcTestLines(methodIdx) {
+  const m = methods[methodIdx];
+  return [
+    `def ${m.testName}():`,
+    `    assert ${m.func.split('(')[0]}(...) == expected`,
+  ];
+}
+
+let running = false;
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function updateMetrics(numClassMethods, numFunctions) {
+  const exec = calcExecNs(numClassMethods, numFunctions);
+  const test = calcTestNs(numClassMethods, numFunctions);
+
+  document.getElementById('m-exec-crime').textContent = exec.crimeNs.toLocaleString();
+  document.getElementById('m-exec-rescue').textContent = exec.rescueNs.toLocaleString();
+  document.getElementById('m-test-crime').textContent = test.crimeNs.toLocaleString();
+  document.getElementById('m-test-rescue').textContent = test.rescueNs.toLocaleString();
+
+  if (exec.rescueNs > 0) {
+    document.getElementById('m-exec-slowdown').textContent = Math.round(exec.crimeNs / exec.rescueNs) + '× slower';
+  }
+  if (test.rescueNs > 0) {
+    document.getElementById('m-test-slowdown').textContent = Math.round(test.crimeNs / test.rescueNs) + '× slower';
+  }
+}
+
+function buildTestPanels(numClassMethods, numFunctions) {
+  const crimeEl = document.getElementById('crimeTests');
+  const rescueEl = document.getElementById('rescueTests');
+  crimeEl.innerHTML = '';
+  rescueEl.innerHTML = '';
+
+  // Build class tests for remaining methods
+  for (let i = 0; i < numClassMethods; i++) {
+    const lines = classTestLines(i);
+    lines.forEach((line, j) => {
+      const div = document.createElement('div');
+      div.className = 'test-line' + (j > 0 && j < lines.length - 1 ? ' boilerplate' : '');
+      div.textContent = line;
+      crimeEl.appendChild(div);
+    });
+  }
+
+  // Build function tests for extracted functions
+  for (let i = 0; i < numFunctions; i++) {
+    const lines = funcTestLines(i);
+    lines.forEach(line => {
+      const div = document.createElement('div');
+      div.className = 'test-line';
+      div.textContent = line;
+      rescueEl.appendChild(div);
+    });
+  }
+
+  // Update pass counts
+  document.getElementById('crime-pass').textContent = numClassMethods;
+  document.getElementById('rescue-pass').textContent = numFunctions;
+
+  const test = calcTestNs(numClassMethods, numFunctions);
+  document.getElementById('crime-time').textContent = test.crimeNs.toLocaleString() + ' ns';
+  document.getElementById('rescue-time').textContent = test.rescueNs.toLocaleString() + ' ns';
+}
+
+function resetAll() {
+  methods.forEach(m => {
+    const el = document.getElementById(m.id);
+    el.classList.remove('extracting','extracted');
+    el.style.maxHeight = '';
+    el.style.padding = '';
+    el.style.opacity = '';
+    el.style.borderBottom = '';
+  });
+  document.getElementById('classHeader').className = 'class-header';
+  document.getElementById('classHeader').style.display = '';
+  document.getElementById('funcList').innerHTML = '';
+  document.getElementById('sb-remaining').textContent = '10';
+  document.getElementById('sb-extracted').textContent = '0';
+  document.getElementById('sprintNum').textContent = '0';
+  document.getElementById('m-exec-crime').textContent = '0';
+  document.getElementById('m-exec-rescue').textContent = '0';
+  document.getElementById('m-test-crime').textContent = '0';
+  document.getElementById('m-test-rescue').textContent = '0';
+  document.getElementById('m-exec-slowdown').textContent = '';
+  document.getElementById('m-test-slowdown').textContent = '';
+  document.getElementById('crimeTests').innerHTML = '';
+  document.getElementById('rescueTests').innerHTML = '';
+  document.getElementById('crime-pass').textContent = '0';
+  document.getElementById('rescue-pass').textContent = '0';
+  document.getElementById('crime-time').textContent = '0 ns';
+  document.getElementById('rescue-time').textContent = '0 ns';
+}
+
+async function runDemo() {
+  if (running) return;
+  running = true;
+  resetAll();
+
+  // Show initial state: 10 class methods, 0 functions
+  updateMetrics(10, 0);
+  buildTestPanels(10, 0);
+  await wait(800);
+
+  // Sprints 1-10: extract one method per sprint
+  for (let i = 0; i < 10; i++) {
+    const sprint = i + 1;
+    document.getElementById('sprintNum').textContent = sprint;
+
+    // Highlight the method being extracted
+    const mel = document.getElementById(methods[i].id);
+    mel.classList.add('extracting');
+    await wait(600);
+
+    // Collapse it out of the class
+    mel.classList.remove('extracting');
+    mel.classList.add('extracted');
+    await wait(400);
+
+    // Add function to right side
+    const fel = document.createElement('div');
+    fel.className = 'func-block';
+    fel.textContent = 'def ' + methods[i].func;
+    document.getElementById('funcList').appendChild(fel);
+    requestAnimationFrame(() => { fel.classList.add('visible','arriving'); });
+    await wait(300);
+    fel.classList.remove('arriving');
+
+    // Update counters
+    const remaining = 10 - sprint;
+    document.getElementById('sb-remaining').textContent = remaining;
+    document.getElementById('sb-extracted').textContent = sprint;
+
+    // Update nanosecond metrics
+    updateMetrics(remaining, sprint);
+
+    // Update test panels
+    buildTestPanels(remaining, sprint);
+
+    await wait(800);
+  }
+
+  // Sprint 11: delete the class shell
+  document.getElementById('sprintNum').textContent = '11';
+  document.getElementById('classHeader').classList.add('dead');
+  updateMetrics(0, 10);
+  buildTestPanels(0, 10);
+  await wait(1200);
+
+  // Sprint 12: remove the file
+  document.getElementById('sprintNum').textContent = '12';
+  document.getElementById('classHeader').classList.remove('dead');
+  document.getElementById('classHeader').classList.add('gone');
+  document.getElementById('sb-remaining').textContent = '—';
+  document.getElementById('m-exec-crime').textContent = '0';
+  document.getElementById('m-test-crime').textContent = '0';
+  document.getElementById('m-exec-slowdown').textContent = 'eliminated';
+  document.getElementById('m-test-slowdown').textContent = 'eliminated';
+  document.getElementById('crime-pass').textContent = '0';
+  document.getElementById('crime-time').textContent = '0 ns';
+  document.getElementById('crimeTests').innerHTML = '<div class="test-line" style="color:var(--text-dim);font-style:italic">// class deleted — no tests needed</div>';
+  await wait(1500);
+
+  // Flash all functions green
+  document.querySelectorAll('.func-block').forEach((f, i) => {
+    setTimeout(() => f.classList.add('arriving'), i * 80);
+    setTimeout(() => f.classList.remove('arriving'), i * 80 + 500);
+  });
+
+  await wait(4000);
+  running = false;
+  runDemo();
+}
+
+window.addEventListener('load', () => setTimeout(runDemo, 800));
+</script>
+</body>
+</html>
