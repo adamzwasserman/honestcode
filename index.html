@@ -211,6 +211,53 @@
     font-family: var(--serif); font-size: 0.9rem; color: var(--text); line-height: 1.7; margin-bottom: 1rem;
   }
 
+  /* TESTIMONIAL TICKER */
+  .testimonial-section {
+    max-width: 100%; margin: 4rem auto 0; overflow: hidden; position: relative;
+  }
+  .testimonial-section h2 {
+    font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 1.5rem; text-align: center;
+  }
+  .ticker-wrap {
+    overflow: hidden; position: relative;
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  }
+  .ticker-track {
+    display: flex; gap: 1.5rem; width: max-content;
+    animation: ticker 60s linear infinite;
+  }
+  .ticker-track:hover { animation-play-state: paused; }
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  .tcard {
+    flex-shrink: 0; width: 320px; height: 200px; position: relative;
+    border: 1px solid var(--border); overflow: hidden; cursor: default;
+  }
+  .tcard-bg {
+    position: absolute; inset: 0; background-size: cover; background-position: top center;
+    filter: brightness(0.25); transition: filter 0.3s;
+  }
+  .tcard:hover .tcard-bg { filter: brightness(0.4); }
+  .tcard-content {
+    position: relative; z-index: 1; height: 100%; display: flex;
+    flex-direction: column; justify-content: flex-end; padding: 1.2rem;
+  }
+  .tcard-quote {
+    font-family: var(--serif); font-size: 0.85rem; font-weight: 700;
+    color: #fff; line-height: 1.5; margin-bottom: 0.3rem;
+  }
+  .tcard-context {
+    font-family: var(--serif); font-size: 0.65rem; font-style: italic;
+    color: var(--text-dim); line-height: 1.4; margin-bottom: 0.5rem;
+  }
+  .tcard-name {
+    font-family: var(--mono); font-size: 0.7rem; font-weight: 600; color: var(--green);
+  }
+  .tcard-title {
+    font-family: var(--mono); font-size: 0.6rem; color: var(--text-dim); line-height: 1.3;
+  }
+
   /* CHAPTER CARD ENHANCEMENTS */
   .chapter-card a { text-decoration: none; color: inherit; display: block; }
   .chapter-card .ch-langs {
@@ -429,6 +476,27 @@
   <div class="author-sig">Writing code since 1986. Not bad for a boomer.</div>
   <p>Former CTO at IATA, where the software handles $900 billion in airline transactions per year. After that, Director at CGI leading 150+ programmers specializing in telecoms enterprise web sites. Now focused on three startups. Massive web and mobile app experience at all scales — from solo prototypes to systems serving every airline on earth.</p>
   <p>I've spent four decades watching smart people write bad code — not because they're bad at programming, but because they were trained to reach for classes, inheritance, and mutable state when their language already had the fix. This book is everything I wish someone had told me in 1986.</p>
+</section>
+
+<section class="testimonial-section">
+  <h2>What People Say</h2>
+  <div class="ticker-wrap">
+    <div class="ticker-track" id="ticker-track">
+      <div class="tcard"><div class="tcard-bg" style="background-image:url('/testamonials/dahl.png')"></div><div class="tcard-content"><div class="tcard-quote">"Simplificator"</div><div class="tcard-name">Bernard Dahl</div><div class="tcard-title">Brand / Storyteller</div></div></div>
+      <div class="tcard"><div class="tcard-bg" style="background-image:url('/testamonials/shibl1.png')"></div><div class="tcard-content"><div class="tcard-quote">"Only later did this approach become an industry buzz word"</div><div class="tcard-context">On designing a stateless HTTP/XML architecture for the airline industry, 1999</div><div class="tcard-name">Shibl Mourad</div><div class="tcard-title">North America Research Engineering Lead, Google DeepMind</div></div></div>
+      <div class="tcard"><div class="tcard-bg" style="background-image:url('/testamonials/shibl2.png')"></div><div class="tcard-content"><div class="tcard-quote">"Ideas that sound outlandish but prove to be right a few years down the road"</div><div class="tcard-context">On proposing device divergence at the height of the convergence craze</div><div class="tcard-name">Shibl Mourad</div><div class="tcard-title">North America Research Engineering Lead, Google DeepMind</div></div></div>
+      <div class="tcard"><div class="tcard-bg" style="background-image:url('/testamonials/shibl3.png')"></div><div class="tcard-content"><div class="tcard-quote">"The closest person I know to a strategic genius"</div><div class="tcard-name">Shibl Mourad</div><div class="tcard-title">North America Research Engineering Lead, Google DeepMind</div></div></div>
+      <div class="tcard"><div class="tcard-bg" style="background-image:url('/testamonials/omer.png')"></div><div class="tcard-content"><div class="tcard-quote">"An IT executive like no other"</div><div class="tcard-name">Omer Ahmad</div><div class="tcard-title">Vice President, Technology @ Klick</div></div></div>
+      <div class="tcard"><div class="tcard-bg" style="background-image:url('/testamonials/brabant.png')"></div><div class="tcard-content"><div class="tcard-quote">"The most analytical and technology literate marketing guy I have ever met"</div><div class="tcard-name">Frederic Brabant</div><div class="tcard-title">Chief Technology Officer, Rekruti</div></div></div>
+      <div class="tcard"><div class="tcard-bg" style="background-image:url('/testamonials/daniel.png')"></div><div class="tcard-content"><div class="tcard-quote">"Tr&egrave;s m&eacute;ticuleux"</div><div class="tcard-context">On managing complex projects</div><div class="tcard-name">Daniel Boissonneault</div><div class="tcard-title">Associate Chief Executive Officer</div></div></div>
+      <div class="tcard"><div class="tcard-bg" style="background-image:url('/testamonials/roy.png')"></div><div class="tcard-content"><div class="tcard-quote">"Tr&egrave;s brillant"</div><div class="tcard-context">On leading technical delivery</div><div class="tcard-name">Guillaume Roy</div><div class="tcard-title">Co-founder &amp; CTO, Worksleap</div></div></div>
+      <div class="tcard"><div class="tcard-bg" style="background-image:url('/testamonials/liles.png')"></div><div class="tcard-content"><div class="tcard-quote">"Enviable ability to build excitement around abstract ideas in technology"</div><div class="tcard-context">On positioning complex technical concepts for C-level audiences</div><div class="tcard-name">Douglas Liles</div><div class="tcard-title">Principal Product Manager, Oracle Health</div></div></div>
+      <div class="tcard"><div class="tcard-bg" style="background-image:url('/testamonials/moon.png')"></div><div class="tcard-content"><div class="tcard-quote">"A rare combination of talents and motivations"</div><div class="tcard-context">On bridging technical deployment, strategic marketing, and systems thinking</div><div class="tcard-name">Michael Moon</div><div class="tcard-title">Advisor to Series A-C Startups | AI-led Growth Architect</div></div></div>
+      <div class="tcard"><div class="tcard-bg" style="background-image:url('/testamonials/ducharme.png')"></div><div class="tcard-content"><div class="tcard-quote">"Big picture perspective combined with attention to detail"</div><div class="tcard-name">Martin Ducharme</div><div class="tcard-title">VP, AlayaCare | Board Member, Digital Healthcare</div></div></div>
+      <div class="tcard"><div class="tcard-bg" style="background-image:url('/testamonials/lindholm.png')"></div><div class="tcard-content"><div class="tcard-quote">"Find a way to simplify it and make it scalable"</div><div class="tcard-name">Justin Lindholm</div><div class="tcard-title">Champion of the Underdogs, Change Agents and Conscious Constructors</div></div></div>
+      <div class="tcard"><div class="tcard-bg" style="background-image:url('/testamonials/duck.png')"></div><div class="tcard-content"><div class="tcard-quote">"Using his unique insights... bring a lot of value"</div><div class="tcard-context">A specialty coffee heavyweight who was surprised to learn something new about coffee processing from an IT Director</div><div class="tcard-name">Aaron Duckworth</div><div class="tcard-title">Culinary Entrepreneur &amp; CEO, Coffee with A. Duck</div></div></div>
+    </div>
+  </div>
 </section>
 
 <section class="chapters-section">
@@ -673,6 +741,14 @@ document.querySelectorAll('.speed-control button').forEach(btn => {
 
 // Start
 window.addEventListener('load', () => setTimeout(runDemo, 800));
+
+// Testimonial ticker: duplicate cards for seamless infinite scroll
+(function() {
+  const track = document.getElementById('ticker-track');
+  if (!track) return;
+  const cards = track.innerHTML;
+  track.innerHTML = cards + cards;
+})();
 </script>
 
 </body>
