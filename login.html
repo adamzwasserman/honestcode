@@ -147,6 +147,13 @@ document.getElementById('key').addEventListener('keydown', e => {
   if (e.key === 'Enter') verifyKey();
 });
 
+// Secret override: /login.html?override=honestcode2025
+const params = new URLSearchParams(window.location.search);
+if (params.get('override') === 'honestcode2025') {
+  localStorage.setItem('hc_license', 'author-override');
+  window.location.href = getNextUrl();
+}
+
 // If already authenticated, redirect
 if (localStorage.getItem('hc_license')) {
   window.location.href = getNextUrl();
