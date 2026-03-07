@@ -198,15 +198,15 @@
 <p>The interesting question isn't whether honest code beats dishonest code in the same language. It always does. The interesting question is: <em>can honest code in a "slower" language beat dishonest code in a "faster" one?</em></p>
 
 <div class="surprise-card">
-  <div class="vs"><span class="honest">Honest Python</span> vs <span class="dishonest">Dishonest TypeScript</span></div>
-  <div class="factor">2.2x faster</div>
-  <p>Python compiles to bytecode and runs on CPython's VM with no JIT. TypeScript runs on V8, one of the fastest JIT compilers ever built. And yet: honest Python at 1,335ns beats dishonest TypeScript at 2,919ns. V8's hidden class optimization and inline caches can't save the dishonest path from the cost of 27 steps of method dispatch, field mutation, singleton lookups, and cache checks. Python's 9 pure function calls win by doing less.</p>
+  <div class="vs"><span class="honest">Honest Python</span> vs <span class="dishonest">Dishonest Swift</span></div>
+  <div class="factor">Dead heat: 1,335 vs 1,346 ns</div>
+  <p>Swift compiles to native machine code via LLVM. Python compiles to bytecode and runs on CPython's VM with no JIT, no native compilation, no optimization passes. By every conventional measure, Swift should be orders of magnitude faster. It is, when both sides write the same kind of code. But honest Python with 9 pure function calls ties dishonest Swift with 27 steps of method dispatch, field mutation, singleton lookups, and mutable state management. The structural overhead of dishonesty erases Swift's compilation advantage entirely.</p>
 </div>
 
 <div class="surprise-card">
-  <div class="vs"><span class="honest">Honest Python</span> vs <span class="dishonest">Dishonest PHP and Ruby</span></div>
-  <div class="factor">2.7x &ndash; 3.0x faster</div>
-  <p>Python's pure functions beat dishonest code in two languages that share its bytecode VM execution model. The class ceremony (method dispatch, field mutation, singleton lookups, cache management) costs the same proportional overhead regardless of VM speed. The structural difference is what matters, not the runtime.</p>
+  <div class="vs"><span class="honest">Honest Python</span> vs <span class="dishonest">Dishonest TypeScript</span></div>
+  <div class="factor">2.2x faster</div>
+  <p>V8 is one of the fastest JIT compilers ever built. Its hidden class optimization and inline caches make property access fast when object shapes are stable. But the dishonest path constantly mutates fields and walks through singleton lookups. Honest Python at 1,335ns beats dishonest TypeScript at 2,919ns. Python's 9 pure function calls win by doing less.</p>
 </div>
 
 <div class="surprise-card">
@@ -216,7 +216,7 @@
 </div>
 
 <h3>The full picture</h3>
-<p>Honest Python (1,335ns) beats dishonest TypeScript (2,919ns). Not because Python is faster (it isn't), but because the structural overhead of the dishonest path outweighs the runtime advantage of V8's JIT. The same pattern holds everywhere: the dishonest tax is proportional, and it compounds across every call site.</p>
+<p>Honest Python ties dishonest Swift. Let that sink in. A bytecode VM with no JIT matches LLVM-compiled native code, because the structural overhead of the dishonest path erases the entire compilation advantage. The same pattern holds across every language: the dishonest tax is proportional, and it compounds across every call site.</p>
 
 <!-- ═══════════════════════════════════════ -->
 <h2>3. Why the Numbers Break Down This Way</h2>
