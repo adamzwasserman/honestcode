@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Evidence — Honest Code</title>
+<title>What the Numbers Say — Honest Code</title>
 <meta name="description" content="Real nanosecond traces from 11 languages. Honest code is never slower than dishonest code — and usually faster. Here's the data.">
 <link rel="canonical" href="https://honestcode.software/evidence.html">
 <style>
@@ -156,7 +156,7 @@
 
 <div class="content">
 
-<h1>The <span class="accent">Evidence</span></h1>
+<h1>What the <span class="accent">Numbers</span> Say</h1>
 <p class="subtitle">Real nanosecond traces from 11 languages, captured in Docker on identical hardware. Every number on this page comes from instrumented code you can run yourself.</p>
 
 <!-- ═══════════════════════════════════════ -->
@@ -180,13 +180,13 @@
     <tr><td class="lang">C++</td><td class="num">708 ns</td><td class="num honest">205 ns</td><td class="num ratio">3.5x</td></tr>
     <tr><td class="lang">Swift</td><td class="num">1,346 ns</td><td class="num honest">220 ns</td><td class="num ratio">6.1x</td></tr>
     <tr><td class="lang">Dart</td><td class="num">500 ns</td><td class="num honest">250 ns</td><td class="num ratio">2.0x</td></tr>
+    <tr><td class="lang">Java</td><td class="num">1,204 ns</td><td class="num honest">333 ns</td><td class="num ratio">3.6x</td></tr>
+    <tr><td class="lang">Kotlin</td><td class="num">1,037 ns</td><td class="num honest">336 ns</td><td class="num ratio">3.1x</td></tr>
     <tr><td class="lang">C#</td><td class="num">891 ns</td><td class="num honest">639 ns</td><td class="num ratio">1.4x</td></tr>
     <tr><td class="lang">Python</td><td class="num">2,165 ns</td><td class="num honest">1,335 ns</td><td class="num ratio">1.6x</td></tr>
     <tr><td class="lang">TypeScript</td><td class="num">2,919 ns</td><td class="num honest">1,416 ns</td><td class="num ratio">2.1x</td></tr>
     <tr><td class="lang">Ruby</td><td class="num">3,542 ns</td><td class="num honest">1,792 ns</td><td class="num ratio">2.0x</td></tr>
     <tr><td class="lang">PHP</td><td class="num">3,994 ns</td><td class="num honest">2,123 ns</td><td class="num ratio">1.9x</td></tr>
-    <tr><td class="lang">Java</td><td class="num">9,715 ns</td><td class="num honest">3,957 ns</td><td class="num ratio">2.5x</td></tr>
-    <tr><td class="lang">Kotlin</td><td class="num">11,550 ns</td><td class="num honest">4,331 ns</td><td class="num ratio">2.7x</td></tr>
   </tbody>
 </table>
 
@@ -198,31 +198,31 @@
 <p>The interesting question isn't whether honest code beats dishonest code in the same language&mdash;it always does. The interesting question is: <em>can honest code in a "slower" language beat dishonest code in a "faster" one?</em></p>
 
 <div class="surprise-card">
-  <div class="vs"><span class="honest">Honest Python</span> vs <span class="dishonest">Dishonest Java</span></div>
-  <div class="factor">7.3x faster</div>
-  <p>Python compiles to bytecode and runs on CPython's VM&mdash;no JIT, no native compilation. Java runs on the JVM with one of the most sophisticated JIT compilers ever built (C2/Graal). And yet: honest Python at 1,335ns demolishes dishonest Java at 9,715ns. The JVM's speed advantage is entirely consumed by the ceremony of mutable classes, synchronized singleton lookups, and Stream API object allocation.</p>
+  <div class="vs"><span class="honest">Honest Python</span> vs <span class="dishonest">Dishonest TypeScript</span></div>
+  <div class="factor">2.2x faster</div>
+  <p>Python compiles to bytecode and runs on CPython's VM&mdash;no JIT. TypeScript runs on V8, one of the fastest JIT compilers ever built. And yet: honest Python at 1,335ns beats dishonest TypeScript at 2,919ns. V8's hidden class optimization and inline caches can't save the dishonest path from the cost of 27 steps of method dispatch, field mutation, singleton lookups, and cache checks. Python's 9 pure function calls win by doing less.</p>
 </div>
 
 <div class="surprise-card">
-  <div class="vs"><span class="honest">Honest Python</span> vs <span class="dishonest">Dishonest Kotlin</span></div>
-  <div class="factor">8.7x faster</div>
-  <p>Kotlin's <code>data class</code> generates <code>equals()</code>, <code>hashCode()</code>, <code>toString()</code>, <code>copy()</code>, and <code>componentN()</code> methods for every instance. The double-checked locking in <code>getInstance()</code> adds synchronized blocks. Python's pure functions return tuples and look up values in dicts&mdash;both operations CPython's VM handles with a single bytecode instruction.</p>
+  <div class="vs"><span class="honest">Honest Python</span> vs <span class="dishonest">Dishonest PHP and Ruby</span></div>
+  <div class="factor">2.7x &ndash; 3.0x faster</div>
+  <p>Python's pure functions beat dishonest code in two languages that share its bytecode VM execution model. The class ceremony&mdash;method dispatch, field mutation, singleton lookups, cache management&mdash;costs the same proportional overhead regardless of VM speed. The structural difference is what matters, not the runtime.</p>
 </div>
 
 <div class="surprise-card">
-  <div class="vs"><span class="honest">Honest Go</span> vs <span class="dishonest">Dishonest Kotlin</span></div>
-  <div class="factor">67.9x faster</div>
-  <p>The most extreme gap in our test bed. Go's pure functions compile to direct machine instructions&mdash;a function call is a single <code>CALL</code> instruction, a return value is a register write. Kotlin's dishonest path walks through virtual dispatch, synchronized singleton acquisition, JVM object allocation, and garbage collector pressure on every operation. Two orders of magnitude apart.</p>
+  <div class="vs"><span class="honest">Honest Java</span> vs <span class="dishonest">Dishonest PHP</span></div>
+  <div class="factor">12.0x faster</div>
+  <p>When the JVM runs honest code&mdash;pure functions returning records, no singletons, no mutable state&mdash;the C2 JIT compiles everything to native machine instructions. Honest Java at 333ns annihilates dishonest PHP at 3,994ns. The JVM's speed advantage is fully realized when the code gives the JIT clean, predictable patterns to optimize.</p>
 </div>
 
 <div class="surprise-card">
-  <div class="vs"><span class="honest">Honest Python</span> vs <span class="dishonest">Dishonest TypeScript, PHP, Ruby</span></div>
-  <div class="factor">2.2x &ndash; 3.0x faster</div>
-  <p>Python's pure functions beat dishonest code in three languages that share its VM execution model. The class ceremony&mdash;method dispatch, field mutation, singleton lookups, cache management&mdash;costs the same percentage overhead regardless of how the VM executes bytecode.</p>
+  <div class="vs"><span class="honest">Honest Go</span> vs <span class="dishonest">Dishonest TypeScript</span></div>
+  <div class="factor">17.2x faster</div>
+  <p>Go's pure functions compile to direct machine instructions. A function call is a single <code>CALL</code> instruction, a return value is a register write. V8's dishonest TypeScript path walks through hidden class transitions, property lookups, prototype chain checks, and singleton cache management. The compiled honest code runs circles around the JIT-compiled dishonest code.</p>
 </div>
 
 <h3>The full picture</h3>
-<p>Honest Python (1,335ns) beats dishonest code in <strong>6 out of 10</strong> other languages. Honest TypeScript (1,416ns) beats 5 out of 10. Honest Go (170ns) beats every dishonest implementation we tested.</p>
+<p>Honest Python (1,335ns) beats dishonest code in <strong>TypeScript, PHP, and Ruby</strong>. Honest Go (170ns) beats every dishonest implementation we tested. Honest Java (333ns), when the JIT can fully optimize clean code, beats dishonest implementations in 7 out of 10 other languages.</p>
 
 <!-- ═══════════════════════════════════════ -->
 <h2>3. Why the Numbers Break Down This Way</h2>
@@ -237,9 +237,9 @@
 
 <div class="category">
   <h4>JIT-compiled VM &mdash; Java, Kotlin, C#</h4>
-  <p>Bytecode compiles to native code at runtime, but virtual dispatch, synchronized blocks, and object allocation have real cost even after JIT optimization. Java's <code>items.stream().mapToDouble().sum()</code> creates iterator objects and boxes primitives through the pipeline&mdash;6,750ns for a three-element sum. The same <code>items.sum()</code> via a plain function call: 625ns. The Stream API tax alone is 10x.</p>
-  <p>Kotlin adds double-checked locking (<code>synchronized</code>) on every singleton access and generates five synthetic methods per <code>data class</code>. These costs compound across 27 steps.</p>
-  <p><strong>Typical ratio: 1.4x&ndash;2.7x</strong></p>
+  <p>With proper warmup, the JVM's C2 JIT compiles both honest and dishonest code to native machine instructions. The ratios are high (3.1x&ndash;3.6x) because the JIT can't eliminate the <em>structural</em> overhead: virtual dispatch, synchronized singleton acquisition, and mutable field writes still cost more than direct function calls and immutable returns, even after optimization. Java's <code>stream().mapToDouble().sum()</code> compiles to a tight loop at 209ns&mdash;fast, but the honest <code>for</code> loop at 83ns is still 2.5x cheaper because it skips the Stream API's iterator and boxing pipeline.</p>
+  <p>C# with .NET's RyuJIT shows a tighter ratio (1.4x) because the Stopwatch batching granularity compresses small differences. The structural cost is still there.</p>
+  <p><strong>Typical ratio: 1.4x&ndash;3.6x</strong></p>
 </div>
 
 <div class="category">
@@ -280,8 +280,9 @@
 // Bar chart
 const data = [
   ['Go', 714, 170], ['C++', 708, 205], ['Swift', 1346, 220], ['Dart', 500, 250],
-  ['C#', 891, 639], ['Python', 2165, 1335], ['TypeScript', 2919, 1416],
-  ['Ruby', 3542, 1792], ['PHP', 3994, 2123], ['Java', 9715, 3957], ['Kotlin', 11550, 4331]
+  ['Java', 1204, 333], ['Kotlin', 1037, 336], ['C#', 891, 639],
+  ['Python', 2165, 1335], ['TypeScript', 2919, 1416],
+  ['Ruby', 3542, 1792], ['PHP', 3994, 2123]
 ];
 const max = Math.max(...data.map(d => d[1]));
 const chart = document.getElementById('chart');
