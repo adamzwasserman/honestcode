@@ -1044,7 +1044,7 @@ const CRIME_KOTLIN       = makeCrimeTrace(292, 83,  375,  166,  167, 166);
 const CRIME_SWIFT        = makeCrimeTrace(80,  10,  10,   35,   10,  20);  // macOS native, batched
 const CRIME_PHP          = makeCrimeTrace(83,  83,  125,  83,   84,  83);
 const CRIME_RUBY         = makeCrimeTrace(125, 125, 209,  166,  125, 125);
-const CRIME_DART         = makeCrimeTrace(1000,100, 100,  100,  100, 100); // microsecond timer floor
+const CRIME_DART         = makeCrimeTrace(10,  5,   20,   5,    5,   20);  // Stopwatch batched
 const CRIME_CPP          = makeCrimeTrace(42,  42,  41,   21,   41,  42);
 const CRIME_GO           = makeCrimeTrace(62,  10,  2,    24,   10,  50);  // batched, sub-ns floor
 
@@ -1057,7 +1057,7 @@ const RESCUE_KOTLIN      = makeRescueTrace(83,  83,  583, 916);
 const RESCUE_SWIFT       = makeRescueTrace(20,  10,  20,  20);  // macOS native, batched
 const RESCUE_PHP         = makeRescueTrace(42,  42,  167, 208);
 const RESCUE_RUBY        = makeRescueTrace(83,  84,  333, 334);
-const RESCUE_DART        = makeRescueTrace(100, 100, 2000,4000); // microsecond timer floor
+const RESCUE_DART        = makeRescueTrace(20,  5,   120, 210);  // Stopwatch batched
 const RESCUE_CPP         = makeRescueTrace(41,  41,  42,  42);
 const RESCUE_GO          = makeRescueTrace(49,  10,  5,   5);   // batched, sub-ns floor
 
