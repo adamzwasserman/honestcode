@@ -428,7 +428,7 @@
 </section>
 
 <div class="transparency">
-  <strong>How this works:</strong> This demo visualizes the execution difference between dishonest and honest code. Timing is proportional to estimated nanosecond costs. Instrumented source code with real captured traces is coming soon: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
+  <strong>How this works:</strong> This demo visualizes the execution difference between dishonest and honest code. Timing is proportional to real captured nanosecond costs. Instrumented source code, Dockerfile, and raw trace data: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
 </div>
 
 <div class="ch-nav-bottom">
@@ -450,22 +450,23 @@ function wait(ms) { return new Promise(r => setTimeout(r, ms / speed)); }
 
 // Crime trace: trigger → method → field mutations + singleton lookups
 // Each step: trigger, method, fields to mutate, singleton to call, nanoseconds
+// Real captured Java baselines: github.com/adamzwasserman/honest-code-traces
 const crimeSteps = [
   // addItem triggers recalculateTotal → recalculateDiscount (via singleton) → recalculateTax (via singleton)
-  { trigger: 't-addItem', method: null, fields: [['fv-items','[3 items]']], singleton: null, cycles: 25 },
-  { trigger: null, method: 'm-recalcTotal', fields: [['fv-total','89.97']], singleton: null, cycles: 37 },
-  { trigger: null, method: 'm-recalcDiscount', fields: [], singleton: 's-couponReg', cycles: 78 },
-  { trigger: null, method: 'm-recalcDiscount', fields: [['fv-discount','0.00']], singleton: null, cycles: 25 },
-  { trigger: null, method: 'm-recalcTax', fields: [], singleton: 's-taxService', cycles: 78 },
-  { trigger: null, method: 'm-recalcTax', fields: [['fv-tax','7.20']], singleton: null, cycles: 25 },
-  { trigger: null, method: null, fields: [['fv-updated','14:23:07.4']], singleton: null, cycles: 12 },
+  { trigger: 't-addItem', method: null, fields: [['fv-items','[3 items]']], singleton: null, cycles: 250 },
+  { trigger: null, method: 'm-recalcTotal', fields: [['fv-total','89.97']], singleton: null, cycles: 2417 },
+  { trigger: null, method: 'm-recalcDiscount', fields: [], singleton: 's-couponReg', cycles: 124 },
+  { trigger: null, method: 'm-recalcDiscount', fields: [['fv-discount','0.00']], singleton: null, cycles: 83 },
+  { trigger: null, method: 'm-recalcTax', fields: [], singleton: 's-taxService', cycles: 124 },
+  { trigger: null, method: 'm-recalcTax', fields: [['fv-tax','7.20']], singleton: null, cycles: 42 },
+  { trigger: null, method: null, fields: [['fv-updated','14:23:07.4']], singleton: null, cycles: 333 },
   // applyCoupon triggers recalculateDiscount (via singleton) → recalculateTax (via singleton)
-  { trigger: 't-applyCoupon', method: null, fields: [['fv-coupon','"SAVE10"']], singleton: null, cycles: 25 },
-  { trigger: null, method: 'm-recalcDiscount', fields: [], singleton: 's-couponReg', cycles: 78 },
-  { trigger: null, method: 'm-recalcDiscount', fields: [['fv-discount','9.00']], singleton: null, cycles: 25 },
-  { trigger: null, method: 'm-recalcTax', fields: [], singleton: 's-taxService', cycles: 78 },
-  { trigger: null, method: 'm-recalcTax', fields: [['fv-tax','6.48']], singleton: null, cycles: 25 },
-  { trigger: null, method: null, fields: [['fv-updated','14:23:07.5']], singleton: null, cycles: 12 },
+  { trigger: 't-applyCoupon', method: null, fields: [['fv-coupon','"SAVE10"']], singleton: null, cycles: 42 },
+  { trigger: null, method: 'm-recalcDiscount', fields: [], singleton: 's-couponReg', cycles: 124 },
+  { trigger: null, method: 'm-recalcDiscount', fields: [['fv-discount','9.00']], singleton: null, cycles: 83 },
+  { trigger: null, method: 'm-recalcTax', fields: [], singleton: 's-taxService', cycles: 124 },
+  { trigger: null, method: 'm-recalcTax', fields: [['fv-tax','6.48']], singleton: null, cycles: 42 },
+  { trigger: null, method: null, fields: [['fv-updated','14:23:07.5']], singleton: null, cycles: 333 },
 ];
 
 // Dynamic line drawing between any two elements
@@ -496,11 +497,11 @@ function clearLines() {
 }
 
 const rescueSteps = [
-  { id: 'fs-0', cycles: 1 },
-  { id: 'fs-1', cycles: 15 },
-  { id: 'fs-2', cycles: 3 },
-  { id: 'fs-3', cycles: 2 },
-  { id: 'fs-4', cycles: 1 },
+  { id: 'fs-0', cycles: 42 },
+  { id: 'fs-1', cycles: 250 },
+  { id: 'fs-2', cycles: 42 },
+  { id: 'fs-3', cycles: 292 },
+  { id: 'fs-4', cycles: 42 },
 ];
 
 function resetAll() {
@@ -530,16 +531,14 @@ async function runDemo() {
   let crimeCycles = 0, rescueCycles = 0, mutations = 0, singletons = 0;
   let rescueDone = false, rescueFinalNs = 0;
 
-  // Scale ns to animation ms: same scale for both sides
-  const totalCrimeNs = crimeSteps.reduce((s, step) => s + step.cycles, 0);
-  const CRIME_TARGET_MS = 8000;
-  const nsToMs = CRIME_TARGET_MS / totalCrimeNs;
-  const MIN_STEP_MS = 80;
+  // Fixed scale: 1 ns = NS_TO_MS milliseconds, same for all languages
+  const NS_TO_MS = 3;
+  const MIN_STEP_MS = 60;
 
   // Run rescue (fast — uses same time scale as crime)
   const rescuePromise = (async () => {
     for (const step of rescueSteps) {
-      const stepMs = Math.max(MIN_STEP_MS, step.cycles * nsToMs);
+      const stepMs = Math.max(MIN_STEP_MS, step.cycles * NS_TO_MS);
       await wait(stepMs);
       document.querySelectorAll('.flow-step.active').forEach(s => { s.classList.remove('active'); s.classList.add('done'); });
       document.getElementById(step.id).classList.add('active');
@@ -561,7 +560,7 @@ async function runDemo() {
   const crimePromise = (async () => {
     let currentTrigger = null;
     for (const step of crimeSteps) {
-      const stepMs = Math.max(MIN_STEP_MS, step.cycles * nsToMs);
+      const stepMs = Math.max(MIN_STEP_MS, step.cycles * NS_TO_MS);
       await wait(stepMs);
 
       // Clear previous highlights

@@ -310,7 +310,7 @@
 </section>
 
 <div class="transparency">
-  <strong>How this works:</strong> This demo visualizes the execution difference between dishonest and honest code. Timing is proportional to estimated nanosecond costs. Instrumented source code with real captured traces is coming soon: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
+  <strong>How this works:</strong> This demo visualizes the execution difference between dishonest and honest code. Timing is proportional to real captured nanosecond costs. Instrumented source code, Dockerfile, and raw trace data: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
 </div>
 
 <div class="ch-nav-bottom">
@@ -369,14 +369,15 @@ async function runVs() {
   if (vsRunning) return;
   vsRunning = true;
 
+  // Realistic nanosecond costs for cache-miss path vs single SQL join
   const crimeSteps = [
-    { id: 'vs-c0', cycles: 1 }, { id: 'vs-c1', cycles: 25 }, { id: 'vs-c2', cycles: 78 },
-    { id: 'vs-c3', cycles: 47 }, { id: 'vs-c4', cycles: 31 }, { id: 'vs-c5', cycles: 31 },
-    { id: 'vs-c6', cycles: 31 }, { id: 'vs-c7', cycles: 25 }, { id: 'vs-c8', cycles: 37 },
-    { id: 'vs-c9', cycles: 1 },
+    { id: 'vs-c0', cycles: 5 }, { id: 'vs-c1', cycles: 80 }, { id: 'vs-c2', cycles: 250 },
+    { id: 'vs-c3', cycles: 150 }, { id: 'vs-c4', cycles: 100 }, { id: 'vs-c5', cycles: 100 },
+    { id: 'vs-c6', cycles: 100 }, { id: 'vs-c7', cycles: 80 }, { id: 'vs-c8', cycles: 120 },
+    { id: 'vs-c9', cycles: 5 },
   ];
   const rescueSteps = [
-    { id: 'vs-r0', cycles: 1 }, { id: 'vs-r1', cycles: 12 }, { id: 'vs-r2', cycles: 1 },
+    { id: 'vs-r0', cycles: 5 }, { id: 'vs-r1', cycles: 2800 }, { id: 'vs-r2', cycles: 5 },
   ];
 
   // Reset
@@ -387,12 +388,9 @@ async function runVs() {
   await wait(600);
 
   let crimeTotal = 0, rescueTotal = 0;
-  const totalCrimeNs = crimeSteps.reduce((s, step) => s + step.cycles, 0);
-  const totalRescueNs = rescueSteps.reduce((s, step) => s + step.cycles, 0);
-  const VS_TARGET_MS = 6000;
-  const crimeScale = VS_TARGET_MS / totalCrimeNs;
-  const rescueScale = Math.max(1200, VS_TARGET_MS * (totalRescueNs / totalCrimeNs)) / totalRescueNs;
-  const MIN_VS_MS = 100;
+  // Fixed scale: 1 ns = NS_TO_MS milliseconds
+  const NS_TO_MS = 3;
+  const MIN_VS_MS = 60;
 
   // Run both
   const crimeP = (async () => {
@@ -401,7 +399,7 @@ async function runVs() {
       document.getElementById(step.id).classList.add('active');
       crimeTotal += step.cycles;
       document.getElementById('vs-crime-total').textContent = crimeTotal.toLocaleString();
-      const stepMs = Math.max(MIN_VS_MS, step.cycles * crimeScale);
+      const stepMs = Math.max(MIN_VS_MS, step.cycles * NS_TO_MS);
       await wait(stepMs);
     }
   })();
@@ -412,7 +410,7 @@ async function runVs() {
       document.getElementById(step.id).classList.add('active');
       rescueTotal += step.cycles;
       document.getElementById('vs-rescue-total').textContent = rescueTotal.toLocaleString();
-      const stepMs = Math.max(MIN_VS_MS, step.cycles * rescueScale);
+      const stepMs = Math.max(MIN_VS_MS, step.cycles * NS_TO_MS);
       await wait(stepMs);
     }
   })();

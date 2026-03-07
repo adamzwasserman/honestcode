@@ -385,7 +385,7 @@
 </section>
 
 <div class="transparency">
-  <strong>How this works:</strong> This demo visualizes the execution difference between dishonest and honest code. Timing is proportional to estimated nanosecond costs. Instrumented source code with real captured traces is coming soon: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
+  <strong>How this works:</strong> This demo visualizes the execution difference between dishonest and honest code. Timing is proportional to real captured nanosecond costs. Instrumented source code, Dockerfile, and raw trace data: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
 </div>
 
 <div class="ch-nav-bottom">
@@ -401,13 +401,15 @@ function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
 // Crime scene: CPU chases pointers through scattered objects
 // Chase follows pointer chain: Order → Customer → Address → TaxRegion → RateTable → LineItems
 // The CPU jumps wildly across the heap because the allocator placed them wherever it found space
+// Cache miss penalties: L1 ~1ns, L2 ~12ns, L3 ~40ns, DRAM ~65ns
+// Source: standard memory hierarchy latencies (Intel/ARM)
 const crimeSteps = [
   { id: 'obj-order',     top: 8,  cycles: 1,  miss: 1, ptr: 0, bytes: 128, label: 'Order' },
-  { id: 'obj-customer',  top: 71, cycles: 62, miss: 1, ptr: 1, bytes: 96,  label: 'Customer' },
-  { id: 'obj-address',   top: 88, cycles: 14, miss: 1, ptr: 1, bytes: 80,  label: 'Address' },
-  { id: 'obj-taxregion', top: 52, cycles: 62, miss: 1, ptr: 1, bytes: 48,  label: 'TaxRegion' },
-  { id: 'obj-ratetable', top: 19, cycles: 62, miss: 1, ptr: 1, bytes: 128, label: 'RateTable' },
-  { id: 'obj-items',     top: 34, cycles: 14, miss: 1, ptr: 1, bytes: 192, label: 'LineItem[]' },
+  { id: 'obj-customer',  top: 71, cycles: 65, miss: 1, ptr: 1, bytes: 96,  label: 'Customer' },
+  { id: 'obj-address',   top: 88, cycles: 12, miss: 1, ptr: 1, bytes: 80,  label: 'Address' },
+  { id: 'obj-taxregion', top: 52, cycles: 65, miss: 1, ptr: 1, bytes: 48,  label: 'TaxRegion' },
+  { id: 'obj-ratetable', top: 19, cycles: 65, miss: 1, ptr: 1, bytes: 128, label: 'RateTable' },
+  { id: 'obj-items',     top: 34, cycles: 12, miss: 1, ptr: 1, bytes: 192, label: 'LineItem[]' },
 ];
 
 const ptrLines = ['ptr-1','ptr-4','ptr-2','ptr-3','ptr-5'];
@@ -458,10 +460,9 @@ async function runDemo() {
   await wait(600);
 
   // ═══ PHASE 2: READ — both sides start at the same moment ═══
-  const totalChaseNs = crimeSteps.reduce((s, step) => s + step.cycles, 0);
-  const CHASE_TARGET_MS = 6000;
-  const chaseScale = CHASE_TARGET_MS / totalChaseNs;
-  const MIN_CHASE_MS = 200;
+  // Fixed scale: 1 ns = NS_TO_MS milliseconds
+  const NS_TO_MS = 3;
+  const MIN_CHASE_MS = 60;
 
   const crimeChasePromise = (async () => {
     cursor.classList.add('visible');
@@ -488,7 +489,7 @@ async function runDemo() {
       document.getElementById('ss-crime-miss').textContent = crimeMisses;
       document.getElementById('ss-crime-ptr').textContent = crimePtrs;
 
-      const stepMs = Math.max(MIN_CHASE_MS, step.cycles * chaseScale);
+      const stepMs = Math.max(MIN_CHASE_MS, step.cycles * NS_TO_MS);
       await wait(stepMs);
       cl.classList.remove('visible');
     }
