@@ -464,8 +464,14 @@ async function runDemo() {
   const NS_TO_MS = 3;
   const MIN_CHASE_MS = 60;
 
+  let rescueDone = false, rescueFinalNs = 0;
+
+  const TICK_MS = 80;
   const crimeChasePromise = (async () => {
     cursor.classList.add('visible');
+    const crimeEl = document.getElementById('m-crime-cycles');
+    const slowEl = document.getElementById('m-slowdown');
+    const cl = document.getElementById('cl-1');
 
     for (let i = 0; i < crimeSteps.length; i++) {
       const step = crimeSteps[i];
@@ -473,7 +479,6 @@ async function runDemo() {
       cursor.style.top = step.top + '%';
       cursor.style.height = '32px';
 
-      const cl = document.getElementById('cl-1');
       cl.style.top = (step.top - 2) + '%';
       cl.classList.add('visible');
 
@@ -488,7 +493,6 @@ async function runDemo() {
       document.getElementById('ss-crime-ptr').textContent = crimePtrs;
 
       const stepMs = Math.max(MIN_CHASE_MS, step.cycles * NS_TO_MS);
-      const TICK_MS = 80;
       const startNs = crimeCycles;
       const ticks = Math.max(1, Math.floor(stepMs / TICK_MS));
       const nsPerTick = step.cycles / ticks;
@@ -496,7 +500,10 @@ async function runDemo() {
       for (let t = 0; t < ticks; t++) {
         await wait(msPerTick);
         crimeCycles = startNs + nsPerTick * (t + 1);
-        document.getElementById('m-crime-cycles').textContent = Math.round(crimeCycles).toLocaleString();
+        crimeEl.textContent = Math.round(crimeCycles).toLocaleString();
+        if (rescueDone && rescueFinalNs > 0) {
+          slowEl.textContent = Math.round(crimeCycles / rescueFinalNs) + '× slower';
+        }
       }
       crimeCycles = startNs + step.cycles;
       cl.classList.remove('visible');
@@ -518,6 +525,8 @@ async function runDemo() {
     document.getElementById('m-rescue-cycles').textContent = '3';
     document.getElementById('ss-rescue-miss').textContent = '1';
     document.getElementById('ss-rescue-ptr').textContent = '0';
+    rescueDone = true;
+    rescueFinalNs = 3;
 
     // Cursor pulses to show completion
     rescueCursor.style.boxShadow = '0 0 20px var(--green-glow)';
