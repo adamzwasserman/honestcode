@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ch.5: State Has an Address — Honest Code</title>
+<title>Ch.5: State Has an Address | Honest Code</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
   :root { --bg:#0a0a0c;--surface:#111116;--border:#1e1e26;--text:#c8c8d0;--text-dim:#6a6a78;--red:#e63946;--red-dim:#e6394620;--red-glow:#e6394660;--green:#2a9d8f;--green-dim:#2a9d8f20;--green-glow:#2a9d8f60;--gold:#e9c46a;--mono:'JetBrains Mono',monospace;--serif:'Literata',Georgia,serif; --cream:#f0ede6;--cream-surface:#e8e4dc;--cream-border:#d5d0c7;--cream-text:#2a2a2e;--cream-dim:#6a6a68;}
@@ -115,10 +115,10 @@
 </div>
 
 <section class="demo-section">
-  <div class="demo-label">Demo: User updates their email — where does the change propagate?</div>
+  <div class="demo-label">Demo: User updates their email: where does the change propagate?</div>
   <div class="state-demo">
     <div class="state-panel crime">
-      <div class="panel-label">☠ React + Redux — 6 state locations</div>
+      <div class="panel-label">☠ React + Redux: 6 state locations</div>
       <div class="locations">
         <div class="loc" id="c-store"><span class="loc-name">Redux Store</span><span class="loc-val" id="cv-store">user@old.com</span></div>
         <div class="loc" id="c-component"><span class="loc-name">Component State</span><span class="loc-val" id="cv-component">user@old.com</span></div>
@@ -151,7 +151,7 @@
       </svg>
     </div>
 <div class="state-panel rescue">
-      <div class="panel-label">✦ HTMX — 1 state location</div>
+      <div class="panel-label">✦ HTMX: 1 state location</div>
       <div class="locations">
         <div class="loc" id="r-dom"><span class="loc-name">Server-rendered DOM</span><span class="loc-val" id="rv-dom">user@old.com</span></div>
       </div>
@@ -196,7 +196,7 @@ function updateSlowdown() {
     el.textContent = Math.round(crime / rescue) + '× slower';
   }
 }
-// Hook into existing animation — poll until stable
+// Hook into existing animation - poll until stable
 const _slowdownInterval = setInterval(updateSlowdown, 500);
 
 let running = false;

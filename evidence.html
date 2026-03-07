@@ -278,13 +278,13 @@
 <div class="surprise-card">
   <div class="vs"><span class="dishonest">Try/catch recovery</span> vs <span class="honest">let it crash</span></div>
   <div class="factor">16.8x slower</div>
-  <p>Most developers think try/catch is free. It isn't. On the JVM, creating an exception object fills in the entire stack trace — walking every frame, allocating strings, building arrays. The crime path catches the exception, wraps it with context (allocating a second exception), checks a retry counter in a HashMap (simulating Redis), updates a circuit breaker, appends to an error log, and builds a dead letter queue entry. Six address spaces touched during "recovery." The honest path: the process dies. The supervisor notices. A fresh process starts with clean state. Three operations, 124 nanoseconds, zero stale state.</p>
+  <p>Most developers think try/catch is free. It isn't. On the JVM, creating an exception object fills in the entire stack trace: walking every frame, allocating strings, building arrays. The crime path catches the exception, wraps it with context (allocating a second exception), checks a retry counter in a HashMap (simulating Redis), updates a circuit breaker, appends to an error log, and builds a dead letter queue entry. Six address spaces touched during "recovery." The honest path: the process dies. The supervisor notices. A fresh process starts with clean state. Three operations, 124 nanoseconds, zero stale state.</p>
 </div>
 
 <div class="surprise-card">
   <div class="vs"><span class="dishonest">Mock-heavy test</span> vs <span class="honest">pure function test</span></div>
   <div class="factor">4.1x slower</div>
-  <p>The dishonest test creates a mock CouponRegistry, a mock TaxService, a mock Logger, a dependency injection container, resolves three services, constructs an OrderService with injected dependencies, calls the method under test, verifies mock interactions, and tears down. Ten steps before you even check the result. The honest test calls <code>calculateOrder(100.0, 10.0, 0.08)</code> and asserts the return value. Two steps. The 10 mocks aren't just ceremony — they're 10 hidden dependencies your code can't function without. The pure function needs nothing but its arguments.</p>
+  <p>The dishonest test creates a mock CouponRegistry, a mock TaxService, a mock Logger, a dependency injection container, resolves three services, constructs an OrderService with injected dependencies, calls the method under test, verifies mock interactions, and tears down. Ten steps before you even check the result. The honest test calls <code>calculateOrder(100.0, 10.0, 0.08)</code> and asserts the return value. Two steps. The 10 mocks aren't just ceremony. They're 10 hidden dependencies your code can't function without. The pure function needs nothing but its arguments.</p>
 </div>
 
 <div class="surprise-card">

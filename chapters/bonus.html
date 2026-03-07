@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bonus: The Honest Code Prompt — Honest Code</title>
+<title>Bonus: The Honest Code Prompt | Honest Code</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
   :root {
@@ -110,7 +110,7 @@ if(!localStorage.getItem('hc_license')){window.location.href='/login.html?next='
   <h1>Bonus: The Honest Code Prompt</h1>
   <div class="subtitle">Teach your AI to review code the way this book taught you.</div>
 
-  <p>Every principle from every chapter of Honest Code — dict-lookup polymorphism, pure functions over methods, I/O at the boundary, flat composition, the strangler pattern — distilled into a single file that fits in Claude's memory.</p>
+  <p>Every principle from every chapter of Honest Code—dict-lookup polymorphism, pure functions over methods, I/O at the boundary, flat composition, the strangler pattern—distilled into a single file that fits in Claude's memory.</p>
 
   <h2>How it works</h2>
 
@@ -122,7 +122,7 @@ if(!localStorage.getItem('hc_license')){window.location.href='/login.html?next='
 
   <div class="magic">"Is this code honest?"</div>
 
-  <p>Claude will evaluate your code against every principle in the book — mutation, hidden state, inheritance depth, mock count, cache necessity, all of it — and tell you exactly where the dishonesty is hiding.</p>
+  <p>Claude will evaluate your code against every principle in the book—mutation, hidden state, inheritance depth, mock count, cache necessity, all of it—and tell you exactly where the dishonesty is hiding.</p>
 
   <h2>The principles file</h2>
 
@@ -135,13 +135,13 @@ if(!localStorage.getItem('hc_license')){window.location.href='/login.html?next='
 Most imperative conditional structures (if/elif/else chains) that dispatch on type or category can be replaced by a dict mapping keys to functions: `HANDLERS = {"email": send_email, "sms": send_sms}` then `HANDLERS[channel](data)`. The dict is a declarative dispatch table. Adding a new case means adding a row, not modifying control flow.
 
 ## Typed Dicts Over Classes
-A `class User` with fields, methods, getters, setters, and lifecycle hooks becomes `User = TypedDict("User", {"email": str, "name": str})`. The data is just data — no behavior attached. If you can't `json.dumps()` it, it's too clever by half.
+A `class User` with fields, methods, getters, setters, and lifecycle hooks becomes `User = TypedDict("User", {"email": str, "name": str})`. The data is just data—no behavior attached. If you can't `json.dumps()` it, it's too clever by half.
 
 ## Pure Functions Over Methods
 A method like `user.validate()` that mutates internal state becomes `validate_user(user: dict) -> dict`. Input in, output out. The function has no access to `self` because there is no `self`. No side effects, no surprises.
 
 ## I/O at the Boundary
-Pure business logic functions in the middle; I/O (database, HTTP, file system) happens once, at the edges (route handlers, CLI entry points). The boundary calls the pure function and then does the I/O with the result. This is why mocks become unnecessary — the pure core has nothing to mock.
+Pure business logic functions in the middle; I/O (database, HTTP, file system) happens once, at the edges (route handlers, CLI entry points). The boundary calls the pure function and then does the I/O with the result. This is why mocks become unnecessary—the pure core has nothing to mock.
 
 ## Flat Composition Over Inheritance
 Instead of `class B extends A extends Base`, use `pipe(validate, authenticate, rate_limit, create_order)`. Each step is an independent function. The pipeline is visible at the point of assembly. No `super()` calls, no hidden method resolution order.
@@ -159,10 +159,10 @@ Don't catch inside business logic. Let functions raise. The route handler (or su
 Before adding a cache, profile the query. A single SQL join with proper indexes runs under 3ms. The cache adds invalidation bugs, stale data, and a second source of truth. Fix the query or the schema first. Only cache after measurement proves it necessary.
 
 ## Pure Function Assertions Over Mocks
-`assert f(input) == expected_output` — that's the whole test. If you need 9 mocks to test a function, the function has 9 hidden dependencies. Extract the pure logic; test it directly. Test the wiring separately with integration tests that hit real services.
+`assert f(input) == expected_output`—that's the whole test. If you need 9 mocks to test a function, the function has 9 hidden dependencies. Extract the pure logic; test it directly. Test the wiring separately with integration tests that hit real services.
 
 ## Type Declarations Over Imperative Validation
-Instead of writing `if not isinstance(x, str)`, `if len(x) > 255`, `if not re.match(...)` — declare a Pydantic schema, a TypedDict, a SQL column constraint, or an `&lt;input type="email"&gt;`. The runtime, type checker, database, or browser enforces the constraint. The programmer declares it; the machinery enforces it.
+Instead of writing `if not isinstance(x, str)`, `if len(x) > 255`, `if not re.match(...)`—declare a Pydantic schema, a TypedDict, a SQL column constraint, or an `&lt;input type="email"&gt;`. The runtime, type checker, database, or browser enforces the constraint. The programmer declares it; the machinery enforces it.
 
 ## Context Managers Over Instance State
 Instead of `self._connection = await connect()` stored on a class, use `async with create_connection(config) as conn:`. The connection opens and closes within the scope. No persistent state leaks into the caller. Crash recovery is trivial because there's nothing to clean up.
@@ -174,7 +174,7 @@ Instead of `self._config` set in `__init__`, pass `config: dict` as an argument 
 If your Gherkin step definition is 30 lines of mock configuration, the code under test has hidden dependencies. When the function is pure, the step definition is: call the function, check the result. Simple step definitions are a signal of honest architecture.
 
 ## Declarative Equivalents Over Framework Lifecycle Hooks
-Instead of `componentDidMount`, `useEffect` cleanup, `ngOnInit` — use HTMX attributes that declare when to load (`hx-trigger="load"`), or server-rendered HTML that arrives ready. No client-side initialization sequence.
+Instead of `componentDidMount`, `useEffect` cleanup, `ngOnInit`—use HTMX attributes that declare when to load (`hx-trigger="load"`), or server-rendered HTML that arrives ready. No client-side initialization sequence.
 
 ## Constrain AI with Data Shape Contracts
 Instead of "write a notification system," tell the AI: "write a function that takes `{channel, recipient, message}` and returns `{status}`." A defined input/output contract is verifiable by reading the signature and running one example. A class with five methods requires tracing every call sequence.

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ch.3: Data Is Just Data — Honest Code</title>
+<title>Ch.3: Data Is Just Data | Honest Code</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
   :root {
@@ -226,12 +226,12 @@
 </div>
 
 <section class="demo-section">
-  <div class="demo-label">Demo: Process heap layout — object graph vs flat dictionary</div>
+  <div class="demo-label">Demo: Process heap layout: object graph vs flat dictionary</div>
 
   <div class="heap-demo">
     <!-- CRIME: SCATTERED OBJECT GRAPH -->
     <div class="heap-panel crime">
-      <div class="panel-label">☠ Object graph — 6 heap allocations</div>
+      <div class="panel-label">☠ Object graph: 6 heap allocations</div>
       <div class="addr-strip" id="crimeStrip">
         <div class="addr-ruler" id="crimeRuler">
           <div class="addr-tick" style="top:0%">0x7f00</div>
@@ -244,7 +244,7 @@
           <div class="addr-tick" style="top:87.5%">0x7fE0</div>
         </div>
 
-        <!-- Objects scattered across the heap — positions from real id() capture -->
+        <!-- Objects scattered across the heap - positions from real id() capture -->
         <div class="heap-obj crime-obj" id="obj-order" style="top:8%;height:32px">
           <span class="obj-type">class</span><span class="obj-name">Order</span>
           <span class="obj-size">128B + vtable</span>
@@ -270,7 +270,7 @@
           <span class="obj-size">256B + vtable</span>
         </div>
 
-        <!-- Pointer lines — chase path: Order(8%) → Customer(71%) → Address(88%) → TaxRegion(52%) → RateTable(19%) → Items(34%) -->
+        <!-- Pointer lines - chase path: Order(8%) → Customer(71%) → Address(88%) → TaxRegion(52%) → RateTable(19%) → Items(34%) -->
         <svg class="pointer-svg" id="crimeSvg" viewBox="0 0 500 500" preserveAspectRatio="none">
           <line id="ptr-1" x1="250" y1="56"  x2="250" y2="355"/>
           <line id="ptr-2" x1="250" y1="371" x2="250" y2="440"/>
@@ -318,7 +318,7 @@
       </svg>
     </div>
 <div class="heap-panel rescue">
-      <div class="panel-label">✦ Flat dictionary — 1 heap allocation</div>
+      <div class="panel-label">✦ Flat dictionary: 1 heap allocation</div>
       <div class="addr-strip" id="rescueStrip">
         <div class="addr-ruler" id="rescueRuler">
           <div class="addr-tick" style="top:0%">0x7f00</div>
@@ -513,7 +513,7 @@ async function runDemo() {
 
   // ═══ RESCUE: single dict, one read ═══
   const rescuePromise = (async () => {
-    // Allocate — 1 contiguous dict (~80ns)
+    // Allocate - 1 contiguous dict (~80ns)
     const RESCUE_ALLOC_NS = 80;
     const RESCUE_READ_NS = 3;
     const dictObj = document.getElementById('obj-dict');
@@ -525,7 +525,7 @@ async function runDemo() {
     await wait(RESCUE_ALLOC_NS * NS_TO_MS);
     rescueEl.textContent = RESCUE_ALLOC_NS.toLocaleString();
 
-    // Read — 3ns, done
+    // Read - 3ns, done
     rescueCursor.classList.add('visible');
     rescueCursor.style.top = '5%';
     rescueCursor.style.height = '120px';
@@ -567,7 +567,7 @@ function updateSlowdown() {
     el.textContent = Math.round(crime / rescue) + '× slower';
   }
 }
-// Hook into existing animation — poll until stable
+// Hook into existing animation - poll until stable
 const _slowdownInterval = setInterval(updateSlowdown, 500);
 </script>
 

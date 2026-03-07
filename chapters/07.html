@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ch.7: Compose Flat, Never Deep — Honest Code</title>
+<title>Ch.7: Compose Flat, Never Deep | Honest Code</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
   :root { --bg:#0a0a0c;--surface:#111116;--border:#1e1e26;--text:#c8c8d0;--text-dim:#6a6a78;--red:#e63946;--red-dim:#e6394620;--red-glow:#e6394660;--green:#2a9d8f;--green-dim:#2a9d8f20;--green-glow:#2a9d8f60;--gold:#e9c46a;--mono:'JetBrains Mono',monospace;--serif:'Literata',Georgia,serif; --cream:#f0ede6;--cream-surface:#e8e4dc;--cream-border:#d5d0c7;--cream-text:#2a2a2e;--cream-dim:#6a6a68;}
@@ -111,10 +111,10 @@
 </div>
 
 <section class="demo-section">
-  <div class="demo-label">Demo: Render a user profile page — inheritance chain vs flat pipeline</div>
+  <div class="demo-label">Demo: Render a user profile page: inheritance chain vs flat pipeline</div>
   <div class="bounce-demo">
     <div class="bounce-panel crime">
-      <div class="panel-label">☠ 4-level inheritance — super() bouncing</div>
+      <div class="panel-label">☠ 4-level inheritance: super() bouncing</div>
       <div class="layers" id="crimeLayers">
         <div class="layer" id="cl-0"><span class="layer-name">BaseComponent.render()</span><span class="layer-dir"></span></div>
         <div class="layer" id="cl-1"><span class="layer-name">  AuthComponent.render()</span><span class="layer-dir"></span></div>
@@ -148,7 +148,7 @@
       </svg>
     </div>
 <div class="bounce-panel rescue">
-      <div class="panel-label">✦ Flat pipeline — linear data flow</div>
+      <div class="panel-label">✦ Flat pipeline: linear data flow</div>
       <div class="layers" id="rescueLayers">
         <div class="layer" id="rl-0"><span class="layer-name">authenticate(req)</span><span class="layer-dir"></span></div>
         <div class="layer" id="rl-1"><span class="layer-name">validate(req.params)</span><span class="layer-dir"></span></div>
@@ -198,7 +198,7 @@ const crimeBounce = [
   [2, 'up',   '→ super().render()'],
   [1, 'up',   'AuthComponent.render() via super()'],
   [1, 'up',   '→ super().render()'],
-  [0, 'up',   'BaseComponent.render() — finally executes'],
+  [0, 'up',   'BaseComponent.render(): finally executes'],
   [0, 'down', 'BaseComponent returns'],
   [1, 'down', 'AuthComponent checks auth, returns'],
   [2, 'down', 'DataLoader fetches data, returns'],
@@ -268,7 +268,7 @@ function updateSlowdown() {
     el.textContent = Math.round(crime / rescue) + '× slower';
   }
 }
-// Hook into existing animation — poll until stable
+// Hook into existing animation - poll until stable
 const _slowdownInterval = setInterval(updateSlowdown, 500);
 </script>
 </body>

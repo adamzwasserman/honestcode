@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ch.1: All Languages are Good — Honest Code</title>
+<title>Ch.1: All Languages are Good | Honest Code</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
   :root {
@@ -123,11 +123,11 @@
 </div>
 
 <section class="demo-section">
-  <div class="demo-label">Demo: Call stack depth — Spring Boot request vs function pipeline</div>
+  <div class="demo-label">Demo: Call stack depth: Spring Boot request vs function pipeline</div>
 
   <div class="stack-demo">
     <div class="stack-panel crime">
-      <div class="panel-label">☠ Spring Boot — GET /api/users/42</div>
+      <div class="panel-label">☠ Spring Boot: GET /api/users/42</div>
       <div class="stack-frames" id="crimeStack"></div>
       <div class="stack-status">
         <div class="ss-item">Stack depth: <span class="ss-val bad" id="ss-crime-depth">0</span></div>
@@ -156,7 +156,7 @@
       </svg>
     </div>
 <div class="stack-panel rescue">
-      <div class="panel-label">✦ Function pipeline — GET /users/42</div>
+      <div class="panel-label">✦ Function pipeline: GET /users/42</div>
       <div class="stack-frames" id="rescueStack"></div>
       <div class="stack-status">
         <div class="ss-item">Stack depth: <span class="ss-val good" id="ss-rescue-depth">0</span></div>
@@ -304,7 +304,7 @@ function updateSlowdown() {
     el.textContent = Math.round(crime / rescue) + '× slower';
   }
 }
-// Hook into existing animation — poll until stable
+// Hook into existing animation - poll until stable
 const _slowdownInterval = setInterval(updateSlowdown, 500);
 </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ch.8: Let It Crash — Honest Code</title>
+<title>Ch.8: Let It Crash | Honest Code</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
   :root {
@@ -216,12 +216,12 @@
 </div>
 
 <section class="demo-section">
-  <div class="demo-label">Demo: Error recovery state — where does it live?</div>
+  <div class="demo-label">Demo: Error recovery state: where does it live?</div>
 
   <div class="mem-demo">
     <!-- CRIME: SCATTERED RECOVERY STATE -->
     <div class="mem-panel crime">
-      <div class="panel-label">☠ Try-catch recovery — 6 address spaces</div>
+      <div class="panel-label">☠ Try-catch recovery: 6 address spaces</div>
       <div class="mem-map">
         <div class="mem-location" id="c-stack">
           <div class="mem-icon">📋</div>
@@ -300,7 +300,7 @@
       </svg>
     </div>
 <div class="mem-panel rescue">
-      <div class="panel-label">✦ Let it crash — 2 address spaces</div>
+      <div class="panel-label">✦ Let it crash: 2 address spaces</div>
       <div class="mem-map">
         <div class="mem-location" id="r-process" style="min-height:80px">
           <div class="mem-icon">⬡</div>
@@ -483,7 +483,7 @@ async function runDemo() {
     document.getElementById('m-crime-steps').textContent = crimeSteps;
     addLog('crimeLog', '00:00.041', 'LPUSH dlq:orders {retry:3, backoff:8s}', 'ev-crime');
 
-    // Step 9: Back to stack — catch block "handled" it
+    // Step 9: Back to stack: catch block "handled" it
     await wait(600);
     deactivate('c-queue', 'c-queue-s', 'queued');
     activate('c-stack', 'c-stack-s', 'RESUME');
@@ -555,7 +555,7 @@ function updateSlowdown() {
     el.textContent = Math.round(crime / rescue) + '× slower';
   }
 }
-// Hook into existing animation — poll until stable
+// Hook into existing animation - poll until stable
 const _slowdownInterval = setInterval(updateSlowdown, 500);
 </script>
 

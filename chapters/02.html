@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ch.2: Classes Considered Harmful — Honest Code</title>
+<title>Ch.2: Classes Considered Harmful | Honest Code</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
   :root {
@@ -97,7 +97,7 @@
     padding-top: 0.5rem;
   }
 
-  /* TRIGGERS — external calls */
+  /* TRIGGERS - external calls */
   .trigger-list { display: flex; gap: 0.5rem; }
   .trigger {
     font-family: var(--mono); font-size: 0.65rem; padding: 0.3rem 0.6rem;
@@ -109,7 +109,7 @@
     box-shadow: 0 0 10px var(--red-glow);
   }
 
-  /* ORDER CLASS BOX — UML style */
+  /* ORDER CLASS BOX - UML style */
   .class-box {
     border: 1px solid var(--border); width: 90%; max-width: 320px;
   }
@@ -154,7 +154,7 @@
   }
   .singleton-tag { display: block; font-size: 0.6rem; color: var(--red); opacity: 0.7; margin-top: 0.2rem; }
 
-  /* SVG CONNECTIONS — drawn dynamically from element positions */
+  /* SVG CONNECTIONS - drawn dynamically from element positions */
   .class-diagram .connections,
   .connections {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -303,12 +303,12 @@
 </div>
 
 <section class="demo-section">
-  <div class="demo-label">Demo: Mutation Web — addItem → applyCoupon → removeItem</div>
+  <div class="demo-label">Demo: Mutation Web: addItem → applyCoupon → removeItem</div>
 
   <div class="mutation-demo">
     <!-- CRIME: FIELD GRAPH -->
     <div class="web-panel crime">
-      <div class="panel-label">☠ Dishonest — Order class (Java)</div>
+      <div class="panel-label">☠ Dishonest: Order class (Java)</div>
       <div class="class-diagram" id="classDiagram">
         <svg class="connections" id="connections"></svg>
 
@@ -373,7 +373,7 @@
 
     <!-- RESCUE: PURE FLOW -->
     <div class="web-panel rescue">
-      <div class="panel-label">✦ Honest — calculate_order (Python)</div>
+      <div class="panel-label">✦ Honest: calculate_order (Python)</div>
       <div class="flow-panel" id="flowPanel">
         <div class="flow-step" id="fs-0">calculate_order(items, coupon, addr, rates)</div>
         <div class="flow-arrow">↓</div>
@@ -536,7 +536,7 @@ async function runDemo() {
   const MIN_STEP_MS = 60;
   const TICK_MS = 80;
 
-  // Run rescue (fast — uses same time scale as crime)
+  // Run rescue (fast - uses same time scale as crime)
   const rescuePromise = (async () => {
     for (const step of rescueSteps) {
       const stepMs = Math.max(MIN_STEP_MS, step.cycles * NS_TO_MS);
@@ -550,14 +550,14 @@ async function runDemo() {
     document.querySelectorAll('.flow-step.active').forEach(s => { s.classList.remove('active'); s.classList.add('done'); });
     document.getElementById('flowResult').classList.add('visible');
 
-    // Signal done — crime loop will update idle counter from here
+    // Signal done - crime loop will update idle counter from here
     const counter = document.getElementById('idleCounter');
     counter.classList.add('visible');
     rescueDone = true;
     rescueFinalNs = Math.round(rescueCycles);
   })();
 
-  // Run crime (slow — timing proportional to nanoseconds)
+  // Run crime (slow - timing proportional to nanoseconds)
   const crimePromise = (async () => {
     let currentTrigger = null;
     const crimeEl = document.getElementById('m-crime-cycles');

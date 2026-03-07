@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ch.4: Pure Functions — Honest Code</title>
+<title>Ch.4: Pure Functions | Honest Code</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
   :root {
@@ -168,16 +168,16 @@
 
 <div class="ch-header">
   <div class="ch-num">Chapter 4</div>
-  <h1>Pure Functions — The Original Abstraction</h1>
+  <h1>Pure Functions: The Original Abstraction</h1>
   <div class="epigraph">Same inputs, same output. No exceptions. No surprises. No lies.</div>
 </div>
 
 <section class="demo-section">
-  <div class="demo-label">Demo: Order-Independent Composition — 6 permutations, same functions, different order</div>
+  <div class="demo-label">Demo: Order-Independent Composition: 6 permutations, same functions, different order</div>
 
   <div class="order-demo">
     <div class="order-panel crime">
-      <div class="panel-label">☠ Class methods — order matters</div>
+      <div class="panel-label">☠ Class methods: order matters</div>
       <div class="perm-grid" id="crimeGrid">
         <div class="perm-cell" id="cp-0"><div class="perm-label">Permutation 1</div><div class="perm-order">addItem → applyCoupon → calcTax</div><div class="perm-result" id="cr-0">—</div></div>
         <div class="perm-cell" id="cp-1"><div class="perm-label">Permutation 2</div><div class="perm-order">applyCoupon → addItem → calcTax</div><div class="perm-result" id="cr-1">—</div></div>
@@ -209,7 +209,7 @@
       </svg>
     </div>
 <div class="order-panel rescue">
-      <div class="panel-label">✦ Pure functions — order irrelevant</div>
+      <div class="panel-label">✦ Pure functions: order irrelevant</div>
       <div class="perm-grid" id="rescueGrid">
         <div class="perm-cell" id="rp-0"><div class="perm-label">Permutation 1</div><div class="perm-order">calc_total → apply_coupon → calc_tax</div><div class="perm-result" id="rr-0">—</div></div>
         <div class="perm-cell" id="rp-1"><div class="perm-label">Permutation 2</div><div class="perm-order">apply_coupon → calc_total → calc_tax</div><div class="perm-result" id="rr-1">—</div></div>

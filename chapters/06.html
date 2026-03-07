@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ch.6: Declare, Don't Instruct — Honest Code</title>
+<title>Ch.6: Declare, Don't Instruct | Honest Code</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
   :root { --bg:#0a0a0c;--surface:#111116;--border:#1e1e26;--text:#c8c8d0;--text-dim:#6a6a78;--red:#e63946;--red-dim:#e6394620;--green:#2a9d8f;--green-dim:#2a9d8f20;--green-glow:#2a9d8f60;--gold:#e9c46a;--mono:'JetBrains Mono',monospace;--serif:'Literata',Georgia,serif; --cream:#f0ede6;--cream-surface:#e8e4dc;--cream-border:#d5d0c7;--cream-text:#2a2a2e;--cream-dim:#6a6a68;}
@@ -96,10 +96,10 @@
 </div>
 
 <section class="demo-section">
-  <div class="demo-label">Demo: Format a currency input — imperative JS vs genX attributes</div>
+  <div class="demo-label">Demo: Format a currency input: imperative JS vs genX attributes</div>
   <div class="code-demo">
     <div class="code-panel crime">
-      <div class="panel-label">☠ Imperative — 73 lines of JavaScript</div>
+      <div class="panel-label">☠ Imperative: 73 lines of JavaScript</div>
       <div class="code-scroll" id="crimeCode"></div>
       <div class="line-counter">
         <div class="lc-item">Lines executed: <span class="lc-val bad" id="lc-crime">0</span></div>
@@ -127,7 +127,7 @@
       </svg>
     </div>
 <div class="code-panel rescue">
-      <div class="panel-label">✦ Declarative — 6 HTML attributes</div>
+      <div class="panel-label">✦ Declarative: 6 HTML attributes</div>
       <div class="code-scroll" id="rescueCode"></div>
       <div class="line-counter">
         <div class="lc-item">Attributes scanned: <span class="lc-val good" id="lc-rescue">0</span></div>
@@ -313,7 +313,7 @@ function updateSlowdown() {
     el.textContent = Math.round(crime / rescue) + '× slower';
   }
 }
-// Hook into existing animation — poll until stable
+// Hook into existing animation - poll until stable
 const _slowdownInterval = setInterval(updateSlowdown, 500);
 </script>
 </body>
