@@ -210,19 +210,13 @@
 </div>
 
 <div class="surprise-card">
-  <div class="vs"><span class="honest">Honest Java</span> vs <span class="dishonest">Dishonest PHP</span></div>
-  <div class="factor">12.0x faster</div>
-  <p>When the JVM runs honest code&mdash;pure functions returning records, no singletons, no mutable state&mdash;the C2 JIT compiles everything to native machine instructions. Honest Java at 333ns annihilates dishonest PHP at 3,994ns. The JVM's speed advantage is fully realized when the code gives the JIT clean, predictable patterns to optimize.</p>
-</div>
-
-<div class="surprise-card">
-  <div class="vs"><span class="honest">Honest Go</span> vs <span class="dishonest">Dishonest TypeScript</span></div>
-  <div class="factor">17.2x faster</div>
-  <p>Go's pure functions compile to direct machine instructions. A function call is a single <code>CALL</code> instruction, a return value is a register write. V8's dishonest TypeScript path walks through hidden class transitions, property lookups, prototype chain checks, and singleton cache management. The compiled honest code runs circles around the JIT-compiled dishonest code.</p>
+  <div class="vs">The ratio is <span class="honest">universal</span></div>
+  <div class="factor">1.4x &ndash; 6.1x</div>
+  <p>Every language we tested&mdash;native compiled, JIT compiled, bytecode VM&mdash;shows honest code faster than dishonest code by a consistent margin. The overhead isn't a language problem or a runtime problem. It's a structural problem. 27 steps of method dispatch, field mutation, singleton lookup, and cache management will always cost more than 9 steps of pure function calls and return values. The runtime determines the absolute speed; the architecture determines the ratio.</p>
 </div>
 
 <h3>The full picture</h3>
-<p>Honest Python (1,335ns) beats dishonest code in <strong>TypeScript, PHP, and Ruby</strong>. Honest Java (333ns), when the JIT can fully optimize clean code, beats dishonest implementations in 7 out of 10 other languages. The ratio holds across every runtime architecture we tested: honest code is 1.4x to 6.1x faster, every time.</p>
+<p>Honest Python (1,335ns) beats dishonest TypeScript (2,919ns). Not because Python is faster&mdash;it isn't&mdash;but because the structural overhead of the dishonest path outweighs the runtime advantage of V8's JIT. The same pattern holds everywhere: the dishonest tax is proportional, and it compounds across every call site.</p>
 
 <!-- ═══════════════════════════════════════ -->
 <h2>3. Why the Numbers Break Down This Way</h2>
