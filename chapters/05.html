@@ -99,7 +99,7 @@
 <body>
 <script>if(!localStorage.getItem('hc_license')){window.location.href='/login.html?next='+encodeURIComponent(location.pathname);document.documentElement.innerHTML='';}</script>
 <nav>
-  <a href="landing-v2.html" style="text-decoration:none"><div class="logo">honest<span>code</span>.software</div></a>
+  <a href="/" style="text-decoration:none"><div class="logo">honest<span>code</span>.software</div></a>
   <div class="chapter-nav">
     <a href="/chapters/01.html">1</a><a href="/chapters/02.html">2</a><a href="/chapters/03.html">3</a>
     <a href="/chapters/04.html">4</a><a href="#" class="active">5</a><a href="/chapters/06.html">6</a><a href="/chapters/07.html">7</a>
@@ -120,11 +120,11 @@
     <div class="state-panel crime">
       <div class="panel-label">☠ React + Redux — 6 state locations</div>
       <div class="locations">
-        <div class="loc" id="c-store"><span class="loc-name">Redux Store</span><span class="loc-val" id="cv-store"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c0b5b3a5b280afaca4eea3afad">[email&#160;protected]</a></span></div>
-        <div class="loc" id="c-component"><span class="loc-name">Component State</span><span class="loc-val" id="cv-component"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="fe8b8d9b8cbe91929ad09d9193">[email&#160;protected]</a></span></div>
-        <div class="loc" id="c-form"><span class="loc-name">Form Input Value</span><span class="loc-val" id="cv-form"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="82f7f1e7f0c2edeee6ace1edef">[email&#160;protected]</a></span></div>
-        <div class="loc" id="c-url"><span class="loc-name">URL Search Params</span><span class="loc-val" id="cv-url"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ad92c8c0ccc4c190d8dec8dfedc2c1c983cec2c0">[email&#160;protected]</a></span></div>
-        <div class="loc" id="c-local"><span class="loc-name">localStorage</span><span class="loc-val" id="cv-local"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5c292f392e1c333038723f3331">[email&#160;protected]</a></span></div>
+        <div class="loc" id="c-store"><span class="loc-name">Redux Store</span><span class="loc-val" id="cv-store">user@old.com</span></div>
+        <div class="loc" id="c-component"><span class="loc-name">Component State</span><span class="loc-val" id="cv-component">user@old.com</span></div>
+        <div class="loc" id="c-form"><span class="loc-name">Form Input Value</span><span class="loc-val" id="cv-form">user@old.com</span></div>
+        <div class="loc" id="c-url"><span class="loc-name">URL Search Params</span><span class="loc-val" id="cv-url">?email=user@old.com</span></div>
+        <div class="loc" id="c-local"><span class="loc-name">localStorage</span><span class="loc-val" id="cv-local">user@old.com</span></div>
         <div class="loc" id="c-derived"><span class="loc-name">Derived / Memoized</span><span class="loc-val" id="cv-derived">greeting: Hello user@old</span></div>
       </div>
       <div class="event-log" id="crimeLog"><div class="log-title">Propagation trace</div></div>
@@ -153,7 +153,7 @@
 <div class="state-panel rescue">
       <div class="panel-label">✦ HTMX — 1 state location</div>
       <div class="locations">
-        <div class="loc" id="r-dom"><span class="loc-name">Server-rendered DOM</span><span class="loc-val" id="rv-dom"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3d484e584f7d525159135e5250">[email&#160;protected]</a></span></div>
+        <div class="loc" id="r-dom"><span class="loc-name">Server-rendered DOM</span><span class="loc-val" id="rv-dom">user@old.com</span></div>
       </div>
       <div class="event-log" id="rescueLog"><div class="log-title">Propagation trace</div></div>
     </div>
@@ -183,7 +183,7 @@
   <a href="/chapters/06.html">Ch.6: Declare, Don't Instruct →</a>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js">
+<script>
 // Update slowdown multiplier
 function updateSlowdown() {
   const crimeEl = document.getElementById('m-crime-loc');
@@ -198,7 +198,7 @@ function updateSlowdown() {
 }
 // Hook into existing animation — poll until stable
 const _slowdownInterval = setInterval(updateSlowdown, 500);
-</script><script>
+
 let running = false;
 function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
 function addLog(cid, text, cls) {
@@ -281,4 +281,31 @@ async function runDemo() {
     document.getElementById('cv-derived').textContent = 'greeting: Hello user@new';
     clearStale('c-derived');
     document.getElementById('m-crime-loc').textContent = '6';
-    crimeStale--; document.getElementById('m-crime-s
+    crimeStale--; document.getElementById('m-crime-stale').textContent = crimeStale;
+    addLog('crimeLog', 'useMemo recompute → derived updated', 'ev-crime');
+    addLog('crimeLog', '<span class="ev-warn">⚠ 5 propagation steps, 5 stale windows</span>', 'ev-warn');
+  })();
+
+  const rescuePromise = (async () => {
+    await wait(300);
+    pulse('r-dom');
+    document.getElementById('rv-dom').textContent = 'user@new.com';
+    document.getElementById('m-rescue-loc').textContent = '1';
+    document.getElementById('m-rescue-stale').textContent = '0';
+    addLog('rescueLog', 'hx-post → server renders new HTML', 'ev-rescue');
+    await wait(300);
+    addLog('rescueLog', 'hx-swap → DOM updated. Done.', 'ev-rescue');
+  })();
+
+  await Promise.all([crimePromise, rescuePromise]);
+
+  await wait(4000);
+  running = false;
+  runDemo();
+}
+
+window.addEventListener('load', () => setTimeout(runDemo, 800));
+</script>
+</body>
+</html>
+</html>
