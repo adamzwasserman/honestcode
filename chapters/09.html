@@ -391,16 +391,24 @@ async function runVs() {
   // Fixed scale: 1 ns = NS_TO_MS milliseconds
   const NS_TO_MS = 3;
   const MIN_VS_MS = 60;
+  const TICK_MS = 80;
 
   // Run both
   const crimeP = (async () => {
     for (const step of crimeSteps) {
       document.querySelectorAll('.vs-panel.crime .vs-step').forEach(s => s.classList.remove('active'));
       document.getElementById(step.id).classList.add('active');
-      crimeTotal += step.cycles;
-      document.getElementById('vs-crime-total').textContent = crimeTotal.toLocaleString();
       const stepMs = Math.max(MIN_VS_MS, step.cycles * NS_TO_MS);
-      await wait(stepMs);
+      const startNs = crimeTotal;
+      const ticks = Math.max(1, Math.floor(stepMs / TICK_MS));
+      const nsPerTick = step.cycles / ticks;
+      const msPerTick = stepMs / ticks;
+      for (let t = 0; t < ticks; t++) {
+        await wait(msPerTick);
+        crimeTotal = startNs + nsPerTick * (t + 1);
+        document.getElementById('vs-crime-total').textContent = Math.round(crimeTotal).toLocaleString();
+      }
+      crimeTotal = startNs + step.cycles;
     }
   })();
 
@@ -408,10 +416,17 @@ async function runVs() {
     for (const step of rescueSteps) {
       document.querySelectorAll('.vs-panel.rescue .vs-step').forEach(s => s.classList.remove('active'));
       document.getElementById(step.id).classList.add('active');
-      rescueTotal += step.cycles;
-      document.getElementById('vs-rescue-total').textContent = rescueTotal.toLocaleString();
       const stepMs = Math.max(MIN_VS_MS, step.cycles * NS_TO_MS);
-      await wait(stepMs);
+      const startNs = rescueTotal;
+      const ticks = Math.max(1, Math.floor(stepMs / TICK_MS));
+      const nsPerTick = step.cycles / ticks;
+      const msPerTick = stepMs / ticks;
+      for (let t = 0; t < ticks; t++) {
+        await wait(msPerTick);
+        rescueTotal = startNs + nsPerTick * (t + 1);
+        document.getElementById('vs-rescue-total').textContent = Math.round(rescueTotal).toLocaleString();
+      }
+      rescueTotal = startNs + step.cycles;
     }
   })();
 

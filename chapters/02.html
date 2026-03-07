@@ -534,6 +534,7 @@ async function runDemo() {
   // Fixed scale: 1 ns = NS_TO_MS milliseconds, same for all languages
   const NS_TO_MS = 3;
   const MIN_STEP_MS = 60;
+  const TICK_MS = 80;
 
   // Run rescue (fast — uses same time scale as crime)
   const rescuePromise = (async () => {
@@ -559,9 +560,12 @@ async function runDemo() {
   // Run crime (slow — timing proportional to nanoseconds)
   const crimePromise = (async () => {
     let currentTrigger = null;
+    const crimeEl = document.getElementById('m-crime-cycles');
+    const slowEl = document.getElementById('m-slowdown');
+    const idleEl = document.getElementById('idleCount');
+
     for (const step of crimeSteps) {
       const stepMs = Math.max(MIN_STEP_MS, step.cycles * NS_TO_MS);
-      await wait(stepMs);
 
       // Clear previous highlights
       clearLines();
@@ -607,18 +611,23 @@ async function runDemo() {
         document.getElementById('m-mutations').textContent = mutations;
       });
 
-      crimeCycles += step.cycles;
-      document.getElementById('m-crime-cycles').textContent = crimeCycles.toLocaleString();
+      // Live-ticking counter: increment during step instead of freezing
+      const startNs = crimeCycles;
+      const ticks = Math.max(1, Math.floor(stepMs / speed / TICK_MS));
+      const nsPerTick = step.cycles / ticks;
+      const msPerTick = stepMs / ticks;
 
-      // Drive idle counter from authoritative metrics
-      if (rescueDone) {
-        const waiting = Math.round(crimeCycles) - rescueFinalNs;
-        if (waiting > 0) document.getElementById('idleCount').textContent = waiting.toLocaleString();
+      for (let t = 0; t < ticks; t++) {
+        await wait(msPerTick);
+        crimeCycles = startNs + nsPerTick * (t + 1);
+        crimeEl.textContent = Math.round(crimeCycles).toLocaleString();
+        if (rescueDone) {
+          const waiting = Math.round(crimeCycles) - rescueFinalNs;
+          if (waiting > 0) idleEl.textContent = waiting.toLocaleString();
+        }
+        if (rescueFinalNs > 0) slowEl.textContent = Math.round(crimeCycles / rescueFinalNs) + '× slower';
       }
-      // Slowdown multiplier
-      if (rescueFinalNs > 0) {
-        document.getElementById('m-slowdown').textContent = Math.round(crimeCycles / rescueFinalNs) + '× slower';
-      }
+      crimeCycles = startNs + step.cycles; // exact value
     }
     // Clean up
     document.querySelectorAll('.class-field').forEach(n => n.classList.remove('mutating'));

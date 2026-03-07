@@ -166,9 +166,9 @@
   </div>
 
   <div class="demo-metrics">
-    <div class="dm crime"><div class="num" id="m-crime-depth">0</div><div class="desc">Max stack depth</div><div class="slowdown-sub" id="m-slowdown"></div></div>
+    <div class="dm crime"><div class="num" id="m-crime-depth">0</div><div class="desc">Max stack depth</div></div>
     <div class="dm rescue"><div class="num" id="m-rescue-depth">0</div><div class="desc">Max stack depth</div></div>
-    <div class="dm crime"><div class="num" id="m-crime-ns">0</div><div class="desc">Nanoseconds (framework)</div></div>
+    <div class="dm crime"><div class="num" id="m-crime-ns">0</div><div class="desc">Nanoseconds (framework)</div><div class="slowdown-sub" id="m-slowdown" style="color:var(--red);margin-top:2px;font-weight:600"></div></div>
     <div class="dm rescue"><div class="num" id="m-rescue-ns">0</div><div class="desc">Nanoseconds (your code)</div></div>
   </div>
   <div class="controls"><button onclick="runDemo()">Replay</button></div>
@@ -294,14 +294,14 @@ window.addEventListener('load', () => setTimeout(runDemo, 800));
 
 // Update slowdown multiplier
 function updateSlowdown() {
-  const crimeEl = document.getElementById('m-crime-depth');
-  const rescueEl = document.getElementById('m-rescue-depth');
+  const crimeEl = document.getElementById('m-crime-ns');
+  const rescueEl = document.getElementById('m-rescue-ns');
   if (!crimeEl || !rescueEl) return;
   const crime = parseFloat(crimeEl.textContent.replace(/,/g, '')) || 0;
   const rescue = parseFloat(rescueEl.textContent.replace(/,/g, '')) || 0;
   const el = document.getElementById('m-slowdown');
   if (el && rescue > 0 && crime > rescue) {
-    el.textContent = Math.round(crime / rescue) + '× deeper';
+    el.textContent = Math.round(crime / rescue) + '× slower';
   }
 }
 // Hook into existing animation — poll until stable

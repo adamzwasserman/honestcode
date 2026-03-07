@@ -481,16 +481,24 @@ async function runDemo() {
         document.getElementById(ptrLines[i]).classList.add('visible');
       }
 
-      crimeCycles += step.cycles;
       crimeMisses += step.miss;
       crimePtrs += step.ptr;
 
-      document.getElementById('m-crime-cycles').textContent = crimeCycles.toLocaleString();
       document.getElementById('ss-crime-miss').textContent = crimeMisses;
       document.getElementById('ss-crime-ptr').textContent = crimePtrs;
 
       const stepMs = Math.max(MIN_CHASE_MS, step.cycles * NS_TO_MS);
-      await wait(stepMs);
+      const TICK_MS = 80;
+      const startNs = crimeCycles;
+      const ticks = Math.max(1, Math.floor(stepMs / TICK_MS));
+      const nsPerTick = step.cycles / ticks;
+      const msPerTick = stepMs / ticks;
+      for (let t = 0; t < ticks; t++) {
+        await wait(msPerTick);
+        crimeCycles = startNs + nsPerTick * (t + 1);
+        document.getElementById('m-crime-cycles').textContent = Math.round(crimeCycles).toLocaleString();
+      }
+      crimeCycles = startNs + step.cycles;
       cl.classList.remove('visible');
     }
   })();

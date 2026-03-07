@@ -310,7 +310,7 @@ function updateSlowdown() {
   const rescue = parseFloat(rescueEl.textContent.replace(/,/g, '')) || 0;
   const el = document.getElementById('m-slowdown');
   if (el && rescue > 0 && crime > rescue) {
-    el.textContent = Math.round(crime / rescue) + '× more code';
+    el.textContent = Math.round(crime / rescue) + '× slower';
   }
 }
 // Hook into existing animation — poll until stable
