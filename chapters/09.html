@@ -304,7 +304,7 @@
   <h2>What you just saw</h2>
   <p><strong>Demo 1:</strong> The caching circular argument. Objects scatter data across the heap. The scattered data is slow to traverse. A cache compensates for the slowness. The cache serves stale data. Invalidation logic adds complexity. The complexity creates thundering herd problems. The system is slow again. Add more cache. The cycle never breaks because <span class="warning">the cache is solving a problem the architecture created</span>.</p>
 
-  <p><strong>Demo 2:</strong> A flat SQL query returns the same data in <span class="highlight">50 nanoseconds</span> that the ORM + cache layer returns in <span class="warning">990 nanoseconds</span>. The query planner optimizes the join. The data comes back contiguous. No pointer chases. No cache checks. No stale data. No invalidation logic. The "performance optimization" (caching) is slower than the simple alternative (a query).</p>
+  <p><strong>Demo 2:</strong> A flat SQL query returns the same data in <span class="highlight">166 nanoseconds</span> that the ORM + cache layer returns in <span class="warning">454 nanoseconds</span>. The query planner optimizes the join. The data comes back contiguous. No pointer chases. No cache checks. No stale data. No invalidation logic. The "performance optimization" (caching) is 2.7× slower than the simple alternative (a query).</p>
 
   <p>The cache was never a performance optimization. It was a compensation for an architecture that scattered data across the heap. A flat data structure eliminates the scatter, which eliminates the need for the cache, which eliminates the invalidation logic, the stale data bugs, and the thundering herd problems. The simplest solution is also the fastest.</p>
 </section>
