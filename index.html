@@ -1051,30 +1051,30 @@ function makeRescueTrace(call, arg, calc, ret) {
 // Validate: github.com/adamzwasserman/honest-code-traces
 // Run: docker build -t traces . && docker run --rm -v $(pwd)/results:/traces/results traces
 //                          call  field  calc  single  cache  time
-const CRIME_JAVA         = makeCrimeTrace(250, 42,  2417, 41,   83,  333);
-const CRIME_TYPESCRIPT   = makeCrimeTrace(83,  83,  166,  62,   125, 125);
-const CRIME_CSHARP       = makeCrimeTrace(100, 100, 400,  100,  100, 100); // .NET Stopwatch floor ~100ns
+const CRIME_JAVA         = makeCrimeTrace(458, 42,  2416, 41,   83,  333);
+const CRIME_TYPESCRIPT   = makeCrimeTrace(167, 125, 292,  104,  208, 208);
+const CRIME_CSHARP       = makeCrimeTrace(100, 100, 100,  100,  100, 100); // .NET Stopwatch floor ~100ns
 const CRIME_PYTHON       = makeCrimeTrace(42,  42,  291,  83,   83,  83);
-const CRIME_KOTLIN       = makeCrimeTrace(1208,166, 833,  375,  458, 333);
-const CRIME_SWIFT        = makeCrimeTrace(80,  10,  10,   35,   10,  20);  // macOS native, batched
-const CRIME_PHP          = makeCrimeTrace(83,  83,  125,  83,   84,  83);
-const CRIME_RUBY         = makeCrimeTrace(125, 125, 209,  166,  125, 125);
-const CRIME_DART         = makeCrimeTrace(10,  5,   20,   5,    5,   20);  // Stopwatch batched
+const CRIME_KOTLIN       = makeCrimeTrace(417, 83,  583,  167,  208, 166);
+const CRIME_SWIFT        = makeCrimeTrace(81,  5,   2,    15,   1,   19);  // macOS native, batched
+const CRIME_PHP          = makeCrimeTrace(125, 125, 250,  187,  167, 167);
+const CRIME_RUBY         = makeCrimeTrace(125, 125, 208,  146,  125, 125);
+const CRIME_DART         = makeCrimeTrace(40,  10,  40,   10,   10,  60);  // Stopwatch batched
 const CRIME_CPP          = makeCrimeTrace(42,  42,  41,   21,   41,  42);
-const CRIME_GO           = makeCrimeTrace(62,  10,  2,    24,   10,  50);  // batched, sub-ns floor
+const CRIME_GO           = makeCrimeTrace(69,  10,  3,    25,   1,   60);  // batched, sub-ns floor
 
 //                          call  arg   calc  ret
-const RESCUE_JAVA        = makeRescueTrace(42,  42,  250, 292);
-const RESCUE_TYPESCRIPT  = makeRescueTrace(42,  42,  208, 125);
-const RESCUE_CSHARP      = makeRescueTrace(100, 100, 500, 100); // .NET Stopwatch floor ~100ns
-const RESCUE_PYTHON      = makeRescueTrace(42,  42,  333, 84);
-const RESCUE_KOTLIN      = makeRescueTrace(42,  83,  1458,750);
-const RESCUE_SWIFT       = makeRescueTrace(20,  10,  20,  20);  // macOS native, batched
-const RESCUE_PHP         = makeRescueTrace(42,  42,  167, 208);
-const RESCUE_RUBY        = makeRescueTrace(83,  84,  333, 334);
-const RESCUE_DART        = makeRescueTrace(20,  5,   120, 210);  // Stopwatch batched
+const RESCUE_JAVA        = makeRescueTrace(42,  42,  500, 292);
+const RESCUE_TYPESCRIPT  = makeRescueTrace(84,  83,  375, 291);
+const RESCUE_CSHARP      = makeRescueTrace(100, 100, 200, 100); // .NET Stopwatch floor ~100ns
+const RESCUE_PYTHON      = makeRescueTrace(42,  42,  333, 125);
+const RESCUE_KOTLIN      = makeRescueTrace(42,  42,  792, 375);
+const RESCUE_SWIFT       = makeRescueTrace(18,  10,  12,  13);  // macOS native, batched
+const RESCUE_PHP         = makeRescueTrace(83,  83,  375, 333);
+const RESCUE_RUBY        = makeRescueTrace(42,  83,  292, 333);
+const RESCUE_DART        = makeRescueTrace(70,  10,  280, 510); // Stopwatch batched
 const RESCUE_CPP         = makeRescueTrace(41,  41,  42,  42);
-const RESCUE_GO          = makeRescueTrace(49,  10,  5,   5);   // batched, sub-ns floor
+const RESCUE_GO          = makeRescueTrace(59,  10,  10,  11);  // batched, sub-ns floor
 
 const CRIME_TRACES = {
   java: CRIME_JAVA, typescript: CRIME_TYPESCRIPT, csharp: CRIME_CSHARP,
