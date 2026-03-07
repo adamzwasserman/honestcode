@@ -208,7 +208,7 @@
 <script>if(!localStorage.getItem('hc_license')){window.location.href='/login.html?next='+encodeURIComponent(location.pathname);document.documentElement.innerHTML='';}</script>
 
 <nav>
-  <a href="landing-v2.html" style="text-decoration:none"><div class="logo">honest<span>code</span>.software</div></a>
+  <a href="/" style="text-decoration:none"><div class="logo">honest<span>code</span>.software</div></a>
   <div class="chapter-nav">
     <a href="/chapters/01.html">1</a><a href="/chapters/02.html">2</a>
     <a href="#" class="active">3</a>
@@ -404,12 +404,12 @@ function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
 // Cache miss penalties: L1 ~1ns, L2 ~12ns, L3 ~40ns, DRAM ~65ns
 // Source: standard memory hierarchy latencies (Intel/ARM)
 const crimeSteps = [
-  { id: 'obj-order',     top: 8,  cycles: 1,  miss: 1, ptr: 0, bytes: 128, label: 'Order' },
-  { id: 'obj-customer',  top: 71, cycles: 65, miss: 1, ptr: 1, bytes: 96,  label: 'Customer' },
-  { id: 'obj-address',   top: 88, cycles: 12, miss: 1, ptr: 1, bytes: 80,  label: 'Address' },
-  { id: 'obj-taxregion', top: 52, cycles: 65, miss: 1, ptr: 1, bytes: 48,  label: 'TaxRegion' },
-  { id: 'obj-ratetable', top: 19, cycles: 65, miss: 1, ptr: 1, bytes: 128, label: 'RateTable' },
-  { id: 'obj-items',     top: 34, cycles: 12, miss: 1, ptr: 1, bytes: 192, label: 'LineItem[]' },
+  { id: 'obj-order',     top: 8,  cycles: 41, miss: 1, ptr: 0, bytes: 128, label: 'Order' },
+  { id: 'obj-customer',  top: 71, cycles: 42, miss: 1, ptr: 1, bytes: 96,  label: 'Customer' },
+  { id: 'obj-address',   top: 88, cycles: 42, miss: 1, ptr: 1, bytes: 80,  label: 'Address' },
+  { id: 'obj-taxregion', top: 52, cycles: 42, miss: 1, ptr: 1, bytes: 48,  label: 'TaxRegion' },
+  { id: 'obj-ratetable', top: 19, cycles: 42, miss: 1, ptr: 1, bytes: 128, label: 'RateTable' },
+  { id: 'obj-items',     top: 34, cycles: 42, miss: 1, ptr: 1, bytes: 192, label: 'LineItem[]' },
 ];
 
 const ptrLines = ['ptr-1','ptr-4','ptr-2','ptr-3','ptr-5'];

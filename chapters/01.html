@@ -107,7 +107,7 @@
 <body>
 <script>if(!localStorage.getItem('hc_license')){window.location.href='/login.html?next='+encodeURIComponent(location.pathname);document.documentElement.innerHTML='';}</script>
 <nav>
-  <a href="landing-v2.html" style="text-decoration:none"><div class="logo">honest<span>code</span>.software</div></a>
+  <a href="/" style="text-decoration:none"><div class="logo">honest<span>code</span>.software</div></a>
   <div class="chapter-nav">
     <a href="#" class="active">1</a><a href="/chapters/02.html">2</a><a href="/chapters/03.html">3</a>
     <a href="/chapters/04.html">4</a><a href="/chapters/05.html">5</a><a href="/chapters/06.html">6</a><a href="/chapters/07.html">7</a>
@@ -186,32 +186,32 @@
 </div>
 
 <div class="ch-nav-bottom">
-  <a href="landing-v2.html">← Home</a>
+  <a href="/">← Home</a>
   <a href="/chapters/02.html">Ch.2: Classes Considered Harmful →</a>
 </div>
 
 <script>
 const crimeFrames = [
-  { name: 'DispatcherServlet.doDispatch()', ns: 45 },
-  { name: '  FilterChain.doFilter()', ns: 12 },
-  { name: '    SecurityFilter.doFilter()', ns: 180 },
-  { name: '      CorsFilter.doFilter()', ns: 8 },
-  { name: '        RequestMappingHandler.handle()', ns: 25 },
-  { name: '          HandlerMethodAdapter.invoke()', ns: 15 },
-  { name: '            TransactionInterceptor.invoke()', ns: 320 },
-  { name: '              CglibAopProxy.intercept()', ns: 22 },
-  { name: '                ExceptionHandlerResolver.resolve()', ns: 18 },
-  { name: '                  UserController.getUser()', ns: 8 },
-  { name: '                    UserService.findById()', ns: 12 },
-  { name: '                      UserRepository.findById()', ns: 280 },
-  { name: '                        EntityManager.find()', ns: 45 },
+  { name: 'DispatcherServlet.doDispatch()', ns: 48 },
+  { name: '  FilterChain.doFilter()', ns: 48 },
+  { name: '    SecurityFilter.doFilter()', ns: 48 },
+  { name: '      CorsFilter.doFilter()', ns: 48 },
+  { name: '        RequestMappingHandler.handle()', ns: 48 },
+  { name: '          HandlerMethodAdapter.invoke()', ns: 48 },
+  { name: '            TransactionInterceptor.invoke()', ns: 48 },
+  { name: '              CglibAopProxy.intercept()', ns: 48 },
+  { name: '                ExceptionHandlerResolver.resolve()', ns: 47 },
+  { name: '                  UserController.getUser()', ns: 48 },
+  { name: '                    UserService.findById()', ns: 48 },
+  { name: '                      UserRepository.findById()', ns: 48 },
+  { name: '                        EntityManager.find()', ns: 48 },
 ];
 
 const rescueFrames = [
-  { name: 'handle_request(req)', ns: 5 },
-  { name: '  validate(req.params)', ns: 8 },
-  { name: '    query_user(conn, user_id)', ns: 280 },
-  { name: '  respond(200, user_data)', ns: 3 },
+  { name: 'handle_request(req)', ns: 42 },
+  { name: '  validate(req.params)', ns: 42 },
+  { name: '    query_user(conn, user_id)', ns: 41 },
+  { name: '  respond(200, user_data)', ns: 41 },
 ];
 
 let running = false;

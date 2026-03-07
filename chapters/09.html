@@ -249,16 +249,16 @@
   <div class="vs-section">
     <div class="vs-panel crime">
       <div class="vs-label">☠ ORM + cache layer</div>
-      <div class="vs-step" id="vs-c0">Request arrives <span class="cycles">5 cyc</span></div>
-      <div class="vs-step" id="vs-c1">Check cache key <span class="cycles">80 cyc</span></div>
-      <div class="vs-step" id="vs-c2">Cache MISS <span class="cycles">250 cyc</span></div>
-      <div class="vs-step" id="vs-c3">Load Customer object <span class="cycles">150 cyc</span></div>
-      <div class="vs-step" id="vs-c4">↳ pointer chase → Orders <span class="cycles">100 cyc</span></div>
-      <div class="vs-step" id="vs-c5">↳ pointer chase → LineItems <span class="cycles">100 cyc</span></div>
-      <div class="vs-step" id="vs-c6">↳ pointer chase → Addresses <span class="cycles">100 cyc</span></div>
-      <div class="vs-step" id="vs-c7">Assemble response DTO <span class="cycles">80 cyc</span></div>
-      <div class="vs-step" id="vs-c8">Store in cache <span class="cycles">120 cyc</span></div>
-      <div class="vs-step" id="vs-c9">Return response <span class="cycles">5 cyc</span></div>
+      <div class="vs-step" id="vs-c0">Request arrives <span class="cycles">41ns</span></div>
+      <div class="vs-step" id="vs-c1">Check cache key <span class="cycles">41ns</span></div>
+      <div class="vs-step" id="vs-c2">Cache MISS <span class="cycles">41ns</span></div>
+      <div class="vs-step" id="vs-c3">Load Customer object <span class="cycles">41ns</span></div>
+      <div class="vs-step" id="vs-c4">↳ pointer chase → Orders <span class="cycles">41ns</span></div>
+      <div class="vs-step" id="vs-c5">↳ pointer chase → LineItems <span class="cycles">42ns</span></div>
+      <div class="vs-step" id="vs-c6">↳ pointer chase → Addresses <span class="cycles">41ns</span></div>
+      <div class="vs-step" id="vs-c7">Assemble response DTO <span class="cycles">83ns</span></div>
+      <div class="vs-step" id="vs-c8">Store in cache <span class="cycles">42ns</span></div>
+      <div class="vs-step" id="vs-c9">Return response <span class="cycles">41ns</span></div>
     </div>
 
     <!-- S-CURVE DIVIDER -->
@@ -284,9 +284,9 @@
     </div>
 <div class="vs-panel rescue">
       <div class="vs-label">✦ Flat SQL query</div>
-      <div class="vs-step" id="vs-r0">Request arrives <span class="cycles">5 cyc</span></div>
-      <div class="vs-step" id="vs-r1">SELECT ... JOIN ... <span class="cycles">40 cyc</span></div>
-      <div class="vs-step" id="vs-r2">Return dict <span class="cycles">5 cyc</span></div>
+      <div class="vs-step" id="vs-r0">Request arrives <span class="cycles">41ns</span></div>
+      <div class="vs-step" id="vs-r1">SELECT ... JOIN ... <span class="cycles">84ns</span></div>
+      <div class="vs-step" id="vs-r2">Return dict <span class="cycles">41ns</span></div>
     </div>
   </div>
 
@@ -371,13 +371,13 @@ async function runVs() {
 
   // Realistic nanosecond costs for cache-miss path vs single SQL join
   const crimeSteps = [
-    { id: 'vs-c0', cycles: 5 }, { id: 'vs-c1', cycles: 80 }, { id: 'vs-c2', cycles: 250 },
-    { id: 'vs-c3', cycles: 150 }, { id: 'vs-c4', cycles: 100 }, { id: 'vs-c5', cycles: 100 },
-    { id: 'vs-c6', cycles: 100 }, { id: 'vs-c7', cycles: 80 }, { id: 'vs-c8', cycles: 120 },
-    { id: 'vs-c9', cycles: 5 },
+    { id: 'vs-c0', cycles: 41 }, { id: 'vs-c1', cycles: 41 }, { id: 'vs-c2', cycles: 41 },
+    { id: 'vs-c3', cycles: 41 }, { id: 'vs-c4', cycles: 41 }, { id: 'vs-c5', cycles: 42 },
+    { id: 'vs-c6', cycles: 41 }, { id: 'vs-c7', cycles: 83 }, { id: 'vs-c8', cycles: 42 },
+    { id: 'vs-c9', cycles: 41 },
   ];
   const rescueSteps = [
-    { id: 'vs-r0', cycles: 5 }, { id: 'vs-r1', cycles: 40 }, { id: 'vs-r2', cycles: 5 },
+    { id: 'vs-r0', cycles: 41 }, { id: 'vs-r1', cycles: 84 }, { id: 'vs-r2', cycles: 41 },
   ];
 
   // Reset
