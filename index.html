@@ -226,10 +226,10 @@
   .tcard-grid.fading { opacity: 0; }
   .tcard {
     position: relative; overflow: hidden; border: 1px solid var(--border); cursor: default;
+    min-height: 220px;
   }
   .tcard-bg {
-    width: 100%; display: block;
-    filter: brightness(1);
+    width: 100%; min-height: 100%; display: block; object-fit: cover; object-position: top left;
   }
   .tcard-overlay {
     position: absolute; inset: 0; background: rgba(255,255,255,0.78);
@@ -481,7 +481,11 @@
 
 <section class="testimonial-section">
   <h2>What People Say</h2>
-  <div class="tcard-grid" id="tcard-grid"></div>
+  <div class="tcard-grid" id="tcard-grid">
+    <div class="tcard"><img class="tcard-bg" src="/testamonials/shibl3.png" alt=""><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">"The closest person I know to a strategic genius"</div><div class="tcard-footer"><div class="tcard-name">Shibl Mourad</div><div class="tcard-title">North America Research Engineering Lead, Google DeepMind</div></div></div></div>
+    <div class="tcard"><img class="tcard-bg" src="/testamonials/brabant.png" alt=""><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">"The most analytical and technology literate marketing guy I have ever met"</div><div class="tcard-footer"><div class="tcard-name">Frederic Brabant</div><div class="tcard-title">Chief Technology Officer, Rekruti</div></div></div></div>
+    <div class="tcard"><img class="tcard-bg" src="/testamonials/liles.png" alt=""><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">"Enviable ability to build excitement around abstract ideas in technology"</div><div class="tcard-context">On positioning complex technical concepts for C-level audiences</div><div class="tcard-footer"><div class="tcard-name">Douglas Liles</div><div class="tcard-title">Principal Product Manager, Oracle Health</div></div></div></div>
+  </div>
 </section>
 <script>
 (function(){
@@ -500,19 +504,16 @@
     {img:'lindholm.png',q:'"Find a way to simplify it and make it scalable"',n:'Justin Lindholm',t:'Champion of the Underdogs, Change Agents and Conscious Constructors'},
     {img:'duck.png',q:'"Using his unique insights\u2026 bring a lot of value"',c:'A specialty coffee heavyweight surprised to learn something new about coffee processing from an IT Director',n:'Aaron Duckworth',t:'Culinary Entrepreneur & CEO, Coffee with A. Duck'}
   ];
-  // Shuffle
   for(var i=CARDS.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=CARDS[i];CARDS[i]=CARDS[j];CARDS[j]=tmp;}
   var grid=document.getElementById('tcard-grid');
   var page=0;
+  function buildCard(d){
+    return '<div class="tcard"><img class="tcard-bg" src="/testamonials/'+d.img+'" alt=""><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">'+d.q+'</div>'+(d.c?'<div class="tcard-context">'+d.c+'</div>':'')+'<div class="tcard-footer"><div class="tcard-name">'+d.n+'</div><div class="tcard-title">'+d.t+'</div></div></div></div>';
+  }
   function renderPage(){
     var start=page*3;
-    var trio=[];
-    for(var k=0;k<3;k++) trio.push(CARDS[(start+k)%CARDS.length]);
     var html='';
-    for(var k=0;k<3;k++){
-      var d=trio[k];
-      html+='<div class="tcard"><img class="tcard-bg" src="/testamonials/'+d.img+'" alt=""><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">'+d.q+'</div>'+(d.c?'<div class="tcard-context">'+d.c+'</div>':'')+'<div class="tcard-footer"><div class="tcard-name">'+d.n+'</div><div class="tcard-title">'+d.t+'</div></div></div></div>';
-    }
+    for(var k=0;k<3;k++) html+=buildCard(CARDS[(start+k)%CARDS.length]);
     grid.innerHTML=html;
   }
   function cycle(){
@@ -523,7 +524,6 @@
       grid.classList.remove('fading');
     },600);
   }
-  renderPage();
   setInterval(cycle,5000);
 })();
 </script>
