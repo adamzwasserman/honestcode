@@ -491,36 +491,50 @@
 (function(){
   var CARDS = [
     {img:'dahl.png',q:'"Simplificator"',n:'Bernard Dahl',t:'Brand / Storyteller'},
-    {img:'shibl1.png',q:'"Only later did this approach become an industry buzz word"',c:'On designing a stateless HTTP/XML architecture for the airline industry, 1999',n:'Shibl Mourad',t:'North America Research Engineering Lead, Google DeepMind'},
-    {img:'shibl2.png',q:'"Ideas that sound outlandish but prove to be right a few years down the road"',c:'On proposing device divergence at the height of the convergence craze',n:'Shibl Mourad',t:'North America Research Engineering Lead, Google DeepMind'},
-    {img:'shibl3.png',q:'"The closest person I know to a strategic genius"',n:'Shibl Mourad',t:'North America Research Engineering Lead, Google DeepMind'},
+    {img:'shibl1.png',q:'"Only later did this approach become an industry buzz word"',c:'On designing a stateless HTTP/XML architecture for the airline industry, 1999',n:'Shibl Mourad',t:'North America Research Engineering Lead, Google DeepMind',shibl:1},
+    {img:'shibl2.png',q:'"Ideas that sound outlandish but prove to be right a few years down the road"',c:'On proposing device divergence at the height of the convergence craze',n:'Shibl Mourad',t:'North America Research Engineering Lead, Google DeepMind',shibl:1},
+    {img:'shibl3.png',q:'"The closest person I know to a strategic genius"',n:'Shibl Mourad',t:'North America Research Engineering Lead, Google DeepMind',shibl:1},
     {img:'omer.png',q:'"An IT executive like no other"',n:'Omer Ahmad',t:'Vice President, Technology @ Klick'},
     {img:'brabant.png',q:'"The most analytical and technology literate marketing guy I have ever met"',n:'Frederic Brabant',t:'Chief Technology Officer, Rekruti'},
-    {img:'daniel.png',q:'\u201CTr\u00e8s m\u00e9ticuleux\u201D',c:'On managing complex projects',n:'Daniel Boissonneault',t:'Associate Chief Executive Officer'},
-    {img:'roy.png',q:'\u201CTr\u00e8s brillant\u201D',c:'On leading technical delivery',n:'Guillaume Roy',t:'Co-founder & CTO, Worksleap'},
+    {img:'daniel.png',q:'\u201CTr\u00e8s m\u00e9ticuleux\u201D',c:'On managing complex projects',n:'Daniel Boissonneault',t:'Associate Chief Executive Officer',fr:1},
+    {img:'roy.png',q:'\u201CTr\u00e8s brillant\u201D',c:'On leading technical delivery',n:'Guillaume Roy',t:'Co-founder & CTO, Worksleap',fr:1},
     {img:'liles.png',q:'"Enviable ability to build excitement around abstract ideas in technology"',c:'On positioning complex technical concepts for C-level audiences',n:'Douglas Liles',t:'Principal Product Manager, Oracle Health'},
     {img:'moon.png',q:'"A rare combination of talents and motivations"',c:'On bridging technical deployment, strategic marketing, and systems thinking',n:'Michael Moon',t:'Advisor to Series A-C Startups | AI-led Growth Architect'},
     {img:'ducharme.png',q:'"Big picture perspective combined with attention to detail"',n:'Martin Ducharme',t:'VP, AlayaCare | Board Member, Digital Healthcare'},
     {img:'lindholm.png',q:'"Find a way to simplify it and make it scalable"',n:'Justin Lindholm',t:'Champion of the Underdogs, Change Agents and Conscious Constructors'},
     {img:'duck.png',q:'"Using his unique insights\u2026 bring a lot of value"',c:'A specialty coffee heavyweight surprised to learn something new about coffee processing from an IT Director',n:'Aaron Duckworth',t:'Culinary Entrepreneur & CEO, Coffee with A. Duck'}
   ];
-  for(var i=CARDS.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var tmp=CARDS[i];CARDS[i]=CARDS[j];CARDS[j]=tmp;}
   var grid=document.getElementById('tcard-grid');
-  var page=0;
+  var shown=[];
+  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+  function pickTrio(){
+    var pool=CARDS.filter(function(c){return shown.indexOf(c.img)===-1;});
+    if(pool.length<3){shown=[];pool=CARDS.slice();}
+    shuffle(pool);
+    var trio=[],hasFr=false,hasShibl=false;
+    for(var i=0;i<pool.length&&trio.length<3;i++){
+      var c=pool[i];
+      if(c.fr&&hasFr)continue;
+      if(c.shibl&&hasShibl)continue;
+      if(c.fr)hasFr=true;
+      if(c.shibl)hasShibl=true;
+      trio.push(c);
+    }
+    trio.forEach(function(c){shown.push(c.img);});
+    return trio;
+  }
   function buildCard(d){
     return '<div class="tcard"><img class="tcard-bg" src="/testamonials/'+d.img+'" alt=""><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">'+d.q+'</div>'+(d.c?'<div class="tcard-context">'+d.c+'</div>':'')+'<div class="tcard-footer"><div class="tcard-name">'+d.n+'</div><div class="tcard-title">'+d.t+'</div></div></div></div>';
   }
-  function renderPage(){
-    var start=page*3;
+  function renderTrio(trio){
     var html='';
-    for(var k=0;k<3;k++) html+=buildCard(CARDS[(start+k)%CARDS.length]);
+    for(var k=0;k<3;k++) html+=buildCard(trio[k]);
     grid.innerHTML=html;
   }
   function cycle(){
     grid.classList.add('fading');
     setTimeout(function(){
-      page++;
-      renderPage();
+      renderTrio(pickTrio());
       grid.classList.remove('fading');
     },600);
   }
