@@ -95,7 +95,7 @@
 </div>
 
 <section class="demo-section">
-  <div class="demo-label">Demo: Same prompt, two architectural constraints: watch the AI generate</div>
+  <div class="demo-label">Demo: Same task, different prompt: watch the AI generate</div>
   <div class="ai-demo">
     <div class="ai-panel crime">
       <div class="panel-label">☠ No constraints</div>
@@ -125,8 +125,8 @@
       </svg>
     </div>
 <div class="ai-panel rescue">
-      <div class="panel-label">✦ Declarative constraints</div>
-      <div class="prompt"><em>No classes. Pure functions only. Config as typed dicts. No inheritance.</em> "Build a notification system that sends email, SMS, and push notifications based on user preferences."</div>
+      <div class="panel-label">✦ Better prompt</div>
+      <div class="prompt">"Build a notification system that sends email, SMS, and push notifications based on user preferences." <em>(prompted differently)</em></div>
       <div class="stream-area" id="rescueStream"></div>
       <div class="line-bar"><div class="lb-item">Lines: <span class="lb-val good" id="lb-rescue">0</span></div></div>
     </div>
@@ -143,12 +143,12 @@
 <section class="explanation">
   <h2>What you just saw</h2>
   <p>The <span class="warning">left panel</span> is what every AI code assistant generates by default: a class hierarchy. NotificationService, EmailNotifier, SMSNotifier, PushNotifier, NotificationFactory, UserPreferenceManager. The AI reaches for classes because that is the dominant pattern in its training data. It generates more code because the class architecture requires more machinery: constructors, inheritance, factory methods, dependency injection.</p>
-  <p>The <span class="highlight">right panel</span> is the same AI, given the same task, with four architectural constraints prepended to the prompt. The AI generates pure functions, typed dictionaries for configuration, and a dispatch map instead of a factory. Fewer lines. No classes. The same behavior, expressed directly.</p>
-  <p>The AI is not the problem. The training data is the problem. And you control the prompt.</p>
+  <p>The <span class="highlight">right panel</span> is the same AI, given the same task, prompted differently. It generates pure functions, typed dictionaries for configuration, and a dispatch map instead of a factory. Fewer lines. No classes. The same behavior, expressed directly.</p>
+  <p>The AI is not the problem. The training data is the problem. How you prompt it changes everything.</p>
 </section>
 
 <div class="transparency">
-  <strong>How this works:</strong> This demo visualizes AI code generation output, not timing. An unconstrained prompt produces 6 classes and an inheritance hierarchy. A prompt constrained with architectural rules produces pure functions and typed dicts. Line counts and class counts are from real AI-generated code.
+  <strong>How this works:</strong> This demo visualizes AI code generation output, not timing. A default prompt produces 6 classes and an inheritance hierarchy. A better prompt produces pure functions and typed dicts. Line counts and class counts are from real AI-generated code.
 </div>
 
 <div class="ch-nav-bottom">
