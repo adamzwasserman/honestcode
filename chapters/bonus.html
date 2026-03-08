@@ -176,9 +176,6 @@ If your Gherkin step definition is 30 lines of mock configuration, the code unde
 ## Declarative Equivalents Over Framework Lifecycle Hooks
 Instead of `componentDidMount`, `useEffect` cleanup, `ngOnInit`—use HTMX attributes that declare when to load (`hx-trigger="load"`), or server-rendered HTML that arrives ready. No client-side initialization sequence.
 
-## Constrain AI with Data Shape Contracts
-Instead of "write a notification system," tell the AI: "write a function that takes `{channel, recipient, message}` and returns `{status}`." A defined input/output contract is verifiable by reading the signature and running one example. A class with five methods requires tracing every call sequence.
-
 ## Strangler Pattern for Migration
 Extract one pure function from one class method per sprint. The method now calls the function. The class still exists; the interface doesn't change. After six months the class is a thin shell that does nothing, and removing it is a trivial cleanup.</pre>
   </div>
