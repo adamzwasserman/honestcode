@@ -13,14 +13,16 @@
 <meta name="twitter:title" content="Honest Code: Keep Your State Out of My Code">
 <meta name="twitter:description" content="Your language already has the fix. See the difference in real nanoseconds.">
 <link rel="canonical" href="https://honestcode.software">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
   :root {
     --bg: #0a0a0c; --surface: #111116; --border: #1e1e26;
-    --text: #c8c8d0; --text-dim: #6a6a78;
+    --text: #c8c8d0; --text-dim: #8a8a98;
     --red: #e63946; --red-dim: #e6394620; --red-glow: #e6394640;
     --green: #2a9d8f; --green-dim: #2a9d8f20; --green-glow: #2a9d8f40;
-    --gold: #e9c46a;--cream:#f0ede6;--cream-surface:#e8e4dc;--cream-border:#d5d0c7;--cream-text:#2a2a2e;--cream-dim:#6a6a68;
+    --gold: #e9c46a;--cream:#f0ede6;--cream-surface:#e8e4dc;--cream-border:#d5d0c7;--cream-text:#2a2a2e;--cream-dim:#555553;
     --mono: 'JetBrains Mono', monospace; --serif: 'Literata', Georgia, serif;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -115,8 +117,8 @@
   }
   .state-var { display: flex; justify-content: space-between; padding: 0.15rem 0; }
   .state-var .key { color: var(--text-dim); }
-  .state-var .val { color: var(--text); transition: color 0.2s; }
-  .state-var .val.mutated { color: var(--red); text-shadow: 0 0 8px var(--red-glow); }
+  .state-var .val { color: var(--text); transition: opacity 0.2s; }
+  .state-var .val.mutated { color: var(--red); }
 
   .idle-counter {
     position: absolute; bottom: 50%; left: 50%; transform: translate(-50%, 50%);
@@ -298,13 +300,13 @@
     font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim); line-height: 1.8;
   }
   .transparency strong { color: var(--text); }
-  .transparency a { color: var(--green); text-decoration: none; }
+  .transparency a { color: var(--green); text-decoration: underline; text-underline-offset: 2px; }
 
   footer {
     text-align: center; padding: 3rem 2rem; font-family: var(--mono);
     font-size: 0.7rem; color: var(--text-dim); border-top: 1px solid var(--border);
   }
-  footer a { color: var(--green); text-decoration: none; }
+  footer a { color: var(--green); text-decoration: underline; text-underline-offset: 2px; }
   footer a:hover { color: var(--gold); }
 
   /* S-CURVE DIVIDER */
@@ -333,6 +335,7 @@
   <a class="buy-btn" href="https://adamzwasserman.gumroad.com/l/honest-code-ebook" target="_blank" style="text-decoration:none">GET THE BOOK</a>
 </nav>
 
+<main>
 <section class="hero">
   <h1>See the <span class="dishonest">dishonesty</span>. See the <span class="honest">fix</span>.</h1>
   <p class="subtitle">Same calculation. Pick your language. Watch the difference.</p>
@@ -463,13 +466,13 @@
       <div class="product-title">Paperback</div>
       <div class="product-desc">Physical copy plus ebook and companion site access. Ships mid-April with the full unredacted Dishonest AI chapter.</div>
       <div class="product-price">$39.99</div>
-      <a class="product-cta" href="https://adamzwasserman.gumroad.com/l/honest-code-paperback" target="_blank">PREORDER</a>
+      <a class="product-cta" href="https://adamzwasserman.gumroad.com/l/honest-code-paperback" target="_blank">PREORDER PAPERBACK</a>
     </div>
     <div class="product-card">
       <div class="product-title">Hardcover</div>
       <div class="product-desc">Hardcover edition with ebook and companion site access. Ships mid-April with the full unredacted Dishonest AI chapter.</div>
       <div class="product-price">$59.99</div>
-      <a class="product-cta" href="https://adamzwasserman.gumroad.com/l/honest-code-hardcover" target="_blank">PREORDER</a>
+      <a class="product-cta" href="https://adamzwasserman.gumroad.com/l/honest-code-hardcover" target="_blank">PREORDER HARDCOVER</a>
     </div>
   </div>
   <div class="original-supporters-note" style="font-family:var(--mono);font-size:0.75rem;color:var(--text-dim);text-align:center;margin-top:1.5rem;line-height:1.7;">
@@ -488,9 +491,9 @@
   <h2>What People Say</h2>
   <div class="tcard-stage">
     <div class="tcard-grid" id="tcard-a">
-      <div class="tcard"><img class="tcard-bg" src="/testamonials/shibl3.png" alt=""><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">"The closest person I know to a strategic genius"</div><div class="tcard-footer"><div class="tcard-name">Shibl Mourad</div><div class="tcard-title">North America Research Engineering Lead, Google DeepMind</div></div></div></div>
-      <div class="tcard"><img class="tcard-bg" src="/testamonials/brabant.png" alt=""><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">"The most analytical and technology literate marketing guy I have ever met"</div><div class="tcard-footer"><div class="tcard-name">Frederic Brabant</div><div class="tcard-title">Chief Technology Officer, Rekruti</div></div></div></div>
-      <div class="tcard"><img class="tcard-bg" src="/testamonials/liles.png" alt=""><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">"Enviable ability to build excitement around abstract ideas in technology"</div><div class="tcard-context">On positioning complex technical concepts for C-level audiences</div><div class="tcard-footer"><div class="tcard-name">Douglas Liles</div><div class="tcard-title">Principal Product Manager, Oracle Health</div></div></div></div>
+      <div class="tcard"><img class="tcard-bg" src="/testamonials/shibl3.webp" alt="Testimonial from Shibl Mourad" width="868" height="292" loading="lazy"><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">"The closest person I know to a strategic genius"</div><div class="tcard-footer"><div class="tcard-name">Shibl Mourad</div><div class="tcard-title">North America Research Engineering Lead, Google DeepMind</div></div></div></div>
+      <div class="tcard"><img class="tcard-bg" src="/testamonials/brabant.webp" alt="Testimonial from Frederic Brabant" width="867" height="233" loading="lazy"><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">"The most analytical and technology literate marketing guy I have ever met"</div><div class="tcard-footer"><div class="tcard-name">Frederic Brabant</div><div class="tcard-title">Chief Technology Officer, Rekruti</div></div></div></div>
+      <div class="tcard"><img class="tcard-bg" src="/testamonials/liles.webp" alt="Testimonial from Douglas Liles" width="868" height="294" loading="lazy"><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">"Enviable ability to build excitement around abstract ideas in technology"</div><div class="tcard-context">On positioning complex technical concepts for C-level audiences</div><div class="tcard-footer"><div class="tcard-name">Douglas Liles</div><div class="tcard-title">Principal Product Manager, Oracle Health</div></div></div></div>
     </div>
     <div class="tcard-grid layer-b" id="tcard-b"></div>
   </div>
@@ -498,19 +501,19 @@
 <script>
 (function(){
   var CARDS = [
-    {img:'dahl.png',q:'"Simplificator"',n:'Bernard Dahl',t:'Brand / Storyteller'},
-    {img:'shibl1.png',q:'"Only later did this approach become an industry buzz word"',c:'On designing a stateless HTTP/XML architecture for the airline industry, 1999',n:'Shibl Mourad',t:'North America Research Engineering Lead, Google DeepMind',shibl:1},
-    {img:'shibl2.png',q:'"Ideas that sound outlandish but prove to be right a few years down the road"',c:'On proposing device divergence at the height of the convergence craze',n:'Shibl Mourad',t:'North America Research Engineering Lead, Google DeepMind',shibl:1},
-    {img:'shibl3.png',q:'"The closest person I know to a strategic genius"',n:'Shibl Mourad',t:'North America Research Engineering Lead, Google DeepMind',shibl:1},
-    {img:'omer.png',q:'"An IT executive like no other"',n:'Omer Ahmad',t:'Vice President, Technology @ Klick'},
-    {img:'brabant.png',q:'"The most analytical and technology literate marketing guy I have ever met"',n:'Frederic Brabant',t:'Chief Technology Officer, Rekruti'},
-    {img:'daniel.png',q:'\u201CTr\u00e8s m\u00e9ticuleux\u201D',c:'On managing complex projects',n:'Daniel Boissonneault',t:'Associate Chief Executive Officer',fr:1},
-    {img:'roy.png',q:'\u201CTr\u00e8s brillant\u201D',c:'On leading technical delivery',n:'Guillaume Roy',t:'Co-founder & CTO, Worksleap',fr:1},
-    {img:'liles.png',q:'"Enviable ability to build excitement around abstract ideas in technology"',c:'On positioning complex technical concepts for C-level audiences',n:'Douglas Liles',t:'Principal Product Manager, Oracle Health'},
-    {img:'moon.png',q:'"A rare combination of talents and motivations"',c:'On bridging technical deployment, strategic marketing, and systems thinking',n:'Michael Moon',t:'Advisor to Series A-C Startups | AI-led Growth Architect'},
-    {img:'ducharme.png',q:'"Big picture perspective combined with attention to detail"',n:'Martin Ducharme',t:'VP, AlayaCare | Board Member, Digital Healthcare'},
-    {img:'lindholm.png',q:'"Find a way to simplify it and make it scalable"',n:'Justin Lindholm',t:'Champion of the Underdogs, Change Agents and Conscious Constructors'},
-    {img:'duck.png',q:'"Using his unique insights\u2026 bring a lot of value"',c:'A specialty coffee heavyweight surprised to learn something new about coffee processing from an IT Director',n:'Aaron Duckworth',t:'Culinary Entrepreneur & CEO, Coffee with A. Duck'}
+    {img:'dahl.webp',w:871,h:340,q:'"Simplificator"',n:'Bernard Dahl',t:'Brand / Storyteller'},
+    {img:'shibl1.webp',w:870,h:259,q:'"Only later did this approach become an industry buzz word"',c:'On designing a stateless HTTP/XML architecture for the airline industry, 1999',n:'Shibl Mourad',t:'North America Research Engineering Lead, Google DeepMind',shibl:1},
+    {img:'shibl2.webp',w:865,h:252,q:'"Ideas that sound outlandish but prove to be right a few years down the road"',c:'On proposing device divergence at the height of the convergence craze',n:'Shibl Mourad',t:'North America Research Engineering Lead, Google DeepMind',shibl:1},
+    {img:'shibl3.webp',w:868,h:292,q:'"The closest person I know to a strategic genius"',n:'Shibl Mourad',t:'North America Research Engineering Lead, Google DeepMind',shibl:1},
+    {img:'omer.webp',w:869,h:229,q:'"An IT executive like no other"',n:'Omer Ahmad',t:'Vice President, Technology @ Klick'},
+    {img:'brabant.webp',w:867,h:233,q:'"The most analytical and technology literate marketing guy I have ever met"',n:'Frederic Brabant',t:'Chief Technology Officer, Rekruti'},
+    {img:'daniel.webp',w:870,h:261,q:'\u201CTr\u00e8s m\u00e9ticuleux\u201D',c:'On managing complex projects',n:'Daniel Boissonneault',t:'Associate Chief Executive Officer',fr:1},
+    {img:'roy.webp',w:873,h:354,q:'\u201CTr\u00e8s brillant\u201D',c:'On leading technical delivery',n:'Guillaume Roy',t:'Co-founder & CTO, Worksleap',fr:1},
+    {img:'liles.webp',w:868,h:294,q:'"Enviable ability to build excitement around abstract ideas in technology"',c:'On positioning complex technical concepts for C-level audiences',n:'Douglas Liles',t:'Principal Product Manager, Oracle Health'},
+    {img:'moon.webp',w:866,h:403,q:'"A rare combination of talents and motivations"',c:'On bridging technical deployment, strategic marketing, and systems thinking',n:'Michael Moon',t:'Advisor to Series A-C Startups | AI-led Growth Architect'},
+    {img:'ducharme.webp',w:866,h:289,q:'"Big picture perspective combined with attention to detail"',n:'Martin Ducharme',t:'VP, AlayaCare | Board Member, Digital Healthcare'},
+    {img:'lindholm.webp',w:870,h:343,q:'"Find a way to simplify it and make it scalable"',n:'Justin Lindholm',t:'Champion of the Underdogs, Change Agents and Conscious Constructors'},
+    {img:'duck.webp',w:872,h:340,q:'"Using his unique insights\u2026 bring a lot of value"',c:'A specialty coffee heavyweight surprised to learn something new about coffee processing from an IT Director',n:'Aaron Duckworth',t:'Culinary Entrepreneur & CEO, Coffee with A. Duck'}
   ];
   var layerA=document.getElementById('tcard-a');
   var layerB=document.getElementById('tcard-b');
@@ -534,7 +537,7 @@
     return trio;
   }
   function buildCard(d){
-    return '<div class="tcard"><img class="tcard-bg" src="/testamonials/'+d.img+'" alt=""><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">'+d.q+'</div>'+(d.c?'<div class="tcard-context">'+d.c+'</div>':'')+'<div class="tcard-footer"><div class="tcard-name">'+d.n+'</div><div class="tcard-title">'+d.t+'</div></div></div></div>';
+    return '<div class="tcard"><img class="tcard-bg" src="/testamonials/'+d.img+'" alt="Testimonial from '+d.n+'" width="'+d.w+'" height="'+d.h+'" loading="lazy"><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">'+d.q+'</div>'+(d.c?'<div class="tcard-context">'+d.c+'</div>':'')+'<div class="tcard-footer"><div class="tcard-name">'+d.n+'</div><div class="tcard-title">'+d.t+'</div></div></div></div>';
   }
   function renderTo(layer,trio){
     var html='';
@@ -576,6 +579,7 @@
 <div class="transparency">
   <strong>How this works:</strong> Every demo on this site visualizes the execution difference between dishonest and honest code. Timing is proportional to real nanosecond costs captured from instrumented harnesses across 11 language runtimes. Source code, Dockerfile, and raw trace data: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
 </div>
+</main>
 
 <footer>
   <p>Honest Code by Adam Zachary Wasserman · Writing code since 1986.</p>
