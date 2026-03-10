@@ -1,0 +1,13 @@
+# Images — immutable content, cache aggressively
+/testamonials/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML pages — short cache with revalidation
+/*.html
+  Cache-Control: public, max-age=300, stale-while-revalidate=86400
+
+/
+  Cache-Control: public, max-age=300, stale-while-revalidate=86400
+
+/chapters/*
+  Cache-Control: public, max-age=300, stale-while-revalidate=86400
