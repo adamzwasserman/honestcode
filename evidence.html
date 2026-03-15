@@ -176,21 +176,21 @@
     </tr>
   </thead>
   <tbody>
-    <tr><td class="lang">Go</td><td class="num">714 ns</td><td class="num honest">170 ns</td><td class="num ratio">4.2x</td></tr>
-    <tr><td class="lang">C++</td><td class="num">708 ns</td><td class="num honest">205 ns</td><td class="num ratio">3.5x</td></tr>
-    <tr><td class="lang">Swift</td><td class="num">1,346 ns</td><td class="num honest">220 ns</td><td class="num ratio">6.1x</td></tr>
-    <tr><td class="lang">Dart</td><td class="num">500 ns</td><td class="num honest">250 ns</td><td class="num ratio">2.0x</td></tr>
+    <tr><td class="lang">Dart</td><td class="num">220 ns</td><td class="num honest">110 ns</td><td class="num ratio">2.0x</td></tr>
+    <tr><td class="lang">Go</td><td class="num">695 ns</td><td class="num honest">170 ns</td><td class="num ratio">4.1x</td></tr>
+    <tr><td class="lang">Swift</td><td class="num">1,312 ns</td><td class="num honest">220 ns</td><td class="num ratio">6.0x</td></tr>
     <tr><td class="lang">Java</td><td class="num">1,204 ns</td><td class="num honest">333 ns</td><td class="num ratio">3.6x</td></tr>
     <tr><td class="lang">Kotlin</td><td class="num">1,037 ns</td><td class="num honest">336 ns</td><td class="num ratio">3.1x</td></tr>
-    <tr><td class="lang">C#</td><td class="num">891 ns</td><td class="num honest">639 ns</td><td class="num ratio">1.4x</td></tr>
-    <tr><td class="lang">Python</td><td class="num">2,165 ns</td><td class="num honest">1,335 ns</td><td class="num ratio">1.6x</td></tr>
-    <tr><td class="lang">TypeScript</td><td class="num">2,919 ns</td><td class="num honest">1,416 ns</td><td class="num ratio">2.1x</td></tr>
+    <tr><td class="lang">C++</td><td class="num">1,042 ns</td><td class="num honest">374 ns</td><td class="num ratio">2.8x</td></tr>
+    <tr><td class="lang">C#</td><td class="num">897 ns</td><td class="num honest">662 ns</td><td class="num ratio">1.4x</td></tr>
+    <tr><td class="lang">Python</td><td class="num">1,916 ns</td><td class="num honest">1,417 ns</td><td class="num ratio">1.4x</td></tr>
     <tr><td class="lang">Ruby</td><td class="num">3,542 ns</td><td class="num honest">1,792 ns</td><td class="num ratio">2.0x</td></tr>
-    <tr><td class="lang">PHP</td><td class="num">3,994 ns</td><td class="num honest">2,123 ns</td><td class="num ratio">1.9x</td></tr>
+    <tr><td class="lang">TypeScript</td><td class="num">4,498 ns</td><td class="num honest">1,959 ns</td><td class="num ratio">2.3x</td></tr>
+    <tr><td class="lang">PHP</td><td class="num">4,126 ns</td><td class="num honest">2,000 ns</td><td class="num ratio">2.1x</td></tr>
   </tbody>
 </table>
 
-<p>Sorted by honest code speed. The <span class="ratio" style="font-family:var(--mono)">ratio</span> column shows how many times slower the dishonest version is. Honest code is faster in every language we tested. The margin ranges from 1.4x (C#) to 6.1x (Swift).</p>
+<p>Sorted by honest code speed. The <span class="ratio" style="font-family:var(--mono)">ratio</span> column shows how many times slower the dishonest version is. Honest code is faster in every language we tested. The margin ranges from 1.4x (C#, Python) to 6.0x (Swift).</p>
 
 <!-- ═══════════════════════════════════════ -->
 <h2>2. The Surprises</h2>
@@ -198,25 +198,25 @@
 <p>The interesting question isn't whether honest code beats dishonest code in the same language. It always does. The interesting question is: <em>can honest code in a "slower" language beat dishonest code in a "faster" one?</em></p>
 
 <div class="surprise-card">
-  <div class="vs"><span class="honest">Honest Python</span> vs <span class="dishonest">Dishonest Swift</span></div>
-  <div class="factor">Dead heat: 1,335 vs 1,346 ns</div>
-  <p>Swift compiles to native machine code via LLVM. Python compiles to bytecode and runs on CPython's VM with no JIT, no native compilation, no optimization passes. By every conventional measure, Swift should be orders of magnitude faster. It is, when both sides write the same kind of code. But honest Python with 9 pure function calls ties dishonest Swift with 27 steps of method dispatch, field mutation, singleton lookups, and mutable state management. The structural overhead of dishonesty erases Swift's compilation advantage entirely.</p>
+  <div class="vs"><span class="honest">Honest Java</span> vs <span class="dishonest">Dishonest C++</span></div>
+  <div class="factor">3.1x faster: 333 vs 1,042 ns</div>
+  <p>C++ compiles to native machine code. Java compiles to bytecode and runs on the JVM. By every conventional measure, C++ should be faster. It is, when both sides write the same kind of code. But honest Java with 9 pure function calls beats dishonest C++ with 27 steps of method dispatch, field mutation, singleton lookups, and mutable state management. The structural overhead of dishonesty erases C++'s native compilation advantage.</p>
 </div>
 
 <div class="surprise-card">
   <div class="vs"><span class="honest">Honest Python</span> vs <span class="dishonest">Dishonest TypeScript</span></div>
-  <div class="factor">2.2x faster</div>
-  <p>V8 is one of the fastest JIT compilers ever built. Its hidden class optimization and inline caches make property access fast when object shapes are stable. But the dishonest path constantly mutates fields and walks through singleton lookups. Honest Python at 1,335ns beats dishonest TypeScript at 2,919ns. Python's 9 pure function calls win by doing less.</p>
+  <div class="factor">3.2x faster: 1,417 vs 4,498 ns</div>
+  <p>V8 is one of the fastest JIT compilers ever built. Its hidden class optimization and inline caches make property access fast when object shapes are stable. But the dishonest path constantly mutates fields and walks through singleton lookups. Honest Python at 1,417 ns beats dishonest TypeScript at 4,498 ns. Python's 9 pure function calls win by doing less.</p>
 </div>
 
 <div class="surprise-card">
   <div class="vs">The ratio is <span class="honest">universal</span></div>
-  <div class="factor">1.4x &ndash; 6.1x</div>
+  <div class="factor">1.4x &ndash; 6.0x</div>
   <p>Every language we tested (native compiled, JIT compiled, bytecode VM) shows honest code faster than dishonest code by a consistent margin. The overhead isn't a language problem or a runtime problem. It's a structural problem. 27 steps of method dispatch, field mutation, singleton lookup, and cache management will always cost more than 9 steps of pure function calls and return values. The runtime determines the absolute speed; the architecture determines the ratio.</p>
 </div>
 
 <h3>The full picture</h3>
-<p>Honest Python ties dishonest Swift. Let that sink in. A bytecode VM with no JIT matches LLVM-compiled native code, because the structural overhead of the dishonest path erases the entire compilation advantage. The same pattern holds across every language: the dishonest tax is proportional, and it compounds across every call site.</p>
+<p>Honest Java beats dishonest C++ by 3.1x. Let that sink in. JVM bytecode beats native-compiled code because the structural overhead of the dishonest path erases the compilation advantage. Honest Python beats dishonest TypeScript by 3.2x: CPython's bytecode VM, with no JIT, outperforms V8's highly optimized JIT. The same pattern holds across every language: the dishonest tax is proportional, and it compounds across every call site.</p>
 
 <!-- ═══════════════════════════════════════ -->
 <h2>3. Why the Numbers Break Down This Way</h2>
@@ -226,12 +226,12 @@
 <div class="category">
   <h4>Native / AOT compiled: Go, C++, Swift, Dart</h4>
   <p>Operations compile to direct machine instructions. A singleton lookup via <code>sync.Once</code> (Go) or <code>static let</code> (Swift) is a single atomic load after first call, effectively 0ns. Field writes are direct memory stores. The dishonest path is still slower because 27 steps of ceremony cost more than 9 steps of computation, but each individual step is cheap.</p>
-  <p><strong>Typical ratio: 2.0x&ndash;6.1x</strong></p>
+  <p><strong>Typical ratio: 2.0x&ndash;6.0x</strong></p>
 </div>
 
 <div class="category">
   <h4>JIT-compiled VM: Java, Kotlin, C#</h4>
-  <p>With proper warmup, the JVM's C2 JIT compiles both honest and dishonest code to native machine instructions. The ratios are high (3.1x&ndash;3.6x) because the JIT can't eliminate the <em>structural</em> overhead: virtual dispatch, synchronized singleton acquisition, and mutable field writes still cost more than direct function calls and immutable returns, even after optimization. Java's <code>stream().mapToDouble().sum()</code> compiles to a tight loop at 209ns. Fast, but the honest <code>for</code> loop at 83ns is still 2.5x cheaper because it skips the Stream API's iterator and boxing pipeline.</p>
+  <p>With proper warmup, the JVM's C2 JIT compiles both honest and dishonest code to native machine instructions. The ratios are high (3.1x&ndash;3.6x) because the JIT can't eliminate the <em>structural</em> overhead: virtual dispatch, synchronized singleton acquisition, and mutable field writes still cost more than direct function calls and immutable returns, even after optimization. Java's <code>stream().mapToDouble().sum()</code> compiles to a tight loop at 209 ns. Fast, but the honest <code>for</code> loop at 83 ns is still 2.5x cheaper because it skips the Stream API's iterator and boxing pipeline.</p>
   <p>C# with .NET's RyuJIT shows a tighter ratio (1.4x) because the Stopwatch batching granularity compresses small differences. The structural cost is still there.</p>
   <p><strong>Typical ratio: 1.4x&ndash;3.6x</strong></p>
 </div>
@@ -239,13 +239,13 @@
 <div class="category">
   <h4>Bytecode VM without JIT: Python, Ruby, PHP</h4>
   <p>Every operation goes through the VM's bytecode dispatch loop, so both honest and dishonest code are slower in absolute terms. But the <em>ratio</em> is consistent: the ceremony of classes, singletons, and mutable state costs the same proportional overhead regardless of VM speed. Python's <code>dict.get()</code> is a single bytecode instruction (BINARY_SUBSCR). A method call on a class requires LOAD_ATTR + CALL_FUNCTION + argument marshaling. Three instructions minimum.</p>
-  <p><strong>Typical ratio: 1.6x&ndash;2.0x</strong></p>
+  <p><strong>Typical ratio: 1.4x&ndash;2.0x</strong></p>
 </div>
 
 <div class="category">
   <h4>V8 (TypeScript)</h4>
   <p>V8 sits between these categories. Its hidden classes and inline caches make property access fast when object shapes are stable. But the dishonest path constantly mutates fields (<code>this.total</code>, <code>this.discount</code>, <code>this.tax</code>), which can trigger deoptimization and hidden class transitions. The honest path returns plain objects from pure functions. V8 can optimize these aggressively because the shapes never change.</p>
-  <p><strong>Ratio: 2.1x</strong></p>
+  <p><strong>Ratio: 2.3x</strong></p>
 </div>
 
 <!-- ═══════════════════════════════════════ -->
@@ -294,7 +294,7 @@
 </div>
 
 <h3>The pattern holds across every anti-pattern</h3>
-<p>Method dispatch overhead (Section 1) is not a special case. The same structural tax appears when you scatter state across locations, when you build deep middleware chains, when you chase pointers through object graphs, when you wrap exceptions in recovery ceremony, and when you bury your test logic under mock scaffolding. In every case, the honest alternative does less work because it has fewer steps, fewer address spaces, fewer indirections. The ratio varies (2.7x to 16.8x), but the direction never does.</p>
+<p>Method dispatch overhead (Section 1) is not a special case. The same structural tax appears when you scatter state across locations, when you build deep middleware chains, when you chase pointers through object graphs, when you wrap exceptions in recovery ceremony, and when you bury your test logic under mock scaffolding. In every case, the honest alternative does less work because it has fewer steps, fewer address spaces, fewer indirections. The ratio varies (2.7x to 16.8x in these Java harnesses), but the direction never does.</p>
 
 <!-- ═══════════════════════════════════════ -->
 <div class="the-point">
@@ -321,10 +321,10 @@
 <script>
 // Bar chart
 const data = [
-  ['Go', 714, 170], ['C++', 708, 205], ['Swift', 1346, 220], ['Dart', 500, 250],
-  ['Java', 1204, 333], ['Kotlin', 1037, 336], ['C#', 891, 639],
-  ['Python', 2165, 1335], ['TypeScript', 2919, 1416],
-  ['Ruby', 3542, 1792], ['PHP', 3994, 2123]
+  ['Dart', 220, 110], ['Go', 695, 170], ['Swift', 1312, 220], ['Java', 1204, 333],
+  ['Kotlin', 1037, 336], ['C++', 1042, 374], ['C#', 897, 662],
+  ['Python', 1916, 1417], ['Ruby', 3542, 1792],
+  ['TypeScript', 4498, 1959], ['PHP', 4126, 2000]
 ];
 function buildChart(containerId, chartData) {
   const max = Math.max(...chartData.map(d => d[1]));
