@@ -243,7 +243,8 @@
 </div>
 
 <div class="category">
-  <h4>V8 (TypeScript)</h4>
+  <h4>V8 (TypeScript / JavaScript)</h4>
+  <p>TypeScript erases all types at compile time. By the time V8 sees it, it's plain JavaScript. These numbers are pure V8/Node.js performance, not TypeScript overhead. Pure JS would produce identical results.</p>
   <p>V8 sits between these categories. Its hidden classes and inline caches make property access fast when object shapes are stable. But the dishonest path constantly mutates fields (<code>this.total</code>, <code>this.discount</code>, <code>this.tax</code>), which can trigger deoptimization and hidden class transitions. The honest path returns plain objects from pure functions. V8 can optimize these aggressively because the shapes never change.</p>
   <p><strong>Ratio: 2.3x</strong></p>
 </div>
