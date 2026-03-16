@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Founding Supporters | Honest Code</title>
+<meta name="description" content="The first people who believed in Honest Code enough to pay for it. Their names go on the wall.">
+<link rel="canonical" href="https://honestcode.software/supporters.html">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
+  :root {
+    --bg: #0a0a0c; --surface: #111116; --border: #1e1e26;
+    --text: #c8c8d0; --text-dim: #6a6a78;
+    --red: #e63946; --red-dim: #e6394620;
+    --green: #2a9d8f; --green-dim: #2a9d8f20;
+    --gold: #e9c46a; --gold-dim: #e9c46a15; --gold-glow: #e9c46a30;
+    --mono: 'JetBrains Mono', monospace; --serif: 'Literata', Georgia, serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--serif); line-height: 1.7; overflow-x: hidden; }
+
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between;
+    backdrop-filter: blur(12px);
+  }
+  nav .logo { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; color: var(--green); text-decoration: none; }
+  nav .logo span { color: var(--red); }
+  nav .buy-btn {
+    font-family: var(--mono); font-size: 0.8rem; padding: 0.5rem 1.2rem;
+    background: var(--green); color: var(--bg); border: none; cursor: pointer;
+    font-weight: 600; letter-spacing: 0.04em; transition: background 0.2s; text-decoration: none;
+  }
+  nav .buy-btn:hover { background: var(--gold); }
+
+  .content {
+    max-width: 800px; margin: 0 auto; padding: 7rem 2rem 4rem;
+  }
+
+  h1 {
+    font-family: var(--mono); font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700;
+    margin-bottom: 0.5rem; letter-spacing: -0.03em;
+  }
+  h1 .accent { color: var(--gold); }
+
+  .subtitle {
+    font-style: italic; color: var(--text-dim); font-size: 1.1rem;
+    margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 2rem;
+  }
+
+  .intro {
+    font-size: 1.05rem; margin-bottom: 3rem; line-height: 1.8;
+  }
+
+  /* Supporter cards */
+  .supporter-card {
+    background: var(--surface);
+    border: 1px solid var(--gold-glow);
+    border-left: 3px solid var(--gold);
+    padding: 2rem 2rem 1.8rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+
+  .supporter-card .number {
+    position: absolute; top: 1.2rem; right: 1.5rem;
+    font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
+    color: var(--gold); opacity: 0.5;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+
+  .supporter-card .name {
+    font-family: var(--mono); font-size: 1.3rem; font-weight: 700;
+    color: var(--gold); margin-bottom: 0.4rem;
+  }
+
+  .supporter-card .tier {
+    font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
+    color: var(--bg); background: var(--gold); display: inline-block;
+    padding: 0.15rem 0.6rem; letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .supporter-card .bio {
+    color: var(--text); font-size: 0.95rem; line-height: 1.7;
+    margin-bottom: 0.8rem;
+  }
+
+  .supporter-card .project-link {
+    font-family: var(--mono); font-size: 0.8rem;
+  }
+  .supporter-card .project-link a {
+    color: var(--green); text-decoration: none;
+  }
+  .supporter-card .project-link a:hover { color: var(--gold); }
+
+  /* CTA section */
+  .join-cta {
+    border: 1px solid var(--gold-glow);
+    background: var(--gold-dim);
+    padding: 2.5rem; margin: 3rem 0; text-align: center;
+  }
+  .join-cta h2 {
+    font-family: var(--mono); font-size: 1.3rem; font-weight: 700;
+    color: var(--gold); margin-bottom: 0.8rem;
+  }
+  .join-cta p {
+    font-size: 1rem; color: var(--text); margin-bottom: 1.5rem;
+    max-width: 500px; margin-left: auto; margin-right: auto;
+  }
+  .join-cta .cta-btn {
+    font-family: var(--mono); font-size: 0.85rem; font-weight: 600;
+    padding: 0.7rem 2rem; background: var(--gold); color: var(--bg);
+    border: none; text-decoration: none; display: inline-block;
+    letter-spacing: 0.04em; transition: background 0.2s;
+  }
+  .join-cta .cta-btn:hover { background: var(--green); }
+
+  .back-link {
+    font-family: var(--mono); font-size: 0.85rem; color: var(--text-dim);
+    border-top: 1px solid var(--border); padding-top: 2rem; margin-top: 3rem;
+  }
+  .back-link a { color: var(--green); text-decoration: none; }
+  .back-link a:hover { color: var(--gold); }
+
+  footer {
+    text-align: center; padding: 2rem; color: var(--text-dim);
+    font-family: var(--mono); font-size: 0.75rem; border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--green); text-decoration: none; }
+  footer a:hover { color: var(--gold); }
+
+  @media (max-width: 600px) {
+    .content { padding: 6rem 1rem 3rem; }
+    .supporter-card { padding: 1.5rem; }
+    .supporter-card .name { font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/">honest<span>code</span>.software</a>
+  <a class="buy-btn" href="https://adamzwasserman.gumroad.com/l/honest-code-ebook" target="_blank">GET THE BOOK</a>
+</nav>
+
+<div class="content">
+
+<h1><span class="accent">Founding</span> Supporters</h1>
+<p class="subtitle">The first people who put money down on a book that didn't exist yet, by an author they'd never heard of. That takes conviction.</p>
+
+<p class="intro">Honest Code launched on March 9, 2025. These are the people who bought the book in its first week, before reviews, before word-of-mouth, before anyone could tell them whether it was worth it. They decided for themselves. Their names go on the wall.</p>
+
+<div class="supporter-card">
+  <div class="number">Supporter #1</div>
+  <div class="name">Damian Plaza</div>
+  <div class="tier">Patron</div>
+  <div class="bio">First person to buy the early release. More details coming soon.</div>
+  <!--<div class="project-link"><a href="">project link</a></div>-->
+</div>
+
+<div class="supporter-card">
+  <div class="number">Supporter #2</div>
+  <div class="name">Andrew Schollmeier</div>
+  <div class="tier">Supporter</div>
+  <div class="bio">More details coming soon.</div>
+  <!--<div class="project-link"><a href="">project link</a></div>-->
+</div>
+
+<div class="supporter-card">
+  <div class="number">Supporter #3</div>
+  <div class="name">Luke Kuzmish</div>
+  <div class="tier">Supporter</div>
+  <div class="bio">More details coming soon.</div>
+  <!--<div class="project-link"><a href="">project link</a></div>-->
+</div>
+
+<div class="join-cta">
+  <h2>Join the Wall</h2>
+  <p>The first 100 paid buyers earn a permanent spot on this page. Name, bio, and a link to your project.</p>
+  <a class="cta-btn" href="https://adamzwasserman.gumroad.com/l/honest-code-ebook" target="_blank">GET HONEST CODE</a>
+</div>
+
+<div class="back-link">
+  <a href="/">Back to honestcode.software</a>
+</div>
+
+</div>
+
+<footer>
+  <a href="/">honestcode.software</a>
+</footer>
+
+</body>
+</html>
