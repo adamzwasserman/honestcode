@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.4: Pure Functions | Honest Code</title>
+<meta name="description" content="6 permutations, same result every time. Call order should not change the answer.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@adamzwasserman">
+<meta name="twitter:title" content="Ch.4: Pure Functions | Honest Code">
+<meta name="twitter:description" content="See the dishonesty. See the fix.">
+<meta name="twitter:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:title" content="Ch.4: Pure Functions | Honest Code">
+<meta property="og:description" content="See the dishonesty. See the fix.">
+<meta property="og:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:url" content="https://honestcode.software/chapters/04.html">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
+  :root {
+    --bg: #0a0a0c; --surface: #111116; --border: #1e1e26;
+    --text: #c8c8d0; --text-dim: #6a6a78;
+    --red: #e63946; --red-dim: #e6394620;
+    --green: #2a9d8f; --green-dim: #2a9d8f20;
+    --gold: #e9c46a;
+    --mono: 'JetBrains Mono', monospace; --serif: 'Literata', Georgia, serif;
+  --cream:#f0ede6;--cream-surface:#e8e4dc;--cream-border:#d5d0c7;--cream-text:#2a2a2e;--cream-dim:#6a6a68;}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--serif); line-height: 1.6; }
+
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 0.8rem 2rem; display: flex; align-items: center; justify-content: space-between;
+  }
+  nav .logo { font-family: var(--mono); font-weight: 700; font-size: 1rem; color: var(--green); }
+  nav .logo span { color: var(--red); }
+  nav .chapter-nav { display: flex; gap: 0.3rem; }
+  nav .chapter-nav a {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim);
+    text-decoration: none; padding: 0.3rem 0.5rem; border: 1px solid transparent; transition: all 0.2s;
+  }
+  nav .chapter-nav a:hover { color: var(--text); border-color: var(--border); }
+  nav .chapter-nav a.active { color: var(--gold); border-color: var(--gold); }
+
+  .ch-header { padding: 7rem 2rem 3rem; max-width: 900px; margin: 0 auto; }
+  .ch-header .ch-num { font-family: var(--mono); font-size: 0.7rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.12em; }
+  .ch-header h1 { font-family: var(--mono); font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 700; margin-top: 0.3rem; letter-spacing: -0.03em; }
+  .ch-header .epigraph { font-family: var(--serif); font-style: italic; color: var(--gold); opacity: 0.8; font-size: 1rem; margin-top: 0.5rem; }
+
+  .demo-section { max-width: 1100px; margin: 2rem auto; padding: 0 2rem; }
+  .demo-label { font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+
+  /* ORDER-INDEPENDENCE GRID */
+  .order-demo {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 0;
+     border: 1px solid var(--border);
+  }
+
+  .order-panel {
+    background: var(--surface); padding: 1.5rem;
+  }
+  .order-panel .panel-label {
+    font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem;
+  }
+  .order-panel.crime .panel-label { color: var(--red); }
+  .order-panel.rescue .panel-label { color: var(--green); }
+
+  .perm-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px;
+    background: var(--border);
+  }
+
+  .perm-cell {
+    background: var(--bg); padding: 0.8rem; font-family: var(--mono); font-size: 0.65rem;
+    transition: all 0.4s;
+  }
+
+  .perm-cell .perm-label {
+    color: var(--text-dim); font-size: 0.55rem; text-transform: uppercase;
+    letter-spacing: 0.08em; margin-bottom: 0.5rem;
+  }
+
+  .perm-cell .perm-order {
+    color: var(--text); margin-bottom: 0.6rem; line-height: 1.5;
+  }
+
+  .perm-cell .perm-result {
+    padding: 0.4rem; border: 1px solid var(--border); font-size: 0.6rem;
+    transition: all 0.4s;
+  }
+
+  .perm-cell .perm-result.match {
+    border-color: var(--green); color: var(--green); background: var(--green-dim);
+  }
+  .perm-cell .perm-result.differ {
+    border-color: var(--red); color: var(--red); background: var(--red-dim);
+  }
+
+  .perm-cell.active { background: #15151d; }
+
+  /* VERDICT */
+  .verdict {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+    background: var(--border); margin-top: 2px;
+  }
+  .verdict-cell {
+    background: var(--surface); padding: 1.2rem; text-align: center;
+    font-family: var(--mono);
+  }
+  .verdict-cell .big { font-size: 2rem; font-weight: 700; }
+  .verdict-cell.crime .big { color: var(--red); }
+  .verdict-cell.rescue .big { color: var(--green); }
+  .verdict-cell .label { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.3rem; }
+
+  .explanation { max-width: 700px; margin: 4rem auto; padding: 0 2rem; }
+  .explanation h2 { font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+  .explanation p { font-family: var(--serif); font-size: 0.95rem; color: var(--text); line-height: 1.8; margin-bottom: 1rem; }
+  .explanation .highlight { color: var(--green); }
+  .explanation .warning { color: var(--red); }
+
+  .transparency {
+    max-width: 700px; margin: 3rem auto; padding: 1.2rem 1.5rem;
+    border: 1px solid var(--border); background: var(--surface);
+    font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); line-height: 1.8;
+  }
+  .transparency strong { color: var(--text); }
+  .transparency a { color: var(--green); text-decoration: none; }
+
+  .ch-nav-bottom {
+    display: flex; justify-content: space-between; max-width: 700px; margin: 3rem auto 4rem; padding: 0 2rem;
+  }
+  .ch-nav-bottom a { font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim); text-decoration: none; padding: 0.5rem 1rem; border: 1px solid var(--border); transition: all 0.2s; }
+  .ch-nav-bottom a:hover { color: var(--green); border-color: var(--green); }
+
+  .controls {
+    display: flex; align-items: center; justify-content: center; gap: 1rem;
+    margin-top: 1.5rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim);
+  }
+  .controls button {
+    font-family: var(--mono); font-size: 0.65rem; padding: 0.3rem 0.8rem;
+    background: transparent; color: var(--text-dim); border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;
+  }
+  .controls button:hover { color: var(--green); border-color: var(--green); }
+
+  .order-panel.crime { background: var(--bg); }
+  .order-panel.rescue { background: var(--cream); color: var(--cream-text); }
+  .order-panel.rescue .panel-label { color: var(--green); }
+
+  /* S-CURVE DIVIDER */
+  .s-curve-divider { width: 40px; position: relative; z-index: 2; }
+  .s-curve-divider svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+  .order-panel.rescue { background: var(--cream) !important; color: var(--cream-text); }
+  .order-panel.rescue .perm-grid { background: var(--cream-surface); }
+  .order-panel.rescue .perm-cell { background: var(--cream-surface); border-color: var(--cream-border); color: var(--cream-text); }
+  .order-panel.rescue .perm-result { background: var(--cream-surface); border-color: var(--cream-border); }
+  .order-panel.rescue .panel-label { color: var(--green); }
+
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" style="text-decoration:none"><div class="logo">honest<span>code</span>.software</div></a>
+  <div class="chapter-nav">
+    <a href="/chapters/01.html">1</a>
+    <a href="/chapters/02.html">2</a>
+    <a href="/chapters/03.html">3</a>
+    <a href="#" class="active">4</a>
+    <a href="/chapters/05.html">5</a><a href="/chapters/06.html">6</a><a href="/chapters/07.html">7</a><a href="/chapters/08.html">8</a>
+    <a href="/chapters/09.html">9</a>
+    <a href="/chapters/10.html">10</a><a href="/chapters/11.html">11</a><a href="/chapters/12.html">12</a><a href="/chapters/13.html">13</a>
+  </div>
+</nav>
+
+<div class="ch-header">
+  <div class="ch-num">Chapter 4</div>
+  <h1>Pure Functions: The Original Abstraction</h1>
+  <div class="epigraph">Same inputs, same output. No exceptions. No surprises. No lies.</div>
+</div>
+
+<section class="demo-section">
+  <div class="demo-label">Demo: Order-Independent Composition: 6 permutations, same functions, different order</div>
+
+  <div class="order-demo">
+    <div class="order-panel crime">
+      <div class="panel-label">☠ Class methods: order matters</div>
+      <div class="perm-grid" id="crimeGrid">
+        <div class="perm-cell" id="cp-0"><div class="perm-label">Permutation 1</div><div class="perm-order">addItem → applyCoupon → calcTax</div><div class="perm-result" id="cr-0">—</div></div>
+        <div class="perm-cell" id="cp-1"><div class="perm-label">Permutation 2</div><div class="perm-order">applyCoupon → addItem → calcTax</div><div class="perm-result" id="cr-1">—</div></div>
+        <div class="perm-cell" id="cp-2"><div class="perm-label">Permutation 3</div><div class="perm-order">calcTax → addItem → applyCoupon</div><div class="perm-result" id="cr-2">—</div></div>
+        <div class="perm-cell" id="cp-3"><div class="perm-label">Permutation 4</div><div class="perm-order">addItem → calcTax → applyCoupon</div><div class="perm-result" id="cr-3">—</div></div>
+        <div class="perm-cell" id="cp-4"><div class="perm-label">Permutation 5</div><div class="perm-order">applyCoupon → calcTax → addItem</div><div class="perm-result" id="cr-4">—</div></div>
+        <div class="perm-cell" id="cp-5"><div class="perm-label">Permutation 6</div><div class="perm-order">calcTax → applyCoupon → addItem</div><div class="perm-result" id="cr-5">—</div></div>
+      </div>
+    </div>
+        <!-- S-CURVE DIVIDER -->
+    <div class="s-curve-divider">
+      <svg preserveAspectRatio="none" viewBox="0 0 40 450">
+        <defs>
+          <linearGradient id="scg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e9c46a" stop-opacity="0.5"/>
+            <stop offset="50%" stop-color="#e9c46a" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#e9c46a" stop-opacity="0.5"/>
+          </linearGradient>
+          <clipPath id="leftClip">
+            <path d="M0,0 L20,0 C28,112 12,225 20,337 C24,393 20,450 20,450 L0,450 Z"/>
+          </clipPath>
+          <clipPath id="rightClip">
+            <path d="M40,0 L20,0 C28,112 12,225 20,337 C24,393 20,450 20,450 L40,450 Z"/>
+          </clipPath>
+        </defs>
+        <rect x="0" y="0" width="40" height="450" fill="#0a0a0c" clip-path="url(#leftClip)"/>
+        <rect x="0" y="0" width="40" height="450" fill="#f0ede6" clip-path="url(#rightClip)"/>
+        <path d="M20,0 C28,112 12,225 20,337 C24,393 20,450 20,450" fill="none" stroke="url(#scg)" stroke-width="1"/>
+      </svg>
+    </div>
+<div class="order-panel rescue">
+      <div class="panel-label">✦ Pure functions: order irrelevant</div>
+      <div class="perm-grid" id="rescueGrid">
+        <div class="perm-cell" id="rp-0"><div class="perm-label">Permutation 1</div><div class="perm-order">calc_total → apply_coupon → calc_tax</div><div class="perm-result" id="rr-0">—</div></div>
+        <div class="perm-cell" id="rp-1"><div class="perm-label">Permutation 2</div><div class="perm-order">apply_coupon → calc_total → calc_tax</div><div class="perm-result" id="rr-1">—</div></div>
+        <div class="perm-cell" id="rp-2"><div class="perm-label">Permutation 3</div><div class="perm-order">calc_tax → calc_total → apply_coupon</div><div class="perm-result" id="rr-2">—</div></div>
+        <div class="perm-cell" id="rp-3"><div class="perm-label">Permutation 4</div><div class="perm-order">calc_total → calc_tax → apply_coupon</div><div class="perm-result" id="rr-3">—</div></div>
+        <div class="perm-cell" id="rp-4"><div class="perm-label">Permutation 5</div><div class="perm-order">apply_coupon → calc_tax → calc_total</div><div class="perm-result" id="rr-4">—</div></div>
+        <div class="perm-cell" id="rp-5"><div class="perm-label">Permutation 6</div><div class="perm-order">calc_tax → apply_coupon → calc_total</div><div class="perm-result" id="rr-5">—</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="verdict" id="verdict" style="opacity:0;transition:opacity 0.5s">
+    <div class="verdict-cell crime"><div class="big" id="v-crime">0/6</div><div class="label">Results match (class)</div></div>
+    <div class="verdict-cell rescue"><div class="big" id="v-rescue">0/6</div><div class="label">Results match (function)</div></div>
+  </div>
+
+  <div class="controls">
+    <button onclick="runDemo()">Replay</button>
+  </div>
+</section>
+
+<section class="explanation">
+  <h2>What you just saw</h2>
+  <p>Six permutations of the same three operations. On the <span class="warning">left</span>, class methods that mutate shared fields produce <span class="warning">different results depending on call order</span>. <code>applyCoupon</code> before <code>addItem</code> calculates the discount against a stale total. <code>calcTax</code> before <code>applyCoupon</code> taxes the full amount. The class cannot protect you from calling methods in the wrong order because every method reads and writes the same mutable fields.</p>
+
+  <p>On the <span class="highlight">right</span>, pure functions produce <span class="highlight">identical results regardless of order</span>. Each function takes its inputs explicitly and returns a new value. No function can see or affect another function's computation. The composition is order-independent because there is no shared state to corrupt.</p>
+
+  <p>This is the property that ensures correctness. It eliminates the entire class of bugs that arise from "this must happen before that." It is more important than encapsulation, more important than polymorphism, and it is the foundation that makes safe parallel execution trivial.</p>
+</section>
+
+<div class="transparency">
+  <strong>How this works:</strong> This demo visualizes a correctness property, not timing. Mutable methods that read shared state produce different results depending on call order (1 of 6 permutations correct). Pure functions that take all data as arguments produce the same result in any order (6 of 6 correct). Source: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
+</div>
+
+<div class="ch-nav-bottom">
+  <a href="/chapters/03.html">← Ch.3: Data Is Just Data</a>
+  <a href="/chapters/05.html">Ch.5: State Has an Address →</a>
+</div>
+
+<script>
+let running = false;
+
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// Mock results: class methods produce different results per ordering
+const crimeResults = [
+  { total: '87.45', match: true },   // correct order
+  { total: '89.97', match: false },  // coupon applied to empty total
+  { total: '96.17', match: false },  // tax on full amount
+  { total: '90.77', match: false },  // tax before discount
+  { total: '89.97', match: false },  // coupon+tax on empty, then item
+  { total: '96.17', match: false },  // tax+coupon on empty, then item
+];
+
+// Pure functions: all produce same result
+const rescueResult = '87.45';
+
+function resetAll() {
+  for (let i = 0; i < 6; i++) {
+    document.getElementById(`cp-${i}`).classList.remove('active');
+    document.getElementById(`rp-${i}`).classList.remove('active');
+    document.getElementById(`cr-${i}`).textContent = '—';
+    document.getElementById(`cr-${i}`).className = 'perm-result';
+    document.getElementById(`rr-${i}`).textContent = '—';
+    document.getElementById(`rr-${i}`).className = 'perm-result';
+  }
+  document.getElementById('verdict').style.opacity = '0';
+}
+
+async function runDemo() {
+  if (running) return;
+  running = true;
+  resetAll();
+  await wait(600);
+
+  let crimeMatches = 0;
+
+  for (let i = 0; i < 6; i++) {
+    // Highlight both cells
+    document.getElementById(`cp-${i}`).classList.add('active');
+    document.getElementById(`rp-${i}`).classList.add('active');
+
+    await wait(800);
+
+    // Crime result
+    const cr = crimeResults[i];
+    const crEl = document.getElementById(`cr-${i}`);
+    crEl.textContent = `total: ${cr.total}`;
+    crEl.classList.add(cr.match ? 'match' : 'differ');
+    if (cr.match) crimeMatches++;
+
+    // Rescue result (always the same)
+    const rrEl = document.getElementById(`rr-${i}`);
+    rrEl.textContent = `total: ${rescueResult}`;
+    rrEl.classList.add('match');
+
+    await wait(400);
+
+    document.getElementById(`cp-${i}`).classList.remove('active');
+    document.getElementById(`rp-${i}`).classList.remove('active');
+  }
+
+  // Verdict
+  document.getElementById('v-crime').textContent = `${crimeMatches}/6`;
+  document.getElementById('v-rescue').textContent = `6/6`;
+  document.getElementById('verdict').style.opacity = '1';
+
+  await wait(5000);
+  running = false;
+  runDemo();
+}
+
+window.addEventListener('load', () => setTimeout(runDemo, 800));
+</script>
+
+</body>
+</html>

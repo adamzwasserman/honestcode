@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Honest Code — See the Difference</title>
+<meta name="description" content="Your language already has the fix. See dishonest code patterns side-by-side with honest alternatives in 12 languages. The book that shows you how to stop hiding state behind classes.">
+<!-- Honest Code - Clean X Card (keeps your exact homepage text) -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@adamzwasserman">
+<meta name="twitter:title" content="Honest Code: Keep Your State Out of My Code">
+<meta name="twitter:description" content="See the dishonesty. See the fix.">
+<meta name="twitter:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:title" content="Honest Code: Keep Your State Out of My Code">
+<meta property="og:description" content="See the dishonesty. See the fix.">
+<meta property="og:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:url" content="https://honestcode.software">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://honestcode.software">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwgknk-4.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/literata/v40/or3aQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_df3-vbgKBM6YoggA-vpO-7cHM524.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/literata/v40/or3NQ6P12-iJxAIgLYT1PLs1Zd0nfUwAbeGVKoRYzNiCp1OUedn8_7XmTkiSlcuFog.woff2">
+<style>
+  /* Size-adjusted fallbacks to prevent CLS during font swap */
+  @font-face { font-family:'JetBrains Mono Fallback'; src:local('Courier New'),local('Courier'); size-adjust:95%; ascent-override:100%; descent-override:25%; line-gap-override:0%; }
+  @font-face { font-family:'Literata Fallback'; src:local('Georgia'),local('Times New Roman'); size-adjust:103%; ascent-override:95%; descent-override:25%; line-gap-override:0%; }
+  /* Inlined Google Fonts — latin + latin-ext only */
+  @font-face { font-family:'JetBrains Mono'; font-style:normal; font-weight:400; font-display:swap; src:url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx7cwgknk-6nFg.woff2) format('woff2'); unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+  @font-face { font-family:'JetBrains Mono'; font-style:normal; font-weight:400; font-display:swap; src:url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwgknk-4.woff2) format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  @font-face { font-family:'JetBrains Mono'; font-style:normal; font-weight:600; font-display:swap; src:url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx7cwgknk-6nFg.woff2) format('woff2'); unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+  @font-face { font-family:'JetBrains Mono'; font-style:normal; font-weight:600; font-display:swap; src:url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwgknk-4.woff2) format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  @font-face { font-family:'JetBrains Mono'; font-style:normal; font-weight:700; font-display:swap; src:url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPx7cwgknk-6nFg.woff2) format('woff2'); unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+  @font-face { font-family:'JetBrains Mono'; font-style:normal; font-weight:700; font-display:swap; src:url(https://fonts.gstatic.com/s/jetbrainsmono/v24/tDbv2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKwBNntkaToggR7BYRbKPxDcwgknk-4.woff2) format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  @font-face { font-family:'Literata'; font-style:italic; font-weight:400; font-display:swap; src:url(https://fonts.gstatic.com/s/literata/v40/or3NQ6P12-iJxAIgLYT1PLs1Zd0nfUwAbeGVKoRYzNiCp1OUedn8_7XmQEiSlcuFojBg.woff2) format('woff2'); unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+  @font-face { font-family:'Literata'; font-style:italic; font-weight:400; font-display:swap; src:url(https://fonts.gstatic.com/s/literata/v40/or3NQ6P12-iJxAIgLYT1PLs1Zd0nfUwAbeGVKoRYzNiCp1OUedn8_7XmTkiSlcuFog.woff2) format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  @font-face { font-family:'Literata'; font-style:normal; font-weight:400; font-display:swap; src:url(https://fonts.gstatic.com/s/literata/v40/or3aQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_df3-vbgKBM6YoggA-vpA-7cHM524yN0.woff2) format('woff2'); unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+  @font-face { font-family:'Literata'; font-style:normal; font-weight:400; font-display:swap; src:url(https://fonts.gstatic.com/s/literata/v40/or3aQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_df3-vbgKBM6YoggA-vpO-7cHM524.woff2) format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  @font-face { font-family:'Literata'; font-style:normal; font-weight:700; font-display:swap; src:url(https://fonts.gstatic.com/s/literata/v40/or3aQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_df3-vbgKBM6YoggA-vpA-7cHM524yN0.woff2) format('woff2'); unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+  @font-face { font-family:'Literata'; font-style:normal; font-weight:700; font-display:swap; src:url(https://fonts.gstatic.com/s/literata/v40/or3aQ6P12-iJxAIgLa78DkrbXsDgk0oVDaDPYLanFLHpPf2TbBG_df3-vbgKBM6YoggA-vpO-7cHM524.woff2) format('woff2'); unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+  :root {
+    --bg: #0a0a0c; --surface: #111116; --border: #1e1e26;
+    --text: #c8c8d0; --text-dim: #9a9aa8;
+    --red: #e63946; --red-dim: #e6394620; --red-glow: #e6394640;
+    --green: #2a9d8f; --green-dim: #2a9d8f20; --green-glow: #2a9d8f40;
+    --gold: #e9c46a;--cream:#f0ede6;--cream-surface:#e8e4dc;--cream-border:#d5d0c7;--cream-text:#2a2a2e;--cream-dim:#444442;
+    --mono: 'JetBrains Mono', 'JetBrains Mono Fallback', monospace; --serif: 'Literata', 'Literata Fallback', Georgia, serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--serif); line-height: 1.6; overflow-x: hidden; }
+
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between;
+    backdrop-filter: blur(12px);
+  }
+  nav .logo { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; color: var(--green); }
+  nav .logo span { color: var(--red); }
+  nav .buy-btn {
+    font-family: var(--mono); font-size: 0.8rem; padding: 0.5rem 1.2rem;
+    background: var(--green); color: var(--bg); border: none; cursor: pointer;
+    font-weight: 600; letter-spacing: 0.04em; transition: background 0.2s;
+  }
+  nav .buy-btn:hover { background: var(--gold); }
+
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 6rem 2rem 3rem;
+  }
+  .hero h1 {
+    font-family: var(--mono); font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700;
+    text-align: center; margin-bottom: 0.5rem; letter-spacing: -0.03em;
+  }
+  .hero h1 .honest { color: var(--green); }
+  .hero h1 .dishonest { color: var(--red); }
+  .hero .subtitle {
+    font-family: var(--serif); font-style: italic; color: var(--text-dim);
+    font-size: 1.1rem; margin-bottom: 1.5rem; text-align: center;
+  }
+
+  /* LANGUAGE SELECTOR */
+  .lang-selector {
+    display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center;
+    margin-bottom: 2rem; max-width: 900px;
+  }
+  .lang-btn {
+    font-family: var(--mono); font-size: 0.7rem; padding: 0.35rem 0.8rem;
+    background: transparent; color: var(--text-dim); border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .lang-btn:hover { color: var(--text); border-color: var(--text-dim); }
+  .lang-btn.active { color: var(--green); border-color: var(--green); background: var(--green-dim); }
+
+  /* DEMO PANELS */
+  .demo-container {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 0;
+    width: 100%; max-width: 1100px; border: 1px solid var(--border);
+    contain: layout style;
+  }
+  .panel {
+    background: var(--surface); padding: 1.5rem;
+    position: relative; display: flex; flex-direction: column;
+  }
+  .panel-header {
+    font-family: var(--mono); font-size: 0.75rem; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .panel.crime .panel-header { color: var(--red); }
+  .panel.rescue .panel-header { color: var(--green); }
+  .panel-header .status {
+    font-size: 0.65rem; padding: 0.2rem 0.6rem; border: 1px solid; opacity: 0; transition: opacity 0.3s;
+  }
+  .panel.crime .panel-header .status { border-color: var(--red); }
+  .panel.rescue .panel-header .status { border-color: var(--green); }
+  .panel-header .status.visible { opacity: 1; }
+  .panel.rescue .panel-header .status.complete { background: var(--green-dim); }
+  .panel.crime .panel-header .status.complete { background: var(--red-dim); }
+
+  .code-area {
+    flex: 1; font-family: var(--mono); font-size: 0.75rem; line-height: 1.8; overflow-y: auto;
+    height: 540px;
+  }
+  .code-line {
+    padding: 0.1rem 0.5rem; white-space: pre; color: #7a7a80;
+    border-left: 2px solid transparent;
+  }
+  .code-line.active { color: var(--text); background: var(--red-dim); border-left-color: var(--red); }
+  .panel.rescue .code-line.active { background: var(--green-dim); border-left-color: var(--green); }
+  .code-line.executed { color: #9a9aa0; }
+
+  .state-display {
+    margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);
+    font-family: var(--mono); font-size: 0.7rem;
+  }
+  .state-display .label {
+    color: var(--text-dim); font-size: 0.6rem; text-transform: uppercase;
+    letter-spacing: 0.1em; margin-bottom: 0.5rem;
+  }
+  .state-var { display: flex; justify-content: space-between; padding: 0.15rem 0; }
+  .state-var .key { color: var(--text-dim); }
+  .state-var .val { color: var(--text); transition: opacity 0.2s; }
+  .state-var .val.mutated { color: var(--red); }
+
+  .idle-counter {
+    position: absolute; bottom: 50%; left: 50%; transform: translate(-50%, 50%);
+    font-family: var(--mono); color: var(--green);
+    opacity: 0; transition: opacity 0.5s; text-align: center; pointer-events: none;
+  }
+  .idle-counter.visible { opacity: 1; }
+  .idle-counter .count { font-size: 2.5rem; font-weight: 700; display: block; line-height: 1; margin-bottom: 0.3rem; }
+  .idle-counter .suffix { font-size: 0.7rem; color: var(--text-dim); }
+
+  .metrics {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px;
+    width: 100%; max-width: 1100px; background: var(--border); margin-top: 2px;
+  }
+  .metric { background: var(--surface); padding: 1rem; text-align: center; }
+  .metric .num { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; }
+  .metric.crime .num { color: var(--red); }
+  .metric.rescue .num { color: var(--green); }
+  .metric .desc {
+    font-family: var(--mono); font-size: 0.6rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.3rem;
+  }
+
+  .speed-control {
+    display: flex; align-items: center; justify-content: center; gap: 1rem;
+    margin-top: 1.5rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim);
+  }
+  .speed-control button {
+    font-family: var(--mono); font-size: 0.65rem; padding: 0.3rem 0.8rem;
+    background: transparent; color: var(--text-dim); border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .speed-control button:hover, .speed-control button.active { color: var(--green); border-color: var(--green); }
+
+  .pitch { text-align: center; margin-top: 4rem; padding: 0 2rem; }
+  .pitch p {
+    font-family: var(--serif); font-size: 1.3rem; color: var(--text);
+    max-width: 700px; margin: 0 auto 2rem; line-height: 1.7;
+  }
+  .pitch .cta {
+    font-family: var(--mono); font-size: 0.9rem; padding: 0.8rem 2.5rem;
+    background: var(--green); color: var(--bg); border: none; cursor: pointer;
+    font-weight: 600; transition: background 0.2s, transform 0.1s;
+  }
+  .pitch .cta:hover { background: var(--gold); transform: translateY(-1px); }
+
+  /* PURCHASE SECTION */
+  .purchase-section { max-width: 1100px; margin: 6rem auto 2rem; padding: 0 2rem; }
+  .purchase-section h2 {
+    font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 2rem; text-align: center;
+  }
+  .product-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px;
+    background: var(--border); border: 1px solid var(--border);
+  }
+  @media (max-width: 640px) { .product-grid { grid-template-columns: 1fr; } }
+  .product-card {
+    background: var(--surface); padding: 2rem; display: flex; flex-direction: column;
+  }
+  .product-card .product-title {
+    font-family: var(--mono); font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;
+  }
+  .product-card .product-desc {
+    font-family: var(--serif); font-size: 0.85rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 1rem; flex: 1;
+  }
+  .product-card .product-price {
+    font-family: var(--mono); font-size: 1.2rem; font-weight: 700; color: var(--gold); margin-bottom: 1rem;
+  }
+  .product-card .product-cta {
+    font-family: var(--mono); font-size: 0.8rem; padding: 0.6rem 1.2rem;
+    background: var(--green); color: var(--bg); border: none; cursor: pointer;
+    font-weight: 600; letter-spacing: 0.04em; transition: background 0.2s;
+    text-align: center; text-decoration: none; display: block;
+  }
+  .product-card .product-cta:hover { background: var(--gold); }
+  .product-card .product-cta.free { background: transparent; border: 1px solid var(--green); color: var(--green); }
+  .product-card .product-cta.free:hover { background: var(--green); color: var(--bg); }
+
+  /* AUTHOR SECTION */
+  .author-section {
+    max-width: 700px; margin: 4rem auto; padding: 2.5rem 2rem;
+    border: 1px solid var(--border); background: var(--surface);
+  }
+  .author-section h3 {
+    font-family: var(--mono); font-size: 1rem; font-weight: 700; color: var(--green); margin-bottom: 0.3rem;
+  }
+  .author-section .author-sig {
+    font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim); margin-bottom: 1.5rem; font-style: italic;
+  }
+  .author-section p {
+    font-family: var(--serif); font-size: 0.9rem; color: var(--text); line-height: 1.7; margin-bottom: 1rem;
+  }
+
+  /* TESTIMONIALS */
+  .testimonial-section {
+    max-width: 1100px; margin: 4rem auto 0; padding: 0 2rem;
+  }
+  .testimonial-section h2 {
+    font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 1.5rem; text-align: center;
+  }
+  .tcard-stage {
+    position: relative;
+  }
+  .tcard-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+    transition: opacity 1.5s ease;
+  }
+  .tcard-grid.layer-b {
+    position: absolute; top: 0; left: 0; right: 0; opacity: 0;
+  }
+  .tcard {
+    position: relative; overflow: hidden; border: 1px solid var(--border); cursor: default;
+    min-height: 220px;
+  }
+  .tcard-bg {
+    width: 100%; min-height: 100%; display: block; object-fit: cover; object-position: top left;
+  }
+  .tcard-overlay {
+    position: absolute; inset: 0; background: rgba(255,255,255,0.78);
+    transition: background 0.3s;
+  }
+  .tcard:hover .tcard-overlay { background: rgba(255,255,255,0.65); }
+  .tcard-content {
+    position: absolute; inset: 0; z-index: 1; display: flex;
+    flex-direction: column; justify-content: flex-start; padding: 1rem 1.2rem;
+  }
+  .tcard-quote {
+    font-family: var(--serif); font-size: 0.85rem; font-weight: 700;
+    color: #1a1a1e; line-height: 1.5; margin-bottom: 0.3rem;
+  }
+  .tcard-context {
+    font-family: var(--serif); font-size: 0.65rem; font-style: italic;
+    color: #3a3a3e; line-height: 1.4; margin-bottom: 0.5rem;
+  }
+  .tcard-footer { margin-top: auto; }
+  .tcard-name {
+    font-family: var(--mono); font-size: 0.7rem; font-weight: 600; color: #197264;
+  }
+  .tcard-title {
+    font-family: var(--mono); font-size: 0.6rem; color: #3a3a3e; line-height: 1.3;
+  }
+  /* Reader review cards (no background image) */
+  .tcard--reader {
+    background: var(--surface); min-height: 220px;
+  }
+  .tcard--reader .tcard-overlay { display: none; }
+  .tcard--reader .tcard-content {
+    position: relative; inset: auto;
+  }
+  .tcard--reader .tcard-quote {
+    color: var(--text); font-weight: 400; font-size: 0.8rem;
+  }
+  .tcard--reader .tcard-name { color: var(--gold); }
+  .tcard--reader .tcard-title { color: var(--text-dim); }
+  .tcard--reader .tcard-avatar {
+    font-size: 1.4rem; margin-bottom: 0.5rem;
+  }
+  @media (max-width: 768px) {
+    .tcard-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+    .tcard { min-height: 160px; max-height: 200px; }
+    .tcard--reader { max-height: none; }
+  }
+
+  /* CHAPTER CARD ENHANCEMENTS */
+  .chapter-card a { text-decoration: none; color: inherit; display: block; }
+  .chapter-card .ch-langs {
+    font-family: var(--mono); font-size: 0.6rem; color: var(--gold); margin-top: 0.5rem;
+    letter-spacing: 0.03em;
+  }
+  .chapter-card.unlocked { border-left: 2px solid var(--green); }
+  .chapter-card.unlocked .lock-icon { display: none; }
+
+  .chapters-section { max-width: 1100px; margin: 8rem auto 4rem; padding: 0 2rem; }
+  .chapters-section h2 {
+    font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 2rem; text-align: center;
+  }
+  .chapter-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2px; background: var(--border); border: 1px solid var(--border);
+  }
+  .chapter-card {
+    background: var(--surface); padding: 1.5rem; cursor: pointer;
+    transition: background 0.2s; position: relative;
+  }
+  .chapter-card:hover { background: #16161e; }
+  .chapter-card .ch-num { font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; }
+  .chapter-card .ch-title { font-family: var(--mono); font-size: 0.95rem; font-weight: 600; margin-top: 0.3rem; }
+  .chapter-card .ch-desc { font-family: var(--serif); font-size: 0.8rem; color: var(--text-dim); margin-top: 0.5rem; line-height: 1.5; }
+  .chapter-card .lock-icon { position: absolute; top: 1.2rem; right: 1.2rem; font-size: 0.8rem; color: var(--text-dim); }
+
+  .transparency {
+    max-width: 700px; margin: 4rem auto; padding: 1.5rem 2rem;
+    border: 1px solid var(--border); background: var(--surface);
+    font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim); line-height: 1.8;
+  }
+  .transparency strong { color: var(--text); }
+  .transparency a { color: var(--green); text-decoration: underline; text-underline-offset: 2px; }
+
+  footer {
+    text-align: center; padding: 3rem 2rem; font-family: var(--mono);
+    font-size: 0.7rem; color: var(--text-dim); border-top: 1px solid var(--border);
+  }
+  footer a { color: var(--green); text-decoration: underline; text-underline-offset: 2px; }
+  footer a:hover { color: var(--gold); }
+
+  /* S-CURVE DIVIDER */
+  .s-curve-divider { width: 40px; position: relative; z-index: 2; }
+  .s-curve-divider svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+  /* COVER ART STYLING */
+  .panel.crime { background: var(--bg); }
+  .panel.rescue { background: var(--cream) !important; color: var(--cream-text); --green-on-light: #197264; }
+  .panel.rescue .panel-header { color: var(--green-on-light); }
+  .panel.rescue .panel-header .status { border-color: var(--green-on-light); color: var(--green-on-light); }
+  .panel.rescue .panel-header .status.complete { background: #dff5f1; }
+  .panel.rescue .code-area { color: var(--cream-text); }
+  .panel.rescue .code-line { color: #6a6a68; }
+  .panel.rescue .code-line.active { background: #dff5f1; border-left-color: var(--green-on-light); color: var(--green-on-light); }
+  .panel.rescue .code-line.executed { color: #4a4a48; }
+  .panel.rescue .state-display { border-top-color: var(--cream-border); }
+  .panel.rescue .state-display .label { color: var(--cream-dim); }
+  .panel.rescue .state-var { color: var(--cream-dim); }
+  .panel.rescue .state-var .key { color: var(--cream-dim); }
+  .panel.rescue .state-var .val { color: var(--cream-text); }
+  .panel.rescue .idle-counter { color: var(--green-on-light); }
+  .panel.rescue .idle-counter .suffix { color: var(--cream-dim); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">honest<span>code</span>.software</div>
+  <div style="display:flex;align-items:center;gap:1rem">
+    <a href="/supporters.html" style="font-family:var(--mono);font-size:0.8rem;color:var(--gold);text-decoration:none;letter-spacing:0.04em">SUPPORTERS</a>
+    <a class="buy-btn" href="https://adamzwasserman.gumroad.com/l/honest-code-ebook" target="_blank" style="text-decoration:none">GET THE BOOK</a>
+  </div>
+</nav>
+
+<main>
+<section class="hero">
+  <h1>See the <span class="dishonest">dishonesty</span>. See the <span class="honest">fix</span>.</h1>
+  <p class="subtitle">Same calculation. Pick your language. Watch the difference.</p>
+  <p style="font-family:var(--serif);color:var(--text);font-size:0.95rem;max-width:700px;text-align:center;margin-bottom:1.5rem;line-height:1.6">Shared mutable state is the root cause of most bugs in production code. Classes are petri dishes for state corruption: mutable fields, hidden dependencies, call-order sensitivity. Pure functions with lookup tables are better in every way.</p>
+
+  <div class="lang-selector" id="langSelector">
+    <button class="lang-btn active" data-lang="java">Java</button>
+    <button class="lang-btn" data-lang="typescript">TypeScript</button>
+    <button class="lang-btn" data-lang="csharp">C#</button>
+    <button class="lang-btn" data-lang="python">Python</button>
+    <button class="lang-btn" data-lang="kotlin">Kotlin</button>
+    <button class="lang-btn" data-lang="swift">Swift</button>
+    <button class="lang-btn" data-lang="php">PHP</button>
+    <button class="lang-btn" data-lang="ruby">Ruby</button>
+    <button class="lang-btn" data-lang="dart">Dart</button>
+    <button class="lang-btn" data-lang="cpp">C++</button>
+    <button class="lang-btn" data-lang="go">Go</button>
+    <button class="lang-btn" data-lang="surprise" style="color:var(--gold);border-color:var(--gold)">Surprise!</button>
+  </div>
+
+  <div class="demo-container">
+    <div class="panel crime" id="crimePanel">
+      <div class="panel-header">
+        <span id="crimeLabel">☠ Dishonest — Java Order class</span>
+        <span class="status" id="crimeStatus">EXECUTING</span>
+      </div>
+      <div class="code-area" id="crimeCode"></div>
+      <div class="state-display">
+        <div class="label">Object State — mutable fields</div>
+        <div class="state-var"><span class="key">total</span><span class="val" id="s-total">0.00</span></div>
+        <div class="state-var"><span class="key">discount</span><span class="val" id="s-discount">0.00</span></div>
+        <div class="state-var"><span class="key">tax</span><span class="val" id="s-tax">0.00</span></div>
+        <div class="state-var"><span class="key">couponCode</span><span class="val" id="s-coupon">null</span></div>
+        <div class="state-var"><span class="key">updatedAt</span><span class="val" id="s-updated">null</span></div>
+      </div>
+    </div>
+
+        <!-- S-CURVE DIVIDER -->
+    <div class="s-curve-divider">
+      <svg preserveAspectRatio="none" viewBox="0 0 40 480">
+        <defs>
+          <linearGradient id="scg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e9c46a" stop-opacity="0.5"/>
+            <stop offset="50%" stop-color="#e9c46a" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#e9c46a" stop-opacity="0.5"/>
+          </linearGradient>
+          <clipPath id="leftClip">
+            <path d="M0,0 L20,0 C28,120 12,240 20,360 C24,420 20,480 20,480 L0,480 Z"/>
+          </clipPath>
+          <clipPath id="rightClip">
+            <path d="M40,0 L20,0 C28,120 12,240 20,360 C24,420 20,480 20,480 L40,480 Z"/>
+          </clipPath>
+        </defs>
+        <rect x="0" y="0" width="40" height="480" fill="#0a0a0c" clip-path="url(#leftClip)"/>
+        <rect x="0" y="0" width="40" height="480" fill="#f0ede6" clip-path="url(#rightClip)"/>
+        <path d="M20,0 C28,120 12,240 20,360 C24,420 20,480 20,480" fill="none" stroke="url(#scg)" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="panel rescue" id="rescuePanel">
+      <div class="panel-header">
+        <span id="rescueLabel">✦ Honest — Pure functions (Java)</span>
+        <span class="status" id="rescueStatus">EXECUTING</span>
+      </div>
+      <div class="code-area" id="rescueCode"></div>
+      <div class="idle-counter" id="idleCounter">
+        <span class="count" id="idleCount">0</span>
+        <span class="suffix">nanoseconds later...</span>
+      </div>
+      <div class="state-display">
+        <div class="label">Return value — immutable</div>
+        <div class="state-var"><span class="key">total</span><span class="val" id="r-total">—</span></div>
+        <div class="state-var"><span class="key">tax</span><span class="val" id="r-tax">—</span></div>
+        <div class="state-var"><span class="key">subtotal</span><span class="val" id="r-subtotal">—</span></div>
+        <div class="state-var"><span class="key">coupon_code</span><span class="val" id="r-coupon">—</span></div>
+        <div class="state-var"><span class="key">discount</span><span class="val" id="r-discount">—</span></div>
+        <div class="state-var"><span class="key">grand_total</span><span class="val" id="r-grand">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric crime"><div class="num" id="m-crime-cycles">0</div><div class="desc">Nanoseconds (class)</div><div class="desc" id="m-slowdown" style="color:var(--red);margin-top:0.2rem;font-weight:600"></div></div>
+    <div class="metric rescue"><div class="num" id="m-rescue-cycles">0</div><div class="desc">Nanoseconds (function)</div></div>
+    <div class="metric crime"><div class="num" id="m-mutations">0</div><div class="desc">State mutations</div></div>
+    <div class="metric crime"><div class="num" id="m-singletons">0</div><div class="desc">Global lookups</div></div>
+    <div class="metric rescue"><div class="num" id="m-rescue-mutations">0</div><div class="desc">State mutations</div></div>
+  </div>
+
+  <div class="speed-control">
+    <span>Playback:</span>
+    <button data-speed="1">1×</button>
+    <button class="active" data-speed="2">2×</button>
+    <button data-speed="0.5">0.5×</button>
+  </div>
+
+  <div class="transparency">
+    <strong>Real data, independently verifiable.</strong> Every nanosecond value in this animation comes from instrumented harnesses run on real hardware. Full analysis: <a href="/evidence.html">What the Numbers Say</a>. Source code, Dockerfile, and raw results: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
+  </div>
+
+  <div class="pitch">
+    <p>Your language already has the fix. Every mainstream language gives you pure functions, flat data, and composition. You were trained to reach for classes instead.</p>
+    <a class="cta" href="https://adamzwasserman.gumroad.com/l/honest-code-ebook" target="_blank" style="text-decoration:none;display:inline-block">GET HONEST CODE →</a>
+  </div>
+</section>
+
+<section class="purchase-section">
+  <h2>Get the Book</h2>
+
+  <div class="bundle-block" style="max-width:900px;margin:0 auto 3rem;padding:1.5rem 2rem;border:1px solid var(--border);background:var(--surface);font-family:var(--serif);">
+    <div style="font-family:var(--mono);font-size:0.7rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:1rem;">What you get when you buy</div>
+    <p style="font-size:0.9rem;color:var(--text);line-height:1.7;margin-bottom:1rem;">Read all 13 chapters free online. The bundle is what you own.</p>
+    <ul style="list-style:none;padding:0;margin:0;font-size:0.85rem;color:var(--text);line-height:1.7;">
+      <li style="margin-bottom:0.75rem;"><strong style="color:var(--green);font-family:var(--mono);font-size:0.7rem;letter-spacing:0.05em;">THE BOOK</strong> &mdash; Complete 13 chapters. Ebook (PDF + EPUB), paperback, or hardcover. Read offline, mark up the margins, lend it to a colleague.</li>
+      <li style="margin-bottom:0.75rem;"><strong style="color:var(--green);font-family:var(--mono);font-size:0.7rem;letter-spacing:0.05em;">HONEST CODE CLAUDE SKILL</strong> &mdash; A plug-and-play skill for Claude Code. Drop it into <code style="font-family:var(--mono);font-size:0.8rem;color:var(--gold);">~/.claude/skills/</code> and Claude starts flagging class abuse, hidden state, and mock-heavy tests on every code review.</li>
+      <li style="margin-bottom:0.75rem;"><strong style="color:var(--green);font-family:var(--mono);font-size:0.7rem;letter-spacing:0.05em;">HONEST FASTAPI STARTER</strong> &mdash; A working FastAPI project laid out according to the book's patterns. Pure functions, dict-dispatch, I/O at the boundary. Skip the defaults-fighting phase.</li>
+      <li style="margin-bottom:0.75rem;"><strong style="color:var(--green);font-family:var(--mono);font-size:0.7rem;letter-spacing:0.05em;">AI BONUS PACK</strong> &mdash; The complete Chapter 10 extension: prompt patterns, workflow scaffolding, and constraints that make AI coding assistants generate honest code by default.</li>
+      <li><strong style="color:var(--green);font-family:var(--mono);font-size:0.7rem;letter-spacing:0.05em;">COMPANION DEMOS</strong> &mdash; Interactive chapter demos and the cheat sheet. Same content as the free web version, packaged for offline use.</li>
+    </ul>
+  </div>
+
+  <div class="product-grid">
+    <div class="product-card">
+      <div class="product-title">Free Sampler</div>
+      <div class="product-desc">Chapters 1-2 plus the cheat sheet. See if the style clicks before you buy.</div>
+      <div class="product-price">Free</div>
+      <a class="product-cta free" href="https://adamzwasserman.gumroad.com/l/honest-code-sampler" target="_blank">DOWNLOAD FREE</a>
+    </div>
+    <div class="product-card">
+      <div class="product-title">First 100 Copies</div>
+      <div class="product-desc">The complete ebook, free. Same content as the paid version. Limited to 100 copies — when they're gone, they're gone.</div>
+      <div class="product-price">Free</div>
+      <a class="product-cta free" href="https://adamzwasserman.gumroad.com/l/honest-code-ebook-first-100" target="_blank">GET FREE COPY</a>
+    </div>
+    <div class="product-card">
+      <div class="product-title">Ebook (PDF)</div>
+      <div class="product-desc">The complete book with interactive companion site access. All 13 chapters, code traces, and cheat sheet. A small section of the Dishonest AI chapter is embargoed until mid-April — updated copies will be available for free re-download.</div>
+      <div class="product-price">$24.50</div>
+      <a class="product-cta" href="https://adamzwasserman.gumroad.com/l/honest-code-ebook" target="_blank">BUY EBOOK</a>
+    </div>
+    <div class="product-card">
+      <div class="product-title">Paperback</div>
+      <div class="product-desc">Physical copy plus ebook and companion site access. Ships mid-April with the full unredacted Dishonest AI chapter.</div>
+      <div class="product-price">$39.99</div>
+      <a class="product-cta" href="https://adamzwasserman.gumroad.com/l/honest-code-paperback" target="_blank">PREORDER PAPERBACK</a>
+    </div>
+    <div class="product-card">
+      <div class="product-title">Hardcover</div>
+      <div class="product-desc">Hardcover edition with ebook and companion site access. Ships mid-April with the full unredacted Dishonest AI chapter.</div>
+      <div class="product-price">$59.99</div>
+      <a class="product-cta" href="https://adamzwasserman.gumroad.com/l/honest-code-hardcover" target="_blank">PREORDER HARDCOVER</a>
+    </div>
+  </div>
+  <div class="original-supporters-note" style="font-family:var(--mono);font-size:0.75rem;color:var(--text-dim);text-align:center;margin-top:1.5rem;line-height:1.7;">
+    The first 100 paid buyers get a permanent spot on the <a href="/supporters.html" style="color:var(--gold);text-decoration:none;font-weight:600">Founding Supporters</a> wall. Name, bio, and a link to your project.
+  </div>
+</section>
+
+<section class="author-section">
+  <h3>Adam Zachary Wasserman</h3>
+  <div class="author-sig">Writing code since 1986. Not bad for a boomer.</div>
+  <p>Former CTO at IATA, where the software handles $900 billion in airline transactions per year. After that, Director at CGI leading 150+ programmers specializing in telecoms enterprise web sites. Now focused on three startups. Massive web and mobile app experience at all scales — from solo prototypes to systems serving every airline on earth.</p>
+  <p>I've spent four decades watching smart people write bad code — not because they're bad at programming, but because they were trained to reach for classes, inheritance, and mutable state when their language already had the fix. This book is everything I wish someone had told me in 1986.</p>
+</section>
+
+<section class="testimonial-section">
+  <h2>What People Say <a href="/chapters/review.html" style="font-size:0.65rem;color:var(--green);text-decoration:none;letter-spacing:0.06em;margin-left:1rem;border:1px solid rgba(42,157,143,0.3);padding:0.2rem 0.6rem;vertical-align:middle;transition:background 0.2s" onmouseover="this.style.background='rgba(42,157,143,0.08)'" onmouseout="this.style.background='transparent'">LEAVE A REVIEW</a></h2>
+  <div class="tcard-stage">
+    <div class="tcard-grid" id="tcard-a">
+      <div class="tcard"><img class="tcard-bg" src="/testimonials/shibl3.webp" alt="Testimonial from Shibl Mourad" width="868" height="292" loading="lazy"><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">"The closest person I know to a strategic genius"</div><div class="tcard-footer"><div class="tcard-name">Shibl Mourad</div><div class="tcard-title">North America Research Engineering Lead, Google DeepMind</div></div></div></div>
+      <div class="tcard"><img class="tcard-bg" src="/testimonials/brabant.webp" alt="Testimonial from Frederic Brabant" width="867" height="233" loading="lazy"><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">"The most analytical and technology literate marketing guy I have ever met"</div><div class="tcard-footer"><div class="tcard-name">Frederic Brabant</div><div class="tcard-title">Chief Technology Officer, Rekruti</div></div></div></div>
+      <div class="tcard"><img class="tcard-bg" src="/testimonials/liles.webp" alt="Testimonial from Douglas Liles" width="868" height="294" loading="lazy"><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">"Enviable ability to build excitement around abstract ideas in technology"</div><div class="tcard-context">On positioning complex technical concepts for C-level audiences</div><div class="tcard-footer"><div class="tcard-name">Douglas Liles</div><div class="tcard-title">Principal Product Manager, Oracle Health</div></div></div></div>
+    </div>
+    <div class="tcard-grid layer-b" id="tcard-b"></div>
+  </div>
+</section>
+<script>
+(function(){
+  var CARDS = [
+    {img:'dahl.webp',w:871,h:340,q:'"Simplificator"',n:'Bernard Dahl',t:'Brand / Storyteller'},
+    {img:'shibl1.webp',w:870,h:259,q:'"Only later did this approach become an industry buzz word"',c:'On designing a stateless HTTP/XML architecture for the airline industry, 1999',n:'Shibl Mourad',t:'North America Research Engineering Lead, Google DeepMind',shibl:1},
+    {img:'shibl2.webp',w:865,h:252,q:'"Ideas that sound outlandish but prove to be right a few years down the road"',c:'On proposing device divergence at the height of the convergence craze',n:'Shibl Mourad',t:'North America Research Engineering Lead, Google DeepMind',shibl:1},
+    {img:'shibl3.webp',w:868,h:292,q:'"The closest person I know to a strategic genius"',n:'Shibl Mourad',t:'North America Research Engineering Lead, Google DeepMind',shibl:1},
+    {img:'omer.webp',w:869,h:229,q:'"An IT executive like no other"',n:'Omer Ahmad',t:'Vice President, Technology @ Klick'},
+    {img:'brabant.webp',w:867,h:233,q:'"The most analytical and technology literate marketing guy I have ever met"',n:'Frederic Brabant',t:'Chief Technology Officer, Rekruti'},
+    {img:'daniel.webp',w:870,h:261,q:'\u201CTr\u00e8s m\u00e9ticuleux\u201D',c:'On managing complex projects',n:'Daniel Boissonneault',t:'Associate Chief Executive Officer',fr:1},
+    {img:'roy.webp',w:873,h:354,q:'\u201CTr\u00e8s brillant\u201D',c:'On leading technical delivery',n:'Guillaume Roy',t:'Co-founder & CTO, Worksleap',fr:1},
+    {img:'liles.webp',w:868,h:294,q:'"Enviable ability to build excitement around abstract ideas in technology"',c:'On positioning complex technical concepts for C-level audiences',n:'Douglas Liles',t:'Principal Product Manager, Oracle Health'},
+    {img:'moon.webp',w:866,h:403,q:'"A rare combination of talents and motivations"',c:'On bridging technical deployment, strategic marketing, and systems thinking',n:'Michael Moon',t:'Advisor to Series A-C Startups | AI-led Growth Architect'},
+    {img:'ducharme.webp',w:866,h:289,q:'"Big picture perspective combined with attention to detail"',n:'Martin Ducharme',t:'VP, AlayaCare | Board Member, Digital Healthcare'},
+    {img:'lindholm.webp',w:870,h:343,q:'"Find a way to simplify it and make it scalable"',n:'Justin Lindholm',t:'Champion of the Underdogs, Change Agents and Conscious Constructors'},
+    {img:'duck.webp',w:872,h:340,q:'"Using his unique insights\u2026 bring a lot of value"',c:'A specialty coffee heavyweight surprised to learn something new about coffee processing from an IT Director',n:'Aaron Duckworth',t:'Culinary Entrepreneur & CEO, Coffee with A. Duck'},
+    {reader:1,avatar:'\uD83D\uDE80',q:'"It went from fighting the tool to the tool fighting for me"',c:'On rewriting an entire Claude Code codebase using the Honest Code principles file',n:'Vincent Guyaux',t:'CEO, Buckler'}
+  ];
+  var layerA=document.getElementById('tcard-a');
+  var layerB=document.getElementById('tcard-b');
+  var active=layerA, next=layerB;
+  var shown=[];
+  function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+  function pickTrio(){
+    var pool=CARDS.filter(function(c){return shown.indexOf(c.img)===-1;});
+    if(pool.length<3){shown=[];pool=CARDS.slice();}
+    shuffle(pool);
+    var trio=[],hasFr=false,hasShibl=false;
+    for(var i=0;i<pool.length&&trio.length<3;i++){
+      var c=pool[i];
+      if(c.fr&&hasFr)continue;
+      if(c.shibl&&hasShibl)continue;
+      if(c.fr)hasFr=true;
+      if(c.shibl)hasShibl=true;
+      trio.push(c);
+    }
+    trio.forEach(function(c){shown.push(c.img);});
+    return trio;
+  }
+  function buildCard(d){
+    if(d.reader){
+      return '<div class="tcard tcard--reader"><div class="tcard-content"><div class="tcard-avatar">'+(d.avatar||'\uD83D\uDC68\u200D\uD83D\uDCBB')+'</div><div class="tcard-quote">'+d.q+'</div>'+(d.c?'<div class="tcard-context">'+d.c+'</div>':'')+'<div class="tcard-footer"><div class="tcard-name">'+d.n+'</div><div class="tcard-title">'+d.t+'</div></div></div></div>';
+    }
+    return '<div class="tcard"><img class="tcard-bg" src="/testimonials/'+d.img+'" alt="Testimonial from '+d.n+'" width="'+d.w+'" height="'+d.h+'" loading="lazy"><div class="tcard-overlay"></div><div class="tcard-content"><div class="tcard-quote">'+d.q+'</div>'+(d.c?'<div class="tcard-context">'+d.c+'</div>':'')+'<div class="tcard-footer"><div class="tcard-name">'+d.n+'</div><div class="tcard-title">'+d.t+'</div></div></div></div>';
+  }
+  function renderTo(layer,trio){
+    var html='';
+    for(var k=0;k<3;k++) html+=buildCard(trio[k]);
+    layer.innerHTML=html;
+  }
+  function cycle(){
+    renderTo(next,pickTrio());
+    // Crossfade: fade out active, fade in next simultaneously
+    active.style.opacity='0';
+    next.style.opacity='1';
+    var tmp=active; active=next; next=tmp;
+  }
+  setInterval(cycle,5000);
+})();
+</script>
+
+<section class="chapters-section">
+  <h2>Interactive Chapter Demos</h2>
+  <div class="chapter-grid">
+    <a href="/chapters/01.html" class="chapter-card"><div class="ch-num">Chapter 1</div><div class="ch-title">All Languages are Good</div><div class="ch-desc">Call stack depth: 10+ frames vs 2-3. Watch them grow. Every mainstream language already has the fix — you were just trained to ignore it.</div><div class="ch-langs">call stacks, dispatch, runtime cost</div></a>
+    <a href="/chapters/02.html" class="chapter-card unlocked"><div class="ch-num">Chapter 2</div><div class="ch-title">Classes Considered Harmful</div><div class="ch-desc">Mutation web: 7 mutable fields cascading vs one-pass data flow. The Order class mutates itself into a different object on every call.</div><div class="ch-langs">mutation, singletons, hidden state</div></a>
+    <a href="/chapters/03.html" class="chapter-card"><div class="ch-num">Chapter 3</div><div class="ch-title">Data Is Just Data</div><div class="ch-desc">Dependency graph: 7 transitive imports vs one TypedDict. Your data doesn't need methods — it needs a shape declaration.</div><div class="ch-langs">TypedDict, flat data, json.dumps</div></a>
+    <a href="/chapters/04.html" class="chapter-card"><div class="ch-num">Chapter 4</div><div class="ch-title">Pure Functions: The Original Abstraction</div><div class="ch-desc">6 permutations, same result every time. Classes: 6 different results. Call order should not change the answer.</div><div class="ch-langs">referential transparency, dict lookup</div></a>
+    <a href="/chapters/05.html" class="chapter-card"><div class="ch-num">Chapter 5</div><div class="ch-title">The State That Cannot Be Named</div><div class="ch-desc">Redux scatters state across 6 locations. The DOM is the state — HTMX proves it with zero JavaScript.</div><div class="ch-langs">HTMX, DOM-as-state, single source of truth</div></a>
+    <a href="/chapters/06.html" class="chapter-card"><div class="ch-num">Chapter 6</div><div class="ch-title">Compose Flat, Never Deep</div><div class="ch-desc">super() ricocheting through 4 layers vs a flat pipeline. Inheritance is a one-way ticket to debugging someone else's constructor.</div><div class="ch-langs">pipe, composition, no inheritance</div></a>
+    <a href="/chapters/07.html" class="chapter-card"><div class="ch-num">Chapter 7</div><div class="ch-title">Let It Crash</div><div class="ch-desc">7-level try-catch bubble vs supervisor restart. Two steps. The Erlang supervision tree has been doing this since 1986.</div><div class="ch-langs">supervision, typed exceptions, boundaries</div></a>
+    <a href="/chapters/08.html" class="chapter-card"><div class="ch-num">Chapter 8</div><div class="ch-title">The Performance Lie</div><div class="ch-desc">The cache circular argument, animated. The cache is slower than the query it was supposed to speed up.</div><div class="ch-langs">caching myths, SQL joins, profiling</div></a>
+    <a href="/chapters/09.html" class="chapter-card"><div class="ch-num">Chapter 9</div><div class="ch-title">Dishonest Tests</div><div class="ch-desc">Mock setup still running. assert f(x)==y already done. Nine mocks means nine hidden dependencies.</div><div class="ch-langs">mocks, pure function tests, Gherkin</div></a>
+    <a href="/chapters/10.html" class="chapter-card"><div class="ch-num">Chapter 10</div><div class="ch-title">Dishonest AI</div><div class="ch-desc">Same prompt, two architectures. 200 lines vs 30. LLMs generate crime-scene code fluently — this chapter shows why, and how to stop it.</div><div class="ch-langs">LLM output, architecture constraints</div></a>
+    <a href="/chapters/11.html" class="chapter-card"><div class="ch-num">Chapter 11</div><div class="ch-title">The Declarative Principle</div><div class="ch-desc">Your declaration flows down. The platform handles the rest. One principle that unifies every chapter.</div><div class="ch-langs">declarations, types, constraints</div></a>
+    <a href="/chapters/12.html" class="chapter-card"><div class="ch-num">Chapter 12</div><div class="ch-title">Declare, Don't Instruct</div><div class="ch-desc">73 lines of JS vs 6 HTML attributes. Live genX demo showing declarative UI that writes itself.</div><div class="ch-langs">HTML attributes, genX, HTMX</div></a>
+    <a href="/chapters/13.html" class="chapter-card"><div class="ch-num">Chapter 13</div><div class="ch-title">The Monday Morning Chapter</div><div class="ch-desc">A class with 10 methods shrinks to zero over 12 sprints. The strangler pattern, animated in 30 seconds.</div><div class="ch-langs">strangler pattern, incremental rescue</div></a>
+    <a href="/evidence.html" class="chapter-card unlocked" style="border-color:var(--gold)"><div class="ch-num" style="color:var(--gold)">Trace Report</div><div class="ch-title">What the Numbers Say</div><div class="ch-desc">Rankings, surprises, and analysis from 11 languages. Honest code is faster in every language we tested. Here's the data.</div><div class="ch-langs">all 11 languages, cross-language analysis</div></a>
+    <a href="/chapters/bonus.html" class="chapter-card"><div class="ch-num" style="color:var(--gold)">Bonus</div><div class="ch-title">The Honest Code Prompt</div><div class="ch-desc">Every principle from every chapter distilled into a single file. Drop it into Claude's memory and ask: "Is this code honest?"</div><div class="ch-langs">AI prompt, Claude memory, code review</div></a>
+  </div>
+</section>
+
+<div class="transparency">
+  <strong>How this works:</strong> Every demo on this site visualizes the execution difference between dishonest and honest code. Timing is proportional to real nanosecond costs captured from instrumented harnesses across 11 language runtimes. Source code, Dockerfile, and raw trace data: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
+</div>
+</main>
+
+<footer>
+  <p>Honest Code by Adam Zachary Wasserman · Writing code since 1986.</p>
+  <p style="margin-top:0.5rem"><a href="https://github.com/nicbudd/genX">genX</a> · <a href="https://github.com/nicbudd/declaro">declaro</a> · <a href="https://github.com/adamzwasserman">GitHub</a> · <a href="https://adamzwasserman.gumroad.com">Gumroad</a></p>
+</footer>
+
+<script>
+// ═══ CANONICAL TRACE DATA ═══
+// Generated by honest-code-traces/generate_traces.py from real harness baselines.
+// Each step: {code, ns, op, mutations/results, singletons}
+// Validate: github.com/adamzwasserman/honest-code-traces
+
+const TRACES = {"java":{"crimeLabel":"☠ Dishonest — Java Order class","rescueLabel":"✦ Honest — Pure functions (Java)","crime":[{"code":"order.addItem(newItem);","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"  this.items.add(item);","ns":41,"op":"field","mutations":[],"singletons":0},{"code":"  recalculateTotal();","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    this.total = items.stream()...","ns":209,"op":"calc","mutations":[["s-total","89.97"]],"singletons":0},{"code":"  recalculateDiscount();","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.getInstance()","ns":21,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"    this.discount = coupon.apply()","ns":41,"op":"field","mutations":[["s-discount","0.00"]],"singletons":0},{"code":"  recalculateTax();","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.getInstance()","ns":21,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"    this.tax = taxable * rate","ns":41,"op":"field","mutations":[["s-tax","7.20"]],"singletons":0},{"code":"  this.updatedAt = now();","ns":42,"op":"time","mutations":[["s-updated","14:23:07.4"]],"singletons":0},{"code":"order.applyCoupon(\"SAVE10\");","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"  this.couponCode = code;","ns":41,"op":"field","mutations":[["s-coupon","\"SAVE10\""]],"singletons":0},{"code":"  recalculateDiscount();","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.getInstance()","ns":21,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check (stale?)...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"    this.discount = coupon.apply()","ns":41,"op":"field","mutations":[["s-discount","9.00"]],"singletons":0},{"code":"  recalculateTax();","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.getInstance()","ns":21,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"    this.tax = taxable * rate","ns":41,"op":"field","mutations":[["s-tax","6.48"]],"singletons":0},{"code":"  this.updatedAt = now();","ns":42,"op":"time","mutations":[["s-updated","14:23:07.5"]],"singletons":0}],"rescue":[{"code":"var result = calculateOrder(","ns":0,"op":"call","results":[]},{"code":"    items, \"NY\", taxRates);","ns":0,"op":"arg","results":[]},{"code":"  var total = items.stream()...","ns":83,"op":"calc","results":[["r-total","89.97"]]},{"code":"  var tax = total * taxRates.get(region)","ns":83,"op":"calc","results":[["r-tax","7.20"]]},{"code":"  return Map.of(\"total\", \"tax\", ...);","ns":42,"op":"ret","results":[["r-subtotal","97.17"]]},{"code":"var final = applyCoupon(","ns":0,"op":"call","results":[["r-coupon","\"SAVE10\""]]},{"code":"    result, \"SAVE10\", coupons);","ns":0,"op":"arg","results":[]},{"code":"  var discount = result.total * rate;","ns":83,"op":"calc","results":[["r-discount","9.00"]]},{"code":"  return new Result(total, discount, ...);","ns":42,"op":"ret","results":[["r-grand","87.45"]]}],"crimeTotal":1204,"rescueTotal":333},"typescript":{"crimeLabel":"☠ Dishonest — TypeScript Order class","rescueLabel":"✦ Honest — Pure functions (TypeScript)","crime":[{"code":"order.addItem(newItem);","ns":167,"op":"call","mutations":[],"singletons":0},{"code":"  this.items.push(item);","ns":125,"op":"field","mutations":[],"singletons":0},{"code":"  this.recalculateTotal();","ns":167,"op":"call","mutations":[],"singletons":0},{"code":"    this.total = this.items.reduce(..)","ns":291,"op":"calc","mutations":[["s-total","89.97"]],"singletons":0},{"code":"  this.recalculateDiscount();","ns":167,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.getInstance()","ns":104,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":208,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":208,"op":"cache","mutations":[],"singletons":0},{"code":"    this.discount = coupon.apply()","ns":125,"op":"field","mutations":[["s-discount","0.00"]],"singletons":0},{"code":"  this.recalculateTax();","ns":167,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.getInstance()","ns":104,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":208,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":208,"op":"cache","mutations":[],"singletons":0},{"code":"    this.tax = taxable * rate;","ns":125,"op":"field","mutations":[["s-tax","7.20"]],"singletons":0},{"code":"  this.updatedAt = new Date();","ns":208,"op":"time","mutations":[["s-updated","14:23:07.4"]],"singletons":0},{"code":"order.applyCoupon(\"SAVE10\");","ns":167,"op":"call","mutations":[],"singletons":0},{"code":"  this.couponCode = code;","ns":125,"op":"field","mutations":[["s-coupon","\"SAVE10\""]],"singletons":0},{"code":"  this.recalculateDiscount();","ns":167,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.getInstance()","ns":104,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":208,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check (stale?)...","ns":208,"op":"cache","mutations":[],"singletons":0},{"code":"    this.discount = coupon.apply()","ns":125,"op":"field","mutations":[["s-discount","9.00"]],"singletons":0},{"code":"  this.recalculateTax();","ns":167,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.getInstance()","ns":104,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":208,"op":"cache","mutations":[],"singletons":0},{"code":"    this.tax = taxable * rate;","ns":125,"op":"field","mutations":[["s-tax","6.48"]],"singletons":0},{"code":"  this.updatedAt = new Date();","ns":208,"op":"time","mutations":[["s-updated","14:23:07.5"]],"singletons":0}],"rescue":[{"code":"const result = calculateOrder(","ns":84,"op":"call","results":[]},{"code":"    items, \"NY\", taxRates);","ns":83,"op":"arg","results":[]},{"code":"  const total = items.reduce(...)","ns":375,"op":"calc","results":[["r-total","89.97"]]},{"code":"  const tax = total * taxRates[region]","ns":375,"op":"calc","results":[["r-tax","7.20"]]},{"code":"  return { total, tax, subtotal };","ns":250,"op":"ret","results":[["r-subtotal","97.17"]]},{"code":"const final = applyCoupon(","ns":84,"op":"call","results":[["r-coupon","\"SAVE10\""]]},{"code":"    result, \"SAVE10\", coupons);","ns":83,"op":"arg","results":[]},{"code":"  const discount = result.total * rate;","ns":375,"op":"calc","results":[["r-discount","9.00"]]},{"code":"  return { ...result, discount, grand };","ns":250,"op":"ret","results":[["r-grand","87.45"]]}],"crimeTotal":4498,"rescueTotal":1959},"csharp":{"crimeLabel":"☠ Dishonest — C# Order class","rescueLabel":"✦ Honest — Pure functions (C#)","crime":[{"code":"order.AddItem(newItem);","ns":65,"op":"call","mutations":[],"singletons":0},{"code":"  _items.Add(item);","ns":16,"op":"field","mutations":[],"singletons":0},{"code":"  RecalculateTotal();","ns":65,"op":"call","mutations":[],"singletons":0},{"code":"    _total = _items.Sum(i => i.Price);","ns":152,"op":"calc","mutations":[["s-total","89.97"]],"singletons":0},{"code":"  RecalculateDiscount();","ns":65,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.Instance","ns":18,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":10,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":10,"op":"cache","mutations":[],"singletons":0},{"code":"    _discount = coupon.Apply()","ns":16,"op":"field","mutations":[["s-discount","0.00"]],"singletons":0},{"code":"  RecalculateTax();","ns":65,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.Instance","ns":18,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":10,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":10,"op":"cache","mutations":[],"singletons":0},{"code":"    _tax = taxable * rate;","ns":16,"op":"field","mutations":[["s-tax","7.20"]],"singletons":0},{"code":"  _updatedAt = DateTime.UtcNow;","ns":26,"op":"time","mutations":[["s-updated","14:23:07.4"]],"singletons":0},{"code":"order.ApplyCoupon(\"SAVE10\");","ns":65,"op":"call","mutations":[],"singletons":0},{"code":"  _couponCode = code;","ns":16,"op":"field","mutations":[["s-coupon","\"SAVE10\""]],"singletons":0},{"code":"  RecalculateDiscount();","ns":65,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.Instance","ns":18,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":10,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check (stale?)...","ns":10,"op":"cache","mutations":[],"singletons":0},{"code":"    _discount = coupon.Apply()","ns":16,"op":"field","mutations":[["s-discount","9.00"]],"singletons":0},{"code":"  RecalculateTax();","ns":65,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.Instance","ns":18,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":10,"op":"cache","mutations":[],"singletons":0},{"code":"    _tax = taxable * rate;","ns":16,"op":"field","mutations":[["s-tax","6.48"]],"singletons":0},{"code":"  _updatedAt = DateTime.UtcNow;","ns":26,"op":"time","mutations":[["s-updated","14:23:07.5"]],"singletons":0}],"rescue":[{"code":"var result = CalculateOrder(","ns":44,"op":"call","results":[]},{"code":"    items, \"NY\", taxRates);","ns":5,"op":"arg","results":[]},{"code":"  var total = items.Sum(i => i.Price);","ns":176,"op":"calc","results":[["r-total","89.97"]]},{"code":"  var tax = total * taxRates[region];","ns":176,"op":"calc","results":[["r-tax","7.20"]]},{"code":"  return new OrderResult(total, tax, ...);","ns":18,"op":"ret","results":[["r-subtotal","97.17"]]},{"code":"var final = ApplyCoupon(","ns":44,"op":"call","results":[["r-coupon","\"SAVE10\""]]},{"code":"    result, \"SAVE10\", coupons);","ns":5,"op":"arg","results":[]},{"code":"  var discount = result.Total * rate;","ns":176,"op":"calc","results":[["r-discount","9.00"]]},{"code":"  return new FinalResult(total, ...);","ns":18,"op":"ret","results":[["r-grand","87.45"]]}],"crimeTotal":897,"rescueTotal":662},"python":{"crimeLabel":"☠ Dishonest — Python Order class","rescueLabel":"✦ Honest — Pure functions (Python)","crime":[{"code":"order.add_item(new_item)","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"  self.items.append(item)","ns":42,"op":"field","mutations":[],"singletons":0},{"code":"  self._recalculate_total()","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    self.total = sum(i.price for ...)","ns":291,"op":"calc","mutations":[["s-total","89.97"]],"singletons":0},{"code":"  self._recalculate_discount()","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.get_instance()","ns":83,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":83,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":83,"op":"cache","mutations":[],"singletons":0},{"code":"    self.discount = coupon.apply()","ns":42,"op":"field","mutations":[["s-discount","0.00"]],"singletons":0},{"code":"  self._recalculate_tax()","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.get_instance()","ns":83,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":83,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":83,"op":"cache","mutations":[],"singletons":0},{"code":"    self.tax = taxable * rate","ns":42,"op":"field","mutations":[["s-tax","7.20"]],"singletons":0},{"code":"  self.updated_at = datetime.now()","ns":83,"op":"time","mutations":[["s-updated","14:23:07.4"]],"singletons":0},{"code":"order.apply_coupon(\"SAVE10\")","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"  self.coupon_code = code","ns":42,"op":"field","mutations":[["s-coupon","\"SAVE10\""]],"singletons":0},{"code":"  self._recalculate_discount()","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.get_instance()","ns":83,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":83,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check (stale?)...","ns":83,"op":"cache","mutations":[],"singletons":0},{"code":"    self.discount = coupon.apply()","ns":42,"op":"field","mutations":[["s-discount","9.00"]],"singletons":0},{"code":"  self._recalculate_tax()","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.get_instance()","ns":83,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":83,"op":"cache","mutations":[],"singletons":0},{"code":"    self.tax = taxable * rate","ns":42,"op":"field","mutations":[["s-tax","6.48"]],"singletons":0},{"code":"  self.updated_at = datetime.now()","ns":83,"op":"time","mutations":[["s-updated","14:23:07.5"]],"singletons":0}],"rescue":[{"code":"result = calculate_order(","ns":42,"op":"call","results":[]},{"code":"    items, \"NY\", tax_rates)","ns":42,"op":"arg","results":[]},{"code":"  total = sum(i[\"price\"] for ...)","ns":333,"op":"calc","results":[["r-total","89.97"]]},{"code":"  tax = total * tax_rates[region]","ns":333,"op":"calc","results":[["r-tax","7.20"]]},{"code":"  return total, tax, subtotal","ns":125,"op":"ret","results":[["r-subtotal","97.17"]]},{"code":"final = apply_coupon(","ns":42,"op":"call","results":[["r-coupon","\"SAVE10\""]]},{"code":"    result, \"SAVE10\", coupons)","ns":42,"op":"arg","results":[]},{"code":"  discount = total * rate","ns":333,"op":"calc","results":[["r-discount","9.00"]]},{"code":"  return code, discount, grand_total","ns":125,"op":"ret","results":[["r-grand","87.45"]]}],"crimeTotal":1916,"rescueTotal":1417},"kotlin":{"crimeLabel":"☠ Dishonest — Kotlin Order class","rescueLabel":"✦ Honest — Pure functions (Kotlin)","crime":[{"code":"order.addItem(newItem)","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"  items.add(item)","ns":41,"op":"field","mutations":[],"singletons":0},{"code":"  recalculateTotal()","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    total = items.sumOf { it.price }","ns":42,"op":"calc","mutations":[["s-total","89.97"]],"singletons":0},{"code":"  recalculateDiscount()","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.getInstance()","ns":21,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"    discount = coupon.apply()","ns":41,"op":"field","mutations":[["s-discount","0.00"]],"singletons":0},{"code":"  recalculateTax()","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.getInstance()","ns":21,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"    tax = taxable * rate","ns":41,"op":"field","mutations":[["s-tax","7.20"]],"singletons":0},{"code":"  updatedAt = Instant.now()","ns":42,"op":"time","mutations":[["s-updated","14:23:07.4"]],"singletons":0},{"code":"order.applyCoupon(\"SAVE10\")","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"  couponCode = code","ns":41,"op":"field","mutations":[["s-coupon","\"SAVE10\""]],"singletons":0},{"code":"  recalculateDiscount()","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.getInstance()","ns":21,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check (stale?)...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"    discount = coupon.apply()","ns":41,"op":"field","mutations":[["s-discount","9.00"]],"singletons":0},{"code":"  recalculateTax()","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.getInstance()","ns":21,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"    tax = taxable * rate","ns":41,"op":"field","mutations":[["s-tax","6.48"]],"singletons":0},{"code":"  updatedAt = Instant.now()","ns":42,"op":"time","mutations":[["s-updated","14:23:07.5"]],"singletons":0}],"rescue":[{"code":"val result = calculateOrder(","ns":0,"op":"call","results":[]},{"code":"    items, \"NY\", taxRates)","ns":0,"op":"arg","results":[]},{"code":"  val total = items.sumOf { it.price }","ns":84,"op":"calc","results":[["r-total","89.97"]]},{"code":"  val tax = total * taxRates[region]","ns":84,"op":"calc","results":[["r-tax","7.20"]]},{"code":"  return Triple(total, tax, subtotal)","ns":42,"op":"ret","results":[["r-subtotal","97.17"]]},{"code":"val final = applyCoupon(","ns":0,"op":"call","results":[["r-coupon","\"SAVE10\""]]},{"code":"    result, \"SAVE10\", coupons)","ns":0,"op":"arg","results":[]},{"code":"  val discount = result.total * rate","ns":84,"op":"calc","results":[["r-discount","9.00"]]},{"code":"  return Triple(code, discount, grand)","ns":42,"op":"ret","results":[["r-grand","87.45"]]}],"crimeTotal":1037,"rescueTotal":336},"swift":{"crimeLabel":"☠ Dishonest — Swift Order class","rescueLabel":"✦ Honest — Pure functions (Swift)","crime":[{"code":"order.addItem(newItem)","ns":150,"op":"call","mutations":[],"singletons":0},{"code":"  items.append(item)","ns":9,"op":"field","mutations":[],"singletons":0},{"code":"  recalculateTotal()","ns":150,"op":"call","mutations":[],"singletons":0},{"code":"    total = items.reduce(0) { ... }","ns":2,"op":"calc","mutations":[["s-total","89.97"]],"singletons":0},{"code":"  recalculateDiscount()","ns":150,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.shared","ns":35,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":2,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":2,"op":"cache","mutations":[],"singletons":0},{"code":"    discount = coupon.apply()","ns":9,"op":"field","mutations":[["s-discount","0.00"]],"singletons":0},{"code":"  recalculateTax()","ns":150,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.shared","ns":35,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":2,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":2,"op":"cache","mutations":[],"singletons":0},{"code":"    tax = taxable * rate","ns":9,"op":"field","mutations":[["s-tax","7.20"]],"singletons":0},{"code":"  updatedAt = Date()","ns":26,"op":"time","mutations":[["s-updated","14:23:07.4"]],"singletons":0},{"code":"order.applyCoupon(\"SAVE10\")","ns":150,"op":"call","mutations":[],"singletons":0},{"code":"  couponCode = code","ns":9,"op":"field","mutations":[["s-coupon","\"SAVE10\""]],"singletons":0},{"code":"  recalculateDiscount()","ns":150,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.shared","ns":35,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":2,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check (stale?)...","ns":2,"op":"cache","mutations":[],"singletons":0},{"code":"    discount = coupon.apply()","ns":9,"op":"field","mutations":[["s-discount","9.00"]],"singletons":0},{"code":"  recalculateTax()","ns":150,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.shared","ns":35,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":2,"op":"cache","mutations":[],"singletons":0},{"code":"    tax = taxable * rate","ns":9,"op":"field","mutations":[["s-tax","6.48"]],"singletons":0},{"code":"  updatedAt = Date()","ns":26,"op":"time","mutations":[["s-updated","14:23:07.5"]],"singletons":0}],"rescue":[{"code":"let result = calculateOrder(","ns":23,"op":"call","results":[]},{"code":"    items, region: \"NY\", rates: taxRates)","ns":0,"op":"arg","results":[]},{"code":"  let total = items.reduce(0) { ... }","ns":32,"op":"calc","results":[["r-total","89.97"]]},{"code":"  let tax = total * taxRates[region]","ns":32,"op":"calc","results":[["r-tax","7.20"]]},{"code":"  return OrderResult(total, tax, ...)","ns":39,"op":"ret","results":[["r-subtotal","97.17"]]},{"code":"let final = applyCoupon(","ns":23,"op":"call","results":[["r-coupon","\"SAVE10\""]]},{"code":"    result, \"SAVE10\", coupons)","ns":0,"op":"arg","results":[]},{"code":"  let discount = result.total * rate","ns":32,"op":"calc","results":[["r-discount","9.00"]]},{"code":"  return FinalResult(total, discount, ...)","ns":39,"op":"ret","results":[["r-grand","87.45"]]}],"crimeTotal":1312,"rescueTotal":220},"php":{"crimeLabel":"☠ Dishonest — PHP Order class","rescueLabel":"✦ Honest — Pure functions (PHP)","crime":[{"code":"$order->addItem($newItem);","ns":125,"op":"call","mutations":[],"singletons":0},{"code":"  $this->items[] = $item;","ns":125,"op":"field","mutations":[],"singletons":0},{"code":"  $this->recalculateTotal();","ns":125,"op":"call","mutations":[],"singletons":0},{"code":"    $this->total = array_sum(...);","ns":250,"op":"calc","mutations":[["s-total","89.97"]],"singletons":0},{"code":"  $this->recalculateDiscount();","ns":125,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry::getInstance()","ns":187,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":167,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":167,"op":"cache","mutations":[],"singletons":0},{"code":"    $this->discount = $coupon->apply()","ns":125,"op":"field","mutations":[["s-discount","0.00"]],"singletons":0},{"code":"  $this->recalculateTax();","ns":125,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService::getInstance()","ns":187,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":167,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":167,"op":"cache","mutations":[],"singletons":0},{"code":"    $this->tax = $taxable * $rate;","ns":125,"op":"field","mutations":[["s-tax","7.20"]],"singletons":0},{"code":"  $this->updatedAt = new DateTime();","ns":167,"op":"time","mutations":[["s-updated","14:23:07.4"]],"singletons":0},{"code":"$order->applyCoupon(\"SAVE10\");","ns":125,"op":"call","mutations":[],"singletons":0},{"code":"  $this->couponCode = $code;","ns":125,"op":"field","mutations":[["s-coupon","\"SAVE10\""]],"singletons":0},{"code":"  $this->recalculateDiscount();","ns":125,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry::getInstance()","ns":187,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":167,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check (stale?)...","ns":167,"op":"cache","mutations":[],"singletons":0},{"code":"    $this->discount = $coupon->apply()","ns":125,"op":"field","mutations":[["s-discount","9.00"]],"singletons":0},{"code":"  $this->recalculateTax();","ns":125,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService::getInstance()","ns":187,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":167,"op":"cache","mutations":[],"singletons":0},{"code":"    $this->tax = $taxable * $rate;","ns":125,"op":"field","mutations":[["s-tax","6.48"]],"singletons":0},{"code":"  $this->updatedAt = new DateTime();","ns":167,"op":"time","mutations":[["s-updated","14:23:07.5"]],"singletons":0}],"rescue":[{"code":"$result = calculate_order(","ns":83,"op":"call","results":[]},{"code":"    $items, \"NY\", $taxRates);","ns":83,"op":"arg","results":[]},{"code":"  $total = array_sum(...);","ns":334,"op":"calc","results":[["r-total","89.97"]]},{"code":"  $tax = $total * $taxRates[$region];","ns":334,"op":"calc","results":[["r-tax","7.20"]]},{"code":"  return [\"total\" => $total, ...];","ns":333,"op":"ret","results":[["r-subtotal","97.17"]]},{"code":"$final = apply_coupon(","ns":83,"op":"call","results":[["r-coupon","\"SAVE10\""]]},{"code":"    $result, \"SAVE10\", $coupons);","ns":83,"op":"arg","results":[]},{"code":"  $discount = $result[\"total\"] * $rate;","ns":334,"op":"calc","results":[["r-discount","9.00"]]},{"code":"  return array_merge($result, ...);","ns":333,"op":"ret","results":[["r-grand","87.45"]]}],"crimeTotal":4126,"rescueTotal":2000},"ruby":{"crimeLabel":"☠ Dishonest — Ruby Order class","rescueLabel":"✦ Honest — Pure functions (Ruby)","crime":[{"code":"order.add_item(new_item)","ns":125,"op":"call","mutations":[],"singletons":0},{"code":"  @items << item","ns":125,"op":"field","mutations":[],"singletons":0},{"code":"  recalculate_total","ns":125,"op":"call","mutations":[],"singletons":0},{"code":"    @total = @items.sum(&:price)","ns":208,"op":"calc","mutations":[["s-total","89.97"]],"singletons":0},{"code":"  recalculate_discount","ns":125,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.instance","ns":146,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":125,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":125,"op":"cache","mutations":[],"singletons":0},{"code":"    @discount = coupon.apply","ns":125,"op":"field","mutations":[["s-discount","0.00"]],"singletons":0},{"code":"  recalculate_tax","ns":125,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.instance","ns":146,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":125,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":125,"op":"cache","mutations":[],"singletons":0},{"code":"    @tax = taxable * rate","ns":125,"op":"field","mutations":[["s-tax","7.20"]],"singletons":0},{"code":"  @updated_at = Time.now","ns":125,"op":"time","mutations":[["s-updated","14:23:07.4"]],"singletons":0},{"code":"order.apply_coupon(\"SAVE10\")","ns":125,"op":"call","mutations":[],"singletons":0},{"code":"  @coupon_code = code","ns":125,"op":"field","mutations":[["s-coupon","\"SAVE10\""]],"singletons":0},{"code":"  recalculate_discount","ns":125,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.instance","ns":146,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":125,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check (stale?)...","ns":125,"op":"cache","mutations":[],"singletons":0},{"code":"    @discount = coupon.apply","ns":125,"op":"field","mutations":[["s-discount","9.00"]],"singletons":0},{"code":"  recalculate_tax","ns":125,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.instance","ns":146,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":125,"op":"cache","mutations":[],"singletons":0},{"code":"    @tax = taxable * rate","ns":125,"op":"field","mutations":[["s-tax","6.48"]],"singletons":0},{"code":"  @updated_at = Time.now","ns":125,"op":"time","mutations":[["s-updated","14:23:07.5"]],"singletons":0}],"rescue":[{"code":"result = calculate_order(","ns":42,"op":"call","results":[]},{"code":"    items, \"NY\", tax_rates)","ns":83,"op":"arg","results":[]},{"code":"  total = items.sum { |i| i[:price] }","ns":292,"op":"calc","results":[["r-total","89.97"]]},{"code":"  tax = total * tax_rates[region]","ns":292,"op":"calc","results":[["r-tax","7.20"]]},{"code":"  { total: total, tax: tax, ... }","ns":333,"op":"ret","results":[["r-subtotal","97.17"]]},{"code":"final = apply_coupon(","ns":42,"op":"call","results":[["r-coupon","\"SAVE10\""]]},{"code":"    result, \"SAVE10\", coupons)","ns":83,"op":"arg","results":[]},{"code":"  discount = result[:total] * rate","ns":292,"op":"calc","results":[["r-discount","9.00"]]},{"code":"  result.merge(discount: discount, ...)","ns":333,"op":"ret","results":[["r-grand","87.45"]]}],"crimeTotal":3542,"rescueTotal":1792},"dart":{"crimeLabel":"☠ Dishonest — Dart Order class","rescueLabel":"✦ Honest — Pure functions (Dart)","crime":[{"code":"order.addItem(newItem);","ns":20,"op":"call","mutations":[],"singletons":0},{"code":"  _items.add(item);","ns":0,"op":"field","mutations":[],"singletons":0},{"code":"  _recalculateTotal();","ns":20,"op":"call","mutations":[],"singletons":0},{"code":"    _total = _items.fold(0, ...);","ns":20,"op":"calc","mutations":[["s-total","89.97"]],"singletons":0},{"code":"  _recalculateDiscount();","ns":20,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.instance","ns":0,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":0,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":0,"op":"cache","mutations":[],"singletons":0},{"code":"    _discount = coupon.apply();","ns":0,"op":"field","mutations":[["s-discount","0.00"]],"singletons":0},{"code":"  _recalculateTax();","ns":20,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.instance","ns":0,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":0,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":0,"op":"cache","mutations":[],"singletons":0},{"code":"    _tax = taxable * rate;","ns":0,"op":"field","mutations":[["s-tax","7.20"]],"singletons":0},{"code":"  _updatedAt = DateTime.now();","ns":30,"op":"time","mutations":[["s-updated","14:23:07.4"]],"singletons":0},{"code":"order.applyCoupon(\"SAVE10\");","ns":20,"op":"call","mutations":[],"singletons":0},{"code":"  _couponCode = code;","ns":0,"op":"field","mutations":[["s-coupon","\"SAVE10\""]],"singletons":0},{"code":"  _recalculateDiscount();","ns":20,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.instance","ns":0,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":0,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check (stale?)...","ns":0,"op":"cache","mutations":[],"singletons":0},{"code":"    _discount = coupon.apply();","ns":0,"op":"field","mutations":[["s-discount","9.00"]],"singletons":0},{"code":"  _recalculateTax();","ns":20,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.instance","ns":0,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":0,"op":"cache","mutations":[],"singletons":0},{"code":"    _tax = taxable * rate;","ns":0,"op":"field","mutations":[["s-tax","6.48"]],"singletons":0},{"code":"  _updatedAt = DateTime.now();","ns":30,"op":"time","mutations":[["s-updated","14:23:07.5"]],"singletons":0}],"rescue":[{"code":"final result = calculateOrder(","ns":0,"op":"call","results":[]},{"code":"    items, \"NY\", taxRates);","ns":0,"op":"arg","results":[]},{"code":"  final total = items.fold(0, ...);","ns":30,"op":"calc","results":[["r-total","89.97"]]},{"code":"  final tax = total * taxRates[region];","ns":30,"op":"calc","results":[["r-tax","7.20"]]},{"code":"  return {\"total\": total, ...};","ns":10,"op":"ret","results":[["r-subtotal","97.17"]]},{"code":"final withCoupon = applyCoupon(","ns":0,"op":"call","results":[["r-coupon","\"SAVE10\""]]},{"code":"    result, \"SAVE10\", coupons);","ns":0,"op":"arg","results":[]},{"code":"  final discount = result[\"total\"] * rate;","ns":30,"op":"calc","results":[["r-discount","9.00"]]},{"code":"  return {...result, \"discount\": ...};","ns":10,"op":"ret","results":[["r-grand","87.45"]]}],"crimeTotal":220,"rescueTotal":110},"cpp":{"crimeLabel":"☠ Dishonest — C++ Order class","rescueLabel":"✦ Honest — Pure functions (C++)","crime":[{"code":"order.addItem(newItem);","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"  items_.push_back(item);","ns":42,"op":"field","mutations":[],"singletons":0},{"code":"  recalculateTotal();","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    total_ = std::accumulate(...);","ns":41,"op":"calc","mutations":[["s-total","89.97"]],"singletons":0},{"code":"  recalculateDiscount();","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry::getInstance()","ns":21,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"    discount_ = coupon->apply();","ns":42,"op":"field","mutations":[["s-discount","0.00"]],"singletons":0},{"code":"  recalculateTax();","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService::getInstance()","ns":21,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"    tax_ = taxable * rate;","ns":42,"op":"field","mutations":[["s-tax","7.20"]],"singletons":0},{"code":"  updatedAt_ = system_clock::now();","ns":42,"op":"time","mutations":[["s-updated","14:23:07.4"]],"singletons":0},{"code":"order.applyCoupon(\"SAVE10\");","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"  couponCode_ = code;","ns":42,"op":"field","mutations":[["s-coupon","\"SAVE10\""]],"singletons":0},{"code":"  recalculateDiscount();","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry::getInstance()","ns":21,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check (stale?)...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"    discount_ = coupon->apply();","ns":42,"op":"field","mutations":[["s-discount","9.00"]],"singletons":0},{"code":"  recalculateTax();","ns":42,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService::getInstance()","ns":21,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":41,"op":"cache","mutations":[],"singletons":0},{"code":"    tax_ = taxable * rate;","ns":42,"op":"field","mutations":[["s-tax","6.48"]],"singletons":0},{"code":"  updatedAt_ = system_clock::now();","ns":42,"op":"time","mutations":[["s-updated","14:23:07.5"]],"singletons":0}],"rescue":[{"code":"auto result = calculate_order(","ns":41,"op":"call","results":[]},{"code":"    items, \"NY\", tax_rates);","ns":41,"op":"arg","results":[]},{"code":"  auto total = std::accumulate(...);","ns":42,"op":"calc","results":[["r-total","89.97"]]},{"code":"  auto tax = total * tax_rates.at(region);","ns":42,"op":"calc","results":[["r-tax","7.20"]]},{"code":"  return OrderResult{total, tax, ...};","ns":42,"op":"ret","results":[["r-subtotal","97.17"]]},{"code":"auto final = apply_coupon(","ns":41,"op":"call","results":[["r-coupon","\"SAVE10\""]]},{"code":"    result, \"SAVE10\", coupons);","ns":41,"op":"arg","results":[]},{"code":"  auto discount = result.total * rate;","ns":42,"op":"calc","results":[["r-discount","9.00"]]},{"code":"  return FinalResult{total, discount, ...};","ns":42,"op":"ret","results":[["r-grand","87.45"]]}],"crimeTotal":1042,"rescueTotal":374},"go":{"crimeLabel":"☠ Dishonest — Go Order struct","rescueLabel":"✦ Honest — Pure functions (Go)","crime":[{"code":"order.AddItem(newItem)","ns":67,"op":"call","mutations":[],"singletons":0},{"code":"  o.Items = append(o.Items, item)","ns":0,"op":"field","mutations":[],"singletons":0},{"code":"  o.recalculateTotal()","ns":67,"op":"call","mutations":[],"singletons":0},{"code":"    o.Total = sumItems(o.Items)","ns":3,"op":"calc","mutations":[["s-total","89.97"]],"singletons":0},{"code":"  o.recalculateDiscount()","ns":67,"op":"call","mutations":[],"singletons":0},{"code":"    couponRegistry.GetInstance()","ns":24,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":1,"op":"cache","mutations":[],"singletons":0},{"code":"      -> sync.Once check...","ns":1,"op":"cache","mutations":[],"singletons":0},{"code":"    o.Discount = coupon.Apply()","ns":0,"op":"field","mutations":[["s-discount","0.00"]],"singletons":0},{"code":"  o.recalculateTax()","ns":67,"op":"call","mutations":[],"singletons":0},{"code":"    taxService.GetInstance()","ns":24,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":1,"op":"cache","mutations":[],"singletons":0},{"code":"      -> sync.Once check...","ns":1,"op":"cache","mutations":[],"singletons":0},{"code":"    o.Tax = taxable * rate","ns":0,"op":"field","mutations":[["s-tax","7.20"]],"singletons":0},{"code":"  o.UpdatedAt = time.Now()","ns":60,"op":"time","mutations":[["s-updated","14:23:07.4"]],"singletons":0},{"code":"order.ApplyCoupon(\"SAVE10\")","ns":67,"op":"call","mutations":[],"singletons":0},{"code":"  o.CouponCode = code","ns":0,"op":"field","mutations":[["s-coupon","\"SAVE10\""]],"singletons":0},{"code":"  o.recalculateDiscount()","ns":67,"op":"call","mutations":[],"singletons":0},{"code":"    couponRegistry.GetInstance()","ns":24,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":1,"op":"cache","mutations":[],"singletons":0},{"code":"      -> sync.Once check (stale?)...","ns":1,"op":"cache","mutations":[],"singletons":0},{"code":"    o.Discount = coupon.Apply()","ns":0,"op":"field","mutations":[["s-discount","9.00"]],"singletons":0},{"code":"  o.recalculateTax()","ns":67,"op":"call","mutations":[],"singletons":0},{"code":"    taxService.GetInstance()","ns":24,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":1,"op":"cache","mutations":[],"singletons":0},{"code":"    o.Tax = taxable * rate","ns":0,"op":"field","mutations":[["s-tax","6.48"]],"singletons":0},{"code":"  o.UpdatedAt = time.Now()","ns":60,"op":"time","mutations":[["s-updated","14:23:07.5"]],"singletons":0}],"rescue":[{"code":"result := CalculateOrder(","ns":59,"op":"call","results":[]},{"code":"    items, \"NY\", taxRates)","ns":0,"op":"arg","results":[]},{"code":"  total := SumItems(items)","ns":10,"op":"calc","results":[["r-total","89.97"]]},{"code":"  tax := total * taxRates[region]","ns":10,"op":"calc","results":[["r-tax","7.20"]]},{"code":"  return OrderResult{Total, Tax, ...}","ns":11,"op":"ret","results":[["r-subtotal","97.17"]]},{"code":"final := ApplyCoupon(","ns":59,"op":"call","results":[["r-coupon","\"SAVE10\""]]},{"code":"    result, \"SAVE10\", coupons)","ns":0,"op":"arg","results":[]},{"code":"  discount := result.Total * rate","ns":10,"op":"calc","results":[["r-discount","9.00"]]},{"code":"  return FinalResult{Total, Discount, ...}","ns":11,"op":"ret","results":[["r-grand","87.45"]]}],"crimeTotal":695,"rescueTotal":170},"surprise":{"crimeLabel":"☠ Dishonest — TypeScript Order class (V8 JIT)","rescueLabel":"✦ Honest — Pure functions (Python, CPython VM)","crime":[{"code":"order.addItem(newItem);","ns":167,"op":"call","mutations":[],"singletons":0},{"code":"  this.items.push(item);","ns":125,"op":"field","mutations":[],"singletons":0},{"code":"  this.recalculateTotal();","ns":167,"op":"call","mutations":[],"singletons":0},{"code":"    this.total = this.items.reduce(..)","ns":291,"op":"calc","mutations":[["s-total","89.97"]],"singletons":0},{"code":"  this.recalculateDiscount();","ns":167,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.getInstance()","ns":104,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":208,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":208,"op":"cache","mutations":[],"singletons":0},{"code":"    this.discount = coupon.apply()","ns":125,"op":"field","mutations":[["s-discount","0.00"]],"singletons":0},{"code":"  this.recalculateTax();","ns":167,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.getInstance()","ns":104,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":208,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check...","ns":208,"op":"cache","mutations":[],"singletons":0},{"code":"    this.tax = taxable * rate;","ns":125,"op":"field","mutations":[["s-tax","7.20"]],"singletons":0},{"code":"  this.updatedAt = new Date();","ns":208,"op":"time","mutations":[["s-updated","14:23:07.4"]],"singletons":0},{"code":"order.applyCoupon(\"SAVE10\");","ns":167,"op":"call","mutations":[],"singletons":0},{"code":"  this.couponCode = code;","ns":125,"op":"field","mutations":[["s-coupon","\"SAVE10\""]],"singletons":0},{"code":"  this.recalculateDiscount();","ns":167,"op":"call","mutations":[],"singletons":0},{"code":"    CouponRegistry.getInstance()","ns":104,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":208,"op":"cache","mutations":[],"singletons":0},{"code":"      -> cache check (stale?)...","ns":208,"op":"cache","mutations":[],"singletons":0},{"code":"    this.discount = coupon.apply()","ns":125,"op":"field","mutations":[["s-discount","9.00"]],"singletons":0},{"code":"  this.recalculateTax();","ns":167,"op":"call","mutations":[],"singletons":0},{"code":"    TaxService.getInstance()","ns":104,"op":"single","mutations":[],"singletons":1},{"code":"      -> global lookup...","ns":208,"op":"cache","mutations":[],"singletons":0},{"code":"    this.tax = taxable * rate;","ns":125,"op":"field","mutations":[["s-tax","6.48"]],"singletons":0},{"code":"  this.updatedAt = new Date();","ns":208,"op":"time","mutations":[["s-updated","14:23:07.5"]],"singletons":0}],"rescue":[{"code":"result = calculate_order(","ns":42,"op":"call","results":[]},{"code":"    items, \"NY\", tax_rates)","ns":42,"op":"arg","results":[]},{"code":"  total = sum(i[\"price\"] for ...)","ns":333,"op":"calc","results":[["r-total","89.97"]]},{"code":"  tax = total * tax_rates[region]","ns":333,"op":"calc","results":[["r-tax","7.20"]]},{"code":"  return total, tax, subtotal","ns":125,"op":"ret","results":[["r-subtotal","97.17"]]},{"code":"final = apply_coupon(","ns":42,"op":"call","results":[["r-coupon","\"SAVE10\""]]},{"code":"    result, \"SAVE10\", coupons)","ns":42,"op":"arg","results":[]},{"code":"  discount = total * rate","ns":333,"op":"calc","results":[["r-discount","9.00"]]},{"code":"  return code, discount, grand_total","ns":125,"op":"ret","results":[["r-grand","87.45"]]}],"crimeTotal":4498,"rescueTotal":1417}};
+
+// ═══ ENGINE ═══
+let currentLang = 'java';
+let speed = 2;
+let running = false;
+let cancelToken = 0;
+
+function wait(ms) {
+  const token = cancelToken;
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (cancelToken !== token) reject('cancelled');
+      else resolve();
+    }, ms / speed);
+  });
+}
+
+function buildCodeLines(container, steps) {
+  container.innerHTML = steps.map(s => '<div class="code-line">' + s.code + '</div>').join('');
+}
+
+function resetState() {
+  document.querySelectorAll('.code-line').forEach(el => el.classList.remove('active', 'executed'));
+  document.querySelectorAll('.state-var .val').forEach(el => el.classList.remove('mutated'));
+  document.getElementById('crimeStatus').className = 'status';
+  document.getElementById('crimeStatus').textContent = 'EXECUTING';
+  document.getElementById('rescueStatus').className = 'status';
+  document.getElementById('rescueStatus').textContent = 'EXECUTING';
+  document.getElementById('idleCounter').classList.remove('visible');
+  document.getElementById('idleCount').textContent = '0';
+  ['s-total','s-discount','s-tax'].forEach(id => document.getElementById(id).textContent = '0.00');
+  document.getElementById('s-coupon').textContent = 'null';
+  document.getElementById('s-updated').textContent = 'null';
+  ['r-total','r-tax','r-subtotal','r-coupon','r-discount','r-grand'].forEach(id => document.getElementById(id).textContent = '—');
+  ['m-crime-cycles','m-rescue-cycles','m-mutations','m-singletons','m-rescue-mutations'].forEach(id => document.getElementById(id).textContent = '0');
+  document.getElementById('m-slowdown').textContent = '';
+}
+
+function loadLang(lang) {
+  const data = TRACES[lang];
+  if (!data) return;
+  document.getElementById('crimeLabel').textContent = data.crimeLabel;
+  document.getElementById('rescueLabel').textContent = data.rescueLabel;
+  buildCodeLines(document.getElementById('crimeCode'), data.crime);
+  buildCodeLines(document.getElementById('rescueCode'), data.rescue);
+}
+
+async function runDemo() {
+  if (running) return;
+  running = true;
+  cancelToken++;
+  const myToken = cancelToken;
+
+  resetState();
+  loadLang(currentLang);
+
+  const trace = TRACES[currentLang];
+  if (!trace) { running = false; return; }
+
+  try {
+    await wait(500);
+
+    const crimeStatus = document.getElementById('crimeStatus');
+    const rescueStatus = document.getElementById('rescueStatus');
+    crimeStatus.classList.add('visible');
+    rescueStatus.classList.add('visible');
+
+    let crimeCycles = 0, rescueCycles = 0, mutations = 0, singletons = 0;
+    let rescueDone = false, rescueFinalNs = 0;
+
+    const NS_TO_MS = 3;
+    const MIN_STEP_MS = 60;
+
+    const TICK_MS = 80; // counter tick interval during long steps
+
+    const crimePromise = (async () => {
+      const lines = document.querySelectorAll('#crimeCode .code-line');
+      const steps = trace.crime;
+      const crimeEl = document.getElementById('m-crime-cycles');
+      const slowEl = document.getElementById('m-slowdown');
+      const idleEl = document.getElementById('idleCount');
+
+      let prevCrimeLine = -1;
+      for (let i = 0; i < steps.length; i++) {
+        const step = steps[i];
+        const stepMs = Math.max(MIN_STEP_MS, step.ns * NS_TO_MS);
+
+        // Highlight line — only touch prev and current (no forEach reflow)
+        if (prevCrimeLine >= 0 && prevCrimeLine < lines.length) { lines[prevCrimeLine].classList.remove('active'); lines[prevCrimeLine].classList.add('executed'); }
+        if (i < lines.length) lines[i].classList.add('active');
+        prevCrimeLine = i;
+
+        // Tick counter proportionally during step
+        const startNs = crimeCycles;
+        const ticks = Math.max(1, Math.floor(stepMs / speed / TICK_MS));
+        const nsPerTick = step.ns / ticks;
+        const msPerTick = stepMs / ticks;
+
+        for (let t = 0; t < ticks; t++) {
+          await wait(msPerTick);
+          crimeCycles = startNs + nsPerTick * (t + 1);
+          crimeEl.textContent = Math.round(crimeCycles).toLocaleString();
+          if (rescueDone) {
+            const waiting = Math.round(crimeCycles) - rescueFinalNs;
+            if (waiting > 0) idleEl.textContent = waiting.toLocaleString();
+          }
+          if (rescueCycles > 0) slowEl.textContent = Math.round(crimeCycles / rescueCycles) + '× slower';
+        }
+        crimeCycles = startNs + step.ns; // exact value
+
+        if (step.mutations) {
+          step.mutations.forEach(([id, val]) => {
+            const el = document.getElementById(id);
+            el.textContent = val;
+            el.classList.add('mutated');
+            mutations++;
+            document.getElementById('m-mutations').textContent = mutations;
+            setTimeout(() => el.classList.remove('mutated'), 500);
+          });
+        }
+
+        if (step.singletons > 0) {
+          singletons += step.singletons;
+          document.getElementById('m-singletons').textContent = singletons;
+        }
+      }
+      lines.forEach(l => { l.classList.remove('active'); l.classList.add('executed'); });
+      crimeStatus.textContent = 'COMPLETE';
+      crimeStatus.classList.add('complete');
+    })();
+
+    const rescuePromise = (async () => {
+      const lines = document.querySelectorAll('#rescueCode .code-line');
+      const steps = trace.rescue;
+      const rescueEl = document.getElementById('m-rescue-cycles');
+
+      let prevRescueLine = -1;
+      for (let i = 0; i < steps.length; i++) {
+        const step = steps[i];
+        const stepMs = Math.max(MIN_STEP_MS, step.ns * NS_TO_MS);
+
+        if (prevRescueLine >= 0 && prevRescueLine < lines.length) { lines[prevRescueLine].classList.remove('active'); lines[prevRescueLine].classList.add('executed'); }
+        if (i < lines.length) lines[i].classList.add('active');
+        prevRescueLine = i;
+
+        const startNs = rescueCycles;
+        const ticks = Math.max(1, Math.floor(stepMs / speed / TICK_MS));
+        const nsPerTick = step.ns / ticks;
+        const msPerTick = stepMs / ticks;
+
+        for (let t = 0; t < ticks; t++) {
+          await wait(msPerTick);
+          rescueCycles = startNs + nsPerTick * (t + 1);
+          rescueEl.textContent = Math.round(rescueCycles).toLocaleString();
+        }
+        rescueCycles = startNs + step.ns;
+
+        if (step.results) {
+          step.results.forEach(([id, val]) => { document.getElementById(id).textContent = val; });
+        }
+      }
+      lines.forEach(l => { l.classList.remove('active'); l.classList.add('executed'); });
+      rescueStatus.textContent = 'COMPLETE';
+      rescueStatus.classList.add('complete');
+
+      const counter = document.getElementById('idleCounter');
+      counter.classList.add('visible');
+      rescueDone = true;
+      rescueFinalNs = Math.round(rescueCycles);
+    })();
+
+    await Promise.all([crimePromise, rescuePromise]);
+
+    document.getElementById('m-crime-cycles').textContent = trace.crimeTotal.toLocaleString();
+    document.getElementById('m-rescue-cycles').textContent = trace.rescueTotal.toLocaleString();
+    document.getElementById('idleCount').textContent = (trace.crimeTotal - trace.rescueTotal).toLocaleString();
+    document.getElementById('m-slowdown').textContent = Math.round(trace.crimeTotal / trace.rescueTotal) + '× slower';
+
+    await wait(3500);
+  } catch (e) {
+    if (e === 'cancelled') { running = false; return; }
+    throw e;
+  }
+
+  running = false;
+  if (cancelToken === myToken) runDemo();
+}
+
+// ═══ EVENT HANDLERS ═══
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentLang = btn.dataset.lang;
+    cancelToken++;
+    running = false;
+    setTimeout(runDemo, 100);
+  });
+});
+
+document.querySelectorAll('.speed-control button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.speed-control button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    speed = parseFloat(btn.dataset.speed);
+  });
+});
+
+// Pre-render initial language immediately (no layout shift)
+loadLang(currentLang);
+
+// Start animation after paint
+if ('requestIdleCallback' in window) {
+  requestIdleCallback(() => setTimeout(runDemo, 400));
+} else {
+  window.addEventListener('load', () => setTimeout(runDemo, 400));
+}
+
+</script>
+
+<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "4f7df9c9e83f42e4aefce2376985b584"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

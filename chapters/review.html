@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leave a Review | Honest Code</title>
+<meta name="description" content="Tell us what happened after you gave Claude the Honest Code principles.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@adamzwasserman">
+<meta name="twitter:title" content="Leave a Review | Honest Code">
+<meta name="twitter:description" content="Tell us what happened after you gave Claude the Honest Code principles.">
+<meta name="twitter:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:title" content="Leave a Review | Honest Code">
+<meta property="og:description" content="Tell us what happened after you gave Claude the Honest Code principles.">
+<meta property="og:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:url" content="https://honestcode.software/chapters/review.html">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
+  :root {
+    --bg: #0a0a0c; --surface: #111116; --border: #1e1e26;
+    --text: #c8c8d0; --text-dim: #6a6a78;
+    --red: #e63946; --green: #2a9d8f; --gold: #e9c46a;
+    --mono: 'JetBrains Mono', monospace; --serif: 'Literata', Georgia, serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--serif); line-height: 1.6; }
+
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 0.8rem 2rem; display: flex; align-items: center; justify-content: space-between;
+    backdrop-filter: blur(12px);
+  }
+  nav .logo { font-family: var(--mono); font-weight: 700; font-size: 1rem; color: var(--green); }
+  nav .logo span { color: var(--red); }
+  nav a { color: var(--text-dim); text-decoration: none; font-family: var(--mono); font-size: 0.75rem; }
+  nav a:hover { color: var(--green); }
+
+  .container {
+    max-width: 640px; margin: 6rem auto 4rem; padding: 0 2rem;
+  }
+
+  h1 {
+    font-family: var(--mono); font-size: 1.4rem; font-weight: 700;
+    color: var(--gold); margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    font-family: var(--serif); font-style: italic; color: var(--text-dim);
+    font-size: 1rem; margin-bottom: 2.5rem;
+  }
+
+  /* Form */
+
+  .field {
+    margin-bottom: 1.75rem;
+  }
+
+  .field label {
+    font-family: var(--mono); font-size: 0.65rem; font-weight: 700;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-dim);
+    display: block; margin-bottom: 0.5rem;
+  }
+
+  .field .hint {
+    font-family: var(--serif); font-size: 0.75rem; color: var(--text-dim);
+    font-style: italic; margin-bottom: 0.5rem;
+  }
+
+  .field input, .field textarea, .field select {
+    width: 100%; padding: 0.8rem 1rem;
+    font-family: var(--mono); font-size: 0.85rem;
+    background: var(--bg); border: 1px solid var(--border); color: var(--text);
+    outline: none; transition: border-color 0.2s;
+  }
+
+  .field input:focus, .field textarea:focus, .field select:focus {
+    border-color: var(--green);
+  }
+
+  .field input::placeholder, .field textarea::placeholder {
+    color: var(--text-dim); font-family: var(--serif); font-style: italic; font-size: 0.8rem;
+  }
+
+  .field textarea {
+    min-height: 150px; resize: vertical; line-height: 1.7;
+    font-family: var(--serif); font-size: 0.95rem;
+  }
+
+  /* Avatar picker */
+
+  .avatars {
+    display: flex; gap: 0.5rem; flex-wrap: wrap;
+  }
+
+  .avatar-opt {
+    width: 48px; height: 48px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; background: rgba(255,255,255,0.03);
+    border: 2px solid var(--border); cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .avatar-opt:hover {
+    background: rgba(42,157,143,0.06); border-color: rgba(42,157,143,0.3);
+  }
+
+  .avatar-opt.selected {
+    border-color: var(--green); background: rgba(42,157,143,0.1);
+  }
+
+  /* Submit */
+
+  .submit-btn {
+    font-family: var(--mono); font-size: 0.8rem; font-weight: 600;
+    letter-spacing: 0.08em; background: var(--green); color: var(--bg);
+    border: none; padding: 0.85rem 2.5rem; cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .submit-btn:hover { background: var(--gold); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .error {
+    font-family: var(--mono); font-size: 0.75rem; color: var(--red);
+    background: rgba(230,57,70,0.08); border: 1px solid rgba(230,57,70,0.2);
+    padding: 0.75rem 1rem; margin-bottom: 1.5rem; display: none;
+  }
+
+  .success {
+    text-align: center; padding: 4rem 0;
+  }
+
+  .success h2 {
+    font-family: var(--mono); font-size: 1.2rem; font-weight: 700;
+    color: var(--green); margin-bottom: 1rem;
+  }
+
+  .success p {
+    font-family: var(--serif); font-size: 0.95rem; color: var(--text-dim);
+    font-style: italic; line-height: 1.7; margin-bottom: 2rem;
+  }
+
+  .back-link {
+    display: inline-block; margin-top: 2rem;
+    font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim);
+    text-decoration: none;
+  }
+  .back-link:hover { color: var(--green); }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" style="text-decoration:none"><div class="logo">honest<span>code</span>.software</div></a>
+</nav>
+
+<div class="container" id="form-view">
+  <h1>Leave a Review</h1>
+  <div class="subtitle">Tell us what happened after you gave Claude the Honest Code principles.</div>
+
+  <div class="error" id="error"></div>
+
+  <form id="review-form" onsubmit="return submitReview(event)">
+
+    <div class="field">
+      <label for="name">Your Name</label>
+      <input type="text" id="name" placeholder="How you'd like to be credited" required>
+    </div>
+
+    <div class="field">
+      <label for="title">Title / Company <span style="font-weight:400;color:var(--text-dim)">(optional)</span></label>
+      <input type="text" id="title" placeholder="e.g. CTO, Acme Corp">
+    </div>
+
+    <div class="field">
+      <label>Avatar</label>
+      <div class="hint">Pick one to appear alongside your review.</div>
+      <input type="hidden" id="avatar" value="dev">
+      <div class="avatars">
+        <div class="avatar-opt selected" data-avatar="dev" onclick="pickAvatar(this)">&#x1F468;&#x200D;&#x1F4BB;</div>
+        <div class="avatar-opt" data-avatar="rocket" onclick="pickAvatar(this)">&#x1F680;</div>
+        <div class="avatar-opt" data-avatar="brain" onclick="pickAvatar(this)">&#x1F9E0;</div>
+        <div class="avatar-opt" data-avatar="gem" onclick="pickAvatar(this)">&#x1F48E;</div>
+        <div class="avatar-opt" data-avatar="bolt" onclick="pickAvatar(this)">&#x26A1;</div>
+        <div class="avatar-opt" data-avatar="globe" onclick="pickAvatar(this)">&#x1F310;</div>
+        <div class="avatar-opt" data-avatar="star" onclick="pickAvatar(this)">&#x2B50;</div>
+        <div class="avatar-opt" data-avatar="shield" onclick="pickAvatar(this)">&#x1F6E1;&#xFE0F;</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="review">Your Review</label>
+      <textarea id="review" placeholder="What did you build? What did Claude stop doing wrong?" required></textarea>
+    </div>
+
+    <button type="submit" class="submit-btn" id="submit-btn">SUBMIT REVIEW</button>
+
+  </form>
+
+  <a class="back-link" href="/">&larr; Back to home</a>
+</div>
+
+<div class="container success" id="success-view" style="display:none">
+  <h2>Thank you for your review.</h2>
+  <p>Your review has been submitted and will appear on the landing page after approval.</p>
+  <a class="back-link" href="/">&larr; Back to home</a>
+</div>
+
+<script>
+// CONFIGURE: Replace with your Formspree form ID or other endpoint
+// Sign up at https://formspree.io — free tier handles 50 submissions/month
+var FORM_ENDPOINT = 'https://formspree.io/f/xwvwazzg';
+
+var AVATAR_MAP = {
+  dev: '\uD83D\uDC68\u200D\uD83D\uDCBB',
+  rocket: '\uD83D\uDE80',
+  brain: '\uD83E\uDDE0',
+  gem: '\uD83D\uDC8E',
+  bolt: '\u26A1',
+  globe: '\uD83C\uDF10',
+  star: '\u2B50',
+  shield: '\uD83D\uDEE1\uFE0F'
+};
+
+function pickAvatar(el) {
+  document.querySelectorAll('.avatar-opt').forEach(function(a) { a.classList.remove('selected'); });
+  el.classList.add('selected');
+  document.getElementById('avatar').value = el.dataset.avatar;
+}
+
+function submitReview(e) {
+  e.preventDefault();
+  var btn = document.getElementById('submit-btn');
+  var errEl = document.getElementById('error');
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'SUBMITTING...';
+
+  var data = {
+    name: document.getElementById('name').value.trim(),
+    title: document.getElementById('title').value.trim(),
+    avatar: document.getElementById('avatar').value,
+    avatar_emoji: AVATAR_MAP[document.getElementById('avatar').value] || '\uD83D\uDC68\u200D\uD83D\uDCBB',
+    review: document.getElementById('review').value.trim(),
+    submitted_at: new Date().toISOString()
+  };
+
+  fetch(FORM_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(data)
+  }).then(function(resp) {
+    if (resp.ok) {
+      document.getElementById('form-view').style.display = 'none';
+      document.getElementById('success-view').style.display = 'block';
+    } else {
+      errEl.textContent = 'Something went wrong. Please try again.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'SUBMIT REVIEW';
+    }
+  }).catch(function() {
+    errEl.textContent = 'Network error. Please try again.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'SUBMIT REVIEW';
+  });
+
+  return false;
+}
+</script>
+
+</body>
+</html>

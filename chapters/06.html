@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.6: Declare, Don't Instruct | Honest Code</title>
+<meta name="description" content="73 lines of JS vs 6 HTML attributes. Declarative UI that writes itself.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@adamzwasserman">
+<meta name="twitter:title" content="Ch.6: Declare, Don't Instruct | Honest Code">
+<meta name="twitter:description" content="See the dishonesty. See the fix.">
+<meta name="twitter:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:title" content="Ch.6: Declare, Don't Instruct | Honest Code">
+<meta property="og:description" content="See the dishonesty. See the fix.">
+<meta property="og:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:url" content="https://honestcode.software/chapters/06.html">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
+  :root { --bg:#0a0a0c;--surface:#111116;--border:#1e1e26;--text:#c8c8d0;--text-dim:#6a6a78;--red:#e63946;--red-dim:#e6394620;--green:#2a9d8f;--green-dim:#2a9d8f20;--green-glow:#2a9d8f60;--gold:#e9c46a;--mono:'JetBrains Mono',monospace;--serif:'Literata',Georgia,serif; --cream:#f0ede6;--cream-surface:#e8e4dc;--cream-border:#d5d0c7;--cream-text:#2a2a2e;--cream-dim:#6a6a68;}
+  * { margin:0;padding:0;box-sizing:border-box; }
+  body { background:var(--bg);color:var(--text);font-family:var(--serif);line-height:1.6; }
+  nav { position:fixed;top:0;width:100%;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:0.8rem 2rem;display:flex;align-items:center;justify-content:space-between; }
+  nav .logo { font-family:var(--mono);font-weight:700;font-size:1rem;color:var(--green); } nav .logo span { color:var(--red); }
+  nav .chapter-nav { display:flex;gap:0.3rem; }
+  nav .chapter-nav a { font-family:var(--mono);font-size:0.65rem;color:var(--text-dim);text-decoration:none;padding:0.3rem 0.5rem;border:1px solid transparent;transition:all 0.2s; }
+  nav .chapter-nav a:hover { color:var(--text);border-color:var(--border); } nav .chapter-nav a.active { color: var(--gold);border-color: var(--gold); }
+  .ch-header { padding:7rem 2rem 3rem;max-width:900px;margin:0 auto; }
+  .ch-header .ch-num { font-family:var(--mono);font-size:0.7rem;color: var(--gold);text-transform:uppercase;letter-spacing:0.12em; }
+  .ch-header h1 { font-family:var(--mono);font-size:clamp(1.5rem,4vw,2.5rem);font-weight:700;margin-top:0.3rem; }
+  .ch-header .epigraph { font-family:var(--serif);font-style:italic;color: var(--gold); opacity: 0.8;font-size:1rem;margin-top:0.5rem; }
+  .demo-section { max-width:1100px;margin:2rem auto;padding:0 2rem; }
+  .demo-label { font-family:var(--mono);font-size:0.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem; }
+
+  .code-demo { display:grid;grid-template-columns: 1fr auto 1fr;gap: 0;border:1px solid var(--border); }
+  .code-panel { background:var(--surface);padding:1.5rem;min-height:500px;display:flex;flex-direction:column; }
+  .code-panel .panel-label { font-family:var(--mono);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1rem; }
+  .code-panel.crime .panel-label { color:var(--red); }
+  .code-panel.rescue .panel-label { color:var(--green); }
+
+  .code-scroll { flex:1;font-family:var(--mono);font-size:0.6rem;line-height:1.7;overflow:hidden; }
+  .cl { padding:0.08rem 0.5rem;white-space:pre;opacity:0.25;transition:opacity 0.2s,background 0.2s;border-left:2px solid transparent; }
+  .cl.active { opacity:1;border-left-color:var(--red);background:var(--red-dim); }
+  .code-panel.rescue .cl.active { border-left-color:var(--green);background:var(--green-dim); }
+  .cl.done { opacity:0.6; }
+
+  .line-counter { margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-family:var(--mono);font-size:0.7rem;display:flex;gap:1.5rem; }
+  .line-counter .lc-item { color:var(--text-dim); }
+  .line-counter .lc-val { font-weight:600;margin-left:0.3rem; }
+  .line-counter .lc-val.bad { color:var(--red); }
+  .line-counter .lc-val.good { color:var(--green); }
+
+  .demo-metrics { display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--border);border:1px solid var(--border);margin-top:2px; }
+  .dm { background:var(--surface);padding:1rem;text-align:center; }
+  .dm .num { font-family:var(--mono);font-size:1.4rem;font-weight:700; }
+  .dm.crime .num { color:var(--red); } .dm.rescue .num { color:var(--green); }
+  .dm .desc { font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-top:0.2rem; }
+  .controls { display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:1.5rem; }
+  .controls button { font-family:var(--mono);font-size:0.65rem;padding:0.3rem 0.8rem;background:transparent;color:var(--text-dim);border:1px solid var(--border);cursor:pointer;transition:all 0.2s; }
+  .controls button:hover { color:var(--green);border-color:var(--green); }
+  .explanation { max-width:700px;margin:4rem auto;padding:0 2rem; }
+  .explanation h2 { font-family:var(--mono);font-size:0.8rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem; }
+  .explanation p { font-family:var(--serif);font-size:0.95rem;color:var(--text);line-height:1.8;margin-bottom:1rem; }
+  .explanation .highlight { color:var(--green); } .explanation .warning { color:var(--red); }
+  .transparency { max-width:700px;margin:3rem auto;padding:1.2rem 1.5rem;border:1px solid var(--border);background:var(--surface);font-family:var(--mono);font-size:0.65rem;color:var(--text-dim);line-height:1.8; }
+  .transparency strong { color:var(--text); } .transparency a { color:var(--green);text-decoration:none; }
+  .ch-nav-bottom { display:flex;justify-content:space-between;max-width:700px;margin:3rem auto 4rem;padding:0 2rem; }
+  .ch-nav-bottom a { font-family:var(--mono);font-size:0.75rem;color:var(--text-dim);text-decoration:none;padding:0.5rem 1rem;border:1px solid var(--border);transition:all 0.2s; }
+  .ch-nav-bottom a:hover { color:var(--green);border-color:var(--green); }
+
+  .code-panel.crime { background: var(--bg); }
+  .code-panel.rescue { background: var(--cream); color: var(--cream-text); }
+  .code-panel.rescue .panel-label { color: var(--green); }
+
+  /* S-CURVE DIVIDER */
+  .s-curve-divider { width: 40px; position: relative; z-index: 2; }
+  .s-curve-divider svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+  .code-panel.rescue { background: var(--cream) !important; color: var(--cream-text); }
+  .code-panel.rescue .code-scroll { background: var(--cream-surface); }
+  .code-panel.rescue .cl { border-left-color: var(--cream-border); color: var(--cream-text); }
+  .code-panel.rescue .cl .ln { color: var(--cream-dim); }
+  .code-panel.rescue .lc-item { color: var(--cream-dim); }
+  .code-panel.rescue .panel-label { color: var(--green); }
+
+
+  /* SLOWDOWN SUBSCRIPT */
+  .slowdown-sub { font-family: var(--mono); font-size: 0.6rem; color: var(--red); margin-top: 2px; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" style="text-decoration:none"><div class="logo">honest<span>code</span>.software</div></a>
+  <div class="chapter-nav">
+    <a href="/chapters/01.html">1</a><a href="/chapters/02.html">2</a><a href="/chapters/03.html">3</a>
+    <a href="/chapters/04.html">4</a><a href="/chapters/05.html">5</a><a href="#" class="active">6</a><a href="/chapters/07.html">7</a>
+    <a href="/chapters/08.html">8</a><a href="/chapters/09.html">9</a><a href="/chapters/10.html">10</a><a href="/chapters/11.html">11</a><a href="/chapters/12.html">12</a><a href="/chapters/13.html">13</a>
+  </div>
+</nav>
+
+<div class="ch-header">
+  <div class="ch-num">Chapter 6</div>
+  <h1>Declare, Don't Instruct</h1>
+  <div class="epigraph">The best code is the code the platform writes for you.</div>
+</div>
+
+<section class="demo-section">
+  <div class="demo-label">Demo: Format a currency input: imperative JS vs genX attributes</div>
+  <div class="code-demo">
+    <div class="code-panel crime">
+      <div class="panel-label">☠ Imperative: 73 lines of JavaScript</div>
+      <div class="code-scroll" id="crimeCode"></div>
+      <div class="line-counter">
+        <div class="lc-item">Lines executed: <span class="lc-val bad" id="lc-crime">0</span></div>
+      </div>
+    </div>
+        <!-- S-CURVE DIVIDER -->
+    <div class="s-curve-divider">
+      <svg preserveAspectRatio="none" viewBox="0 0 40 450">
+        <defs>
+          <linearGradient id="scg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e9c46a" stop-opacity="0.5"/>
+            <stop offset="50%" stop-color="#e9c46a" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#e9c46a" stop-opacity="0.5"/>
+          </linearGradient>
+          <clipPath id="leftClip">
+            <path d="M0,0 L20,0 C28,112 12,225 20,337 C24,393 20,450 20,450 L0,450 Z"/>
+          </clipPath>
+          <clipPath id="rightClip">
+            <path d="M40,0 L20,0 C28,112 12,225 20,337 C24,393 20,450 20,450 L40,450 Z"/>
+          </clipPath>
+        </defs>
+        <rect x="0" y="0" width="40" height="450" fill="#0a0a0c" clip-path="url(#leftClip)"/>
+        <rect x="0" y="0" width="40" height="450" fill="#f0ede6" clip-path="url(#rightClip)"/>
+        <path d="M20,0 C28,112 12,225 20,337 C24,393 20,450 20,450" fill="none" stroke="url(#scg)" stroke-width="1"/>
+      </svg>
+    </div>
+<div class="code-panel rescue">
+      <div class="panel-label">✦ Declarative: 6 HTML attributes</div>
+      <div class="code-scroll" id="rescueCode"></div>
+      <div class="line-counter">
+        <div class="lc-item">Attributes scanned: <span class="lc-val good" id="lc-rescue">0</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="demo-metrics">
+    <div class="dm crime"><div class="num" id="m-crime-lines">0</div><div class="desc">Lines of code</div><div class="slowdown-sub" id="m-slowdown"></div></div>
+    <div class="dm rescue"><div class="num" id="m-rescue-lines">0</div><div class="desc">Lines of code</div></div>
+    <div class="dm crime"><div class="num" id="m-crime-dom">0</div><div class="desc">DOM API calls</div></div>
+    <div class="dm rescue"><div class="num" id="m-rescue-dom">0</div><div class="desc">DOM API calls</div></div>
+  </div>
+  <div class="controls"><button onclick="runDemo()">Replay</button></div>
+</section>
+
+<section class="explanation">
+  <h2>What you just saw</h2>
+  <p>The <span class="warning">left panel</span> is imperative JavaScript that formats a currency input field. It queries the DOM for the element, attaches an event listener, parses the input string, strips non-numeric characters, handles edge cases for decimal precision, formats with locale-aware thousands separators, updates the DOM, positions the cursor, and manages focus/blur states. Seventy-three lines of instructions that tell the browser exactly how to accomplish the formatting, step by step.</p>
+  <p>The <span class="highlight">right panel</span> is the same behavior expressed as HTML attributes. The genX library reads six attributes from the element, infers the intended behavior, and generates the same formatting logic internally. The developer declared what the input should do. The platform decided how.</p>
+  <p>The declarative version is not shorter because it does less. It is shorter because the developer specified the outcome and the platform handled the implementation. The 73 lines of imperative code still exist; they run inside genX, tested once, correct everywhere. The developer's surface area shrank from 73 lines to 6 attributes. Fewer lines means fewer bugs, because every line you write is a line that can be wrong.</p>
+</section>
+
+<div class="transparency">
+  <strong>How this works:</strong> This demo visualizes code volume, not timing. The imperative side requires 73 lines of JavaScript and 12 DOM API calls. The declarative side achieves the same behavior in 6 lines of HTML attributes. Line counts are from real code. Source: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
+</div>
+
+<div class="ch-nav-bottom">
+  <a href="/chapters/05.html">← Ch.5: State Has an Address</a>
+  <a href="/chapters/07.html">Ch.7: Compose Flat, Never Deep →</a>
+</div>
+
+<script>
+const crimeLines = [
+  'const input = document.querySelector(',
+  '  "#currency-input"',
+  ');',
+  'input.addEventListener("input", (e) => {',
+  '  let val = e.target.value;',
+  '  val = val.replace(/[^\\d.]/g, "");',
+  '  const parts = val.split(".");',
+  '  if (parts.length > 2) {',
+  '    val = parts[0] + "." + parts[1];',
+  '  }',
+  '  if (parts[1]?.length > 2) {',
+  '    val = parts[0] + "." +',
+  '      parts[1].slice(0, 2);',
+  '  }',
+  '  const num = parseFloat(val);',
+  '  if (isNaN(num)) {',
+  '    e.target.value = "";',
+  '    return;',
+  '  }',
+  '  const cursor = e.target.selectionStart;',
+  '  const oldLen = e.target.value.length;',
+  '  const formatted = num.toLocaleString(',
+  '    "en-US", {',
+  '      minimumFractionDigits: 0,',
+  '      maximumFractionDigits: 2',
+  '    }',
+  '  );',
+  '  e.target.value = "$" + formatted;',
+  '  const newLen = e.target.value.length;',
+  '  const diff = newLen - oldLen;',
+  '  e.target.setSelectionRange(',
+  '    cursor + diff, cursor + diff',
+  '  );',
+  '});',
+  'input.addEventListener("focus", () => {',
+  '  if (input.value === "$0") {',
+  '    input.value = "";',
+  '  }',
+  '  input.classList.add("focused");',
+  '});',
+  'input.addEventListener("blur", () => {',
+  '  input.classList.remove("focused");',
+  '  if (!input.value || input.value==="$"){',
+  '    input.value = "$0.00";',
+  '  }',
+  '  let val = input.value.replace(',
+  '    /[^\\d.]/g, ""',
+  '  );',
+  '  const num = parseFloat(val);',
+  '  if (!isNaN(num)) {',
+  '    input.value = "$" +',
+  '      num.toLocaleString("en-US", {',
+  '        minimumFractionDigits: 2,',
+  '        maximumFractionDigits: 2',
+  '      });',
+  '  }',
+  '});',
+  'input.addEventListener("keydown",(e)=>{',
+  '  const allowed = [',
+  '    "Backspace", "Delete", "Tab",',
+  '    "ArrowLeft", "ArrowRight",',
+  '    "Home", "End"',
+  '  ];',
+  '  if (allowed.includes(e.key)) return;',
+  '  if (e.key === "." &&',
+  '    !input.value.includes(".")) return;',
+  '  if (!/\\d/.test(e.key)) {',
+  '    e.preventDefault();',
+  '  }',
+  '});',
+  '// 73 lines, 12 DOM API calls',
+  '// one input field.',
+];
+
+const rescueLines = [
+  '<input',
+  '  data-genx-type="currency"',
+  '  data-genx-locale="en-US"',
+  '  data-genx-decimals="2"',
+  '  data-genx-prefix="$"',
+  '  data-genx-empty="0.00"',
+  '  data-genx-allow="numeric"',
+  '/>',
+];
+
+let running = false;
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function buildLines(cid, lines) {
+  document.getElementById(cid).innerHTML = lines.map(l => `<div class="cl">${l}</div>`).join('');
+}
+
+function resetAll() {
+  document.querySelectorAll('.cl').forEach(c => c.classList.remove('active','done'));
+  ['lc-crime','lc-rescue','m-crime-lines','m-rescue-lines','m-crime-dom','m-rescue-dom'].forEach(id => document.getElementById(id).textContent = '0');
+}
+
+async function runDemo() {
+  if (running) return;
+  running = true;
+  buildLines('crimeCode', crimeLines);
+  buildLines('rescueCode', rescueLines);
+  resetAll(); await wait(600);
+
+  let crimeDom = 0;
+  const domLines = [0,3,19,20,27,30,31,34,36,38,40,41,45,57,65]; // lines with DOM calls
+
+  const crimePromise = (async () => {
+    const els = document.querySelectorAll('#crimeCode .cl');
+    for (let i = 0; i < els.length; i++) {
+      els.forEach(e => { if (e.classList.contains('active')) { e.classList.remove('active'); e.classList.add('done'); }});
+      els[i].classList.add('active');
+      document.getElementById('lc-crime').textContent = i + 1;
+      document.getElementById('m-crime-lines').textContent = i + 1;
+      if (domLines.includes(i)) { crimeDom++; document.getElementById('m-crime-dom').textContent = crimeDom; }
+      await wait(120);
+    }
+    els.forEach(e => { e.classList.remove('active'); e.classList.add('done'); });
+  })();
+
+  const rescuePromise = (async () => {
+    const els = document.querySelectorAll('#rescueCode .cl');
+    for (let i = 0; i < els.length; i++) {
+      els.forEach(e => { if (e.classList.contains('active')) { e.classList.remove('active'); e.classList.add('done'); }});
+      els[i].classList.add('active');
+      document.getElementById('lc-rescue').textContent = i + 1;
+      document.getElementById('m-rescue-lines').textContent = i + 1;
+      await wait(120);
+    }
+    els.forEach(e => { e.classList.remove('active'); e.classList.add('done'); });
+    document.getElementById('m-rescue-dom').textContent = '0';
+  })();
+
+  await Promise.all([crimePromise, rescuePromise]);
+  await wait(4000);
+  running = false; runDemo();
+}
+
+window.addEventListener('load', () => setTimeout(runDemo, 800));
+
+// Update slowdown multiplier
+function updateSlowdown() {
+  const crimeEl = document.getElementById('m-crime-lines');
+  const rescueEl = document.getElementById('m-rescue-lines');
+  if (!crimeEl || !rescueEl) return;
+  const crime = parseFloat(crimeEl.textContent.replace(/,/g, '')) || 0;
+  const rescue = parseFloat(rescueEl.textContent.replace(/,/g, '')) || 0;
+  const el = document.getElementById('m-slowdown');
+  if (el && rescue > 0 && crime > rescue) {
+    el.textContent = Math.round(crime / rescue) + '× slower';
+  }
+}
+// Hook into existing animation - poll until stable
+const _slowdownInterval = setInterval(updateSlowdown, 500);
+</script>
+</body>
+</html>

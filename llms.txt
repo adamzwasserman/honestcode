@@ -1,0 +1,24 @@
+# Honest Code
+
+> The book and companion site for "Honest Code" by Adam Zachary Wasserman
+
+## What this is
+
+Honest Code is a software architecture book arguing that most code complexity comes from hiding state inside classes and objects. The book demonstrates 16 principles for writing "honest" code: code where state is visible, functions are pure, and I/O happens only at boundaries. It covers 12 programming languages with side-by-side comparisons of dishonest patterns and their honest alternatives, with real nanosecond execution traces.
+
+## Key concepts
+
+- Honest Code Principles (P01 through P16): dict-lookup, TypedDict over classes, pure functions, I/O at boundary, flat composition, DOM as state, HTML attributes, typed exceptions at boundary, SQL over caches, pure assertions over mocks, type declarations, context managers, config as params, simple Gherkin equals honest architecture, declarative over lifecycle hooks, strangler pattern
+- The enemy of early type checking is classes, not dynamicism
+- Pure boolean predicates over strings constitute a near-free type system
+- The reference architecture is FastAPI/HTMX with no client-side framework
+
+## Pages
+
+- [Home / Book Site](https://honestcode.software): Overview, interactive demos, purchase links
+- [Evidence](https://honestcode.software/evidence.html): Empirical evidence and nanosecond traces
+- [Companion chapters](https://honestcode.software/chapters/): Per-chapter companion materials
+
+## Author
+
+Adam Zachary Wasserman — [adamzacharywasserman.com](https://adamzacharywasserman.com)

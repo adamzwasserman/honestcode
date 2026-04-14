@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.9: The Performance Lie | Honest Code</title>
+<meta name="description" content="The cache circular argument. The cache is slower than the query it was supposed to speed up.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@adamzwasserman">
+<meta name="twitter:title" content="Ch.9: The Performance Lie | Honest Code">
+<meta name="twitter:description" content="See the dishonesty. See the fix.">
+<meta name="twitter:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:title" content="Ch.9: The Performance Lie | Honest Code">
+<meta property="og:description" content="See the dishonesty. See the fix.">
+<meta property="og:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:url" content="https://honestcode.software/chapters/09.html">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
+  :root {
+    --bg: #0a0a0c; --surface: #111116; --border: #1e1e26;
+    --text: #c8c8d0; --text-dim: #6a6a78;
+    --red: #e63946; --red-dim: #e6394620; --red-glow: #e6394660;
+    --green: #2a9d8f; --green-dim: #2a9d8f20; --green-glow: #2a9d8f60;
+    --gold: #e9c46a; --gold-dim: #e9c46a20;
+    --mono: 'JetBrains Mono', monospace; --serif: 'Literata', Georgia, serif;
+  --cream:#f0ede6;--cream-surface:#e8e4dc;--cream-border:#d5d0c7;--cream-text:#2a2a2e;--cream-dim:#6a6a68;}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--serif); line-height: 1.6; }
+
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 0.8rem 2rem; display: flex; align-items: center; justify-content: space-between;
+  }
+  nav .logo { font-family: var(--mono); font-weight: 700; font-size: 1rem; color: var(--green); }
+  nav .logo span { color: var(--red); }
+  nav .chapter-nav { display: flex; gap: 0.3rem; }
+  nav .chapter-nav a {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim);
+    text-decoration: none; padding: 0.3rem 0.5rem; border: 1px solid transparent; transition: all 0.2s;
+  }
+  nav .chapter-nav a:hover { color: var(--text); border-color: var(--border); }
+  nav .chapter-nav a.active { color: var(--gold); border-color: var(--gold); }
+
+  .ch-header { padding: 7rem 2rem 3rem; max-width: 900px; margin: 0 auto; }
+  .ch-header .ch-num { font-family: var(--mono); font-size: 0.7rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.12em; }
+  .ch-header h1 { font-family: var(--mono); font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 700; margin-top: 0.3rem; letter-spacing: -0.03em; }
+  .ch-header .epigraph { font-family: var(--serif); font-style: italic; color: var(--gold); opacity: 0.8; font-size: 1rem; margin-top: 0.5rem; }
+
+  .demo-section { max-width: 1100px; margin: 2rem auto; padding: 0 2rem; }
+  .demo-label { font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+
+  /* CIRCULAR ARGUMENT */
+  .circle-demo {
+    display: flex; flex-direction: column; align-items: center; gap: 3rem;
+    padding: 2rem;
+  }
+
+  .circle-container {
+    position: relative; width: 400px; height: 400px;
+  }
+
+  .circle-node {
+    position: absolute; padding: 0.6rem 1rem;
+    font-family: var(--mono); font-size: 0.7rem;
+    border: 1px solid var(--border); background: var(--surface);
+    transform: translate(-50%, -50%);
+    transition: all 0.4s; white-space: nowrap;
+    z-index: 2;
+  }
+  .circle-node.active {
+    border-color: var(--red); color: var(--red);
+    box-shadow: 0 0 16px var(--red-glow);
+  }
+
+  .circle-svg {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 1;
+  }
+  .circle-svg .arrow {
+    fill: none; stroke: var(--border); stroke-width: 1.5;
+    marker-end: url(#arrowhead);
+    transition: stroke 0.3s, stroke-width 0.3s;
+  }
+  .circle-svg .arrow.active {
+    stroke: var(--red); stroke-width: 2.5;
+    filter: drop-shadow(0 0 4px var(--red-glow));
+  }
+
+  .loop-counter {
+    font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim);
+    text-align: center;
+  }
+  .loop-counter .big { font-size: 2rem; font-weight: 700; color: var(--red); }
+
+  /* VS SECTION */
+  .vs-section {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 2rem;
+    align-items: center; max-width: 900px; margin: 3rem auto; padding: 0 2rem;
+  }
+
+  .vs-panel {
+    background: var(--surface); border: 1px solid var(--border); padding: 1.5rem;
+    font-family: var(--mono); font-size: 0.75rem;
+  }
+  .vs-panel .vs-label {
+    font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 1rem; font-weight: 600;
+  }
+  .vs-panel.crime .vs-label { color: var(--red); }
+  .vs-panel.rescue .vs-label { color: var(--green); }
+
+  .vs-panel .vs-step {
+    padding: 0.3rem 0; color: var(--text-dim);
+    transition: all 0.3s;
+  }
+  .vs-panel .vs-step.active { color: var(--text); }
+  .vs-panel .vs-step .cycles {
+    float: right; color: var(--text-dim); font-size: 0.6rem;
+  }
+  .vs-panel .vs-step.active .cycles { color: var(--gold); }
+
+  .vs-divider {
+    font-family: var(--mono); font-size: 1.5rem; color: var(--text-dim);
+    font-weight: 700;
+  }
+
+  .vs-totals {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+    background: var(--border); border: 1px solid var(--border);
+    max-width: 900px; margin: 2px auto 0; padding: 0;
+  }
+  .vs-total {
+    background: var(--surface); padding: 1rem; text-align: center;
+    font-family: var(--mono);
+  }
+  .vs-total .num { font-size: 1.8rem; font-weight: 700; }
+  .vs-total.crime .num { color: var(--red); }
+  .vs-total.rescue .num { color: var(--green); }
+  .vs-total .label { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.08em; margin-top: 0.2rem; }
+
+  .explanation { max-width: 700px; margin: 4rem auto; padding: 0 2rem; }
+  .explanation h2 { font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+  .explanation p { font-family: var(--serif); font-size: 0.95rem; color: var(--text); line-height: 1.8; margin-bottom: 1rem; }
+  .explanation .highlight { color: var(--green); }
+  .explanation .warning { color: var(--red); }
+
+  .transparency {
+    max-width: 700px; margin: 3rem auto; padding: 1.2rem 1.5rem;
+    border: 1px solid var(--border); background: var(--surface);
+    font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); line-height: 1.8;
+  }
+  .transparency strong { color: var(--text); }
+  .transparency a { color: var(--green); text-decoration: none; }
+
+  .ch-nav-bottom {
+    display: flex; justify-content: space-between; max-width: 700px; margin: 3rem auto 4rem; padding: 0 2rem;
+  }
+  .ch-nav-bottom a { font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim); text-decoration: none; padding: 0.5rem 1rem; border: 1px solid var(--border); transition: all 0.2s; }
+  .ch-nav-bottom a:hover { color: var(--green); border-color: var(--green); }
+
+  .controls {
+    display: flex; align-items: center; justify-content: center; gap: 1rem;
+    margin-top: 1.5rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim);
+  }
+  .controls button {
+    font-family: var(--mono); font-size: 0.65rem; padding: 0.3rem 0.8rem;
+    background: transparent; color: var(--text-dim); border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;
+  }
+  .controls button:hover { color: var(--green); border-color: var(--green); }
+
+  .vs-panel.crime { background: var(--bg); }
+  .vs-panel.rescue { background: var(--cream); color: var(--cream-text); }
+  .vs-panel.rescue .panel-label { color: var(--green); }
+
+  /* S-CURVE DIVIDER */
+  .s-curve-divider { width: 40px; position: relative; z-index: 2; }
+  .s-curve-divider svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+  .vs-panel.rescue { background: var(--cream) !important; color: var(--cream-text); border-color: var(--cream-border); }
+  .vs-panel.rescue .vs-step { color: var(--cream-text); }
+  .vs-panel.rescue .vs-step .cycles { color: var(--cream-dim); }
+  .vs-panel.rescue .vs-step.active { color: var(--cream-text); }
+  .vs-panel.rescue .vs-step.active .cycles { color: var(--green); }
+  .vs-panel.rescue .vs-label { color: var(--green); }
+
+
+  /* SLOWDOWN SUBSCRIPT */
+  .slowdown-sub { font-family: var(--mono); font-size: 0.6rem; color: var(--red); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" style="text-decoration:none"><div class="logo">honest<span>code</span>.software</div></a>
+  <div class="chapter-nav">
+    <a href="/chapters/01.html">1</a><a href="/chapters/02.html">2</a><a href="/chapters/03.html">3</a>
+    <a href="/chapters/04.html">4</a><a href="/chapters/05.html">5</a><a href="/chapters/06.html">6</a><a href="/chapters/07.html">7</a><a href="/chapters/08.html">8</a>
+    <a href="#" class="active">9</a><a href="/chapters/10.html">10</a><a href="/chapters/11.html">11</a><a href="/chapters/12.html">12</a><a href="/chapters/13.html">13</a>
+  </div>
+</nav>
+
+<div class="ch-header">
+  <div class="ch-num">Chapter 9</div>
+  <h1>The Performance Lie</h1>
+  <div class="epigraph">Your cache is solving a problem your architecture created.</div>
+</div>
+
+<!-- DEMO 1: CIRCULAR ARGUMENT -->
+<section class="demo-section">
+  <div class="demo-label">Demo 1: The Circular Argument: why caching never ends</div>
+
+  <div class="circle-demo">
+    <div class="circle-container" id="circleContainer">
+      <svg class="circle-svg" viewBox="0 0 400 400">
+        <defs>
+          <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="var(--border)"/>
+          </marker>
+          <marker id="arrowhead-active" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="var(--red)"/>
+          </marker>
+        </defs>
+        <!-- Arrows between nodes (circular) -->
+        <path class="arrow" id="a01" d="M 250 68 Q 310 50 325 105"/>
+        <path class="arrow" id="a12" d="M 350 155 Q 380 220 330 275"/>
+        <path class="arrow" id="a23" d="M 295 310 Q 250 355 180 330"/>
+        <path class="arrow" id="a34" d="M 120 310 Q 60 280 50 210"/>
+        <path class="arrow" id="a45" d="M 55 155 Q 50 100 100 70"/>
+        <path class="arrow" id="a50" d="M 155 52 Q 180 40 210 50"/>
+      </svg>
+
+      <div class="circle-node" id="cn-0" style="left:200px;top:50px">Objects are slow</div>
+      <div class="circle-node" id="cn-1" style="left:345px;top:130px">Add cache</div>
+      <div class="circle-node" id="cn-2" style="left:330px;top:290px">Stale data</div>
+      <div class="circle-node" id="cn-3" style="left:155px;top:330px">Add invalidation</div>
+      <div class="circle-node" id="cn-4" style="left:55px;top:200px">Complexity</div>
+      <div class="circle-node" id="cn-5" style="left:100px;top:65px">Thundering herd</div>
+    </div>
+
+    <div class="loop-counter">
+      <div>Loop</div>
+      <div class="big" id="loopCount">0</div>
+      <div style="font-size:0.65rem;margin-top:0.3rem">The cycle never breaks. The cache creates the problem it solves.</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button onclick="runCircle()">Replay</button>
+  </div>
+</section>
+
+<!-- DEMO 2: CACHE VS FLAT QUERY -->
+<section class="demo-section" style="margin-top:4rem">
+  <div class="demo-label">Demo 2: Object graph + cache vs flat SQL query: nanoseconds</div>
+
+  <div class="vs-section">
+    <div class="vs-panel crime">
+      <div class="vs-label">☠ ORM + cache layer</div>
+      <div class="vs-step" id="vs-c0">Request arrives <span class="cycles">41ns</span></div>
+      <div class="vs-step" id="vs-c1">Check cache key <span class="cycles">41ns</span></div>
+      <div class="vs-step" id="vs-c2">Cache MISS <span class="cycles">41ns</span></div>
+      <div class="vs-step" id="vs-c3">Load Customer object <span class="cycles">41ns</span></div>
+      <div class="vs-step" id="vs-c4">↳ pointer chase → Orders <span class="cycles">41ns</span></div>
+      <div class="vs-step" id="vs-c5">↳ pointer chase → LineItems <span class="cycles">42ns</span></div>
+      <div class="vs-step" id="vs-c6">↳ pointer chase → Addresses <span class="cycles">41ns</span></div>
+      <div class="vs-step" id="vs-c7">Assemble response DTO <span class="cycles">83ns</span></div>
+      <div class="vs-step" id="vs-c8">Store in cache <span class="cycles">42ns</span></div>
+      <div class="vs-step" id="vs-c9">Return response <span class="cycles">41ns</span></div>
+    </div>
+
+    <!-- S-CURVE DIVIDER -->
+    <div class="s-curve-divider">
+      <svg preserveAspectRatio="none" viewBox="0 0 40 450">
+        <defs>
+          <linearGradient id="scg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e9c46a" stop-opacity="0.5"/>
+            <stop offset="50%" stop-color="#e9c46a" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#e9c46a" stop-opacity="0.5"/>
+          </linearGradient>
+          <clipPath id="leftClip">
+            <path d="M0,0 L20,0 C28,112 12,225 20,337 C24,393 20,450 20,450 L0,450 Z"/>
+          </clipPath>
+          <clipPath id="rightClip">
+            <path d="M40,0 L20,0 C28,112 12,225 20,337 C24,393 20,450 20,450 L40,450 Z"/>
+          </clipPath>
+        </defs>
+        <rect x="0" y="0" width="40" height="450" fill="#0a0a0c" clip-path="url(#leftClip)"/>
+        <rect x="0" y="0" width="40" height="450" fill="#f0ede6" clip-path="url(#rightClip)"/>
+        <path d="M20,0 C28,112 12,225 20,337 C24,393 20,450 20,450" fill="none" stroke="url(#scg)" stroke-width="1"/>
+      </svg>
+    </div>
+<div class="vs-panel rescue">
+      <div class="vs-label">✦ Flat SQL query</div>
+      <div class="vs-step" id="vs-r0">Request arrives <span class="cycles">41ns</span></div>
+      <div class="vs-step" id="vs-r1">SELECT ... JOIN ... <span class="cycles">84ns</span></div>
+      <div class="vs-step" id="vs-r2">Return dict <span class="cycles">41ns</span></div>
+    </div>
+  </div>
+
+  <div class="vs-totals">
+    <div class="vs-total crime"><div class="num" id="vs-crime-total">0</div><div class="label">Nanoseconds (ORM + cache)</div><div class="slowdown-sub" id="m-slowdown"></div></div>
+    <div class="vs-total rescue"><div class="num" id="vs-rescue-total">0</div><div class="label">Nanoseconds (flat query)</div></div>
+  </div>
+
+  <div class="controls">
+    <button onclick="runVs()">Replay</button>
+  </div>
+</section>
+
+<section class="explanation">
+  <h2>What you just saw</h2>
+  <p><strong>Demo 1:</strong> The caching circular argument. Objects scatter data across the heap. The scattered data is slow to traverse. A cache compensates for the slowness. The cache serves stale data. Invalidation logic adds complexity. The complexity creates thundering herd problems. The system is slow again. Add more cache. The cycle never breaks because <span class="warning">the cache is solving a problem the architecture created</span>.</p>
+
+  <p><strong>Demo 2:</strong> A flat SQL query returns the same data in <span class="highlight">166 nanoseconds</span> that the ORM + cache layer returns in <span class="warning">454 nanoseconds</span>. The query planner optimizes the join. The data comes back contiguous. No pointer chases. No cache checks. No stale data. No invalidation logic. The "performance optimization" (caching) is 2.7× slower than the simple alternative (a query).</p>
+
+  <p>The cache was never a performance optimization. It was a compensation for an architecture that scattered data across the heap. A flat data structure eliminates the scatter, which eliminates the need for the cache, which eliminates the invalidation logic, the stale data bugs, and the thundering herd problems. The simplest solution is also the fastest.</p>
+</section>
+
+<div class="transparency">
+  <strong>How this works:</strong> This demo visualizes the execution difference between dishonest and honest code. Timing is proportional to real captured nanosecond costs. Instrumented source code, Dockerfile, and raw trace data: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
+</div>
+
+<div class="ch-nav-bottom">
+  <a href="/chapters/08.html">← Ch.8: Let It Crash</a>
+  <a href="/chapters/10.html">Ch.10: Testing Honest Code →</a>
+</div>
+
+<script>
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// DEMO 1: CIRCULAR ARGUMENT
+let circleRunning = false;
+async function runCircle() {
+  if (circleRunning) return;
+  circleRunning = true;
+
+  // Reset
+  for (let i = 0; i < 6; i++) document.getElementById(`cn-${i}`).classList.remove('active');
+  document.querySelectorAll('.arrow').forEach(a => { a.classList.remove('active'); a.style.markerEnd = 'url(#arrowhead)'; });
+  document.getElementById('loopCount').textContent = '0';
+
+  await wait(600);
+
+  const arrows = ['a01','a12','a23','a34','a45','a50'];
+
+  for (let loop = 1; loop <= 3; loop++) {
+    document.getElementById('loopCount').textContent = loop;
+    for (let i = 0; i < 6; i++) {
+      // Deactivate previous
+      for (let j = 0; j < 6; j++) {
+        document.getElementById(`cn-${j}`).classList.remove('active');
+        const ar = document.getElementById(arrows[j]);
+        ar.classList.remove('active');
+        ar.style.markerEnd = 'url(#arrowhead)';
+      }
+
+      // Activate current node and arrow to next
+      document.getElementById(`cn-${i}`).classList.add('active');
+      const ar = document.getElementById(arrows[i]);
+      ar.classList.add('active');
+      ar.style.markerEnd = 'url(#arrowhead-active)';
+
+      await wait(600);
+    }
+  }
+
+  // Leave last state
+  await wait(2000);
+  circleRunning = false;
+  runCircle();
+}
+
+// DEMO 2: VS COMPARISON
+let vsRunning = false;
+async function runVs() {
+  if (vsRunning) return;
+  vsRunning = true;
+
+  // Realistic nanosecond costs for cache-miss path vs single SQL join
+  const crimeSteps = [
+    { id: 'vs-c0', cycles: 41 }, { id: 'vs-c1', cycles: 41 }, { id: 'vs-c2', cycles: 41 },
+    { id: 'vs-c3', cycles: 41 }, { id: 'vs-c4', cycles: 41 }, { id: 'vs-c5', cycles: 42 },
+    { id: 'vs-c6', cycles: 41 }, { id: 'vs-c7', cycles: 83 }, { id: 'vs-c8', cycles: 42 },
+    { id: 'vs-c9', cycles: 41 },
+  ];
+  const rescueSteps = [
+    { id: 'vs-r0', cycles: 41 }, { id: 'vs-r1', cycles: 84 }, { id: 'vs-r2', cycles: 41 },
+  ];
+
+  // Reset
+  document.querySelectorAll('.vs-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('vs-crime-total').textContent = '0';
+  document.getElementById('vs-rescue-total').textContent = '0';
+
+  await wait(600);
+
+  let crimeTotal = 0, rescueTotal = 0;
+  // Fixed scale: 1 ns = NS_TO_MS milliseconds
+  const NS_TO_MS = 3;
+  const MIN_VS_MS = 60;
+  const TICK_MS = 80;
+
+  // Run both
+  const crimeP = (async () => {
+    for (const step of crimeSteps) {
+      document.querySelectorAll('.vs-panel.crime .vs-step').forEach(s => s.classList.remove('active'));
+      document.getElementById(step.id).classList.add('active');
+      const stepMs = Math.max(MIN_VS_MS, step.cycles * NS_TO_MS);
+      const startNs = crimeTotal;
+      const ticks = Math.max(1, Math.floor(stepMs / TICK_MS));
+      const nsPerTick = step.cycles / ticks;
+      const msPerTick = stepMs / ticks;
+      for (let t = 0; t < ticks; t++) {
+        await wait(msPerTick);
+        crimeTotal = startNs + nsPerTick * (t + 1);
+        document.getElementById('vs-crime-total').textContent = Math.round(crimeTotal).toLocaleString();
+      }
+      crimeTotal = startNs + step.cycles;
+    }
+  })();
+
+  const rescueP = (async () => {
+    for (const step of rescueSteps) {
+      document.querySelectorAll('.vs-panel.rescue .vs-step').forEach(s => s.classList.remove('active'));
+      document.getElementById(step.id).classList.add('active');
+      const stepMs = Math.max(MIN_VS_MS, step.cycles * NS_TO_MS);
+      const startNs = rescueTotal;
+      const ticks = Math.max(1, Math.floor(stepMs / TICK_MS));
+      const nsPerTick = step.cycles / ticks;
+      const msPerTick = stepMs / ticks;
+      for (let t = 0; t < ticks; t++) {
+        await wait(msPerTick);
+        rescueTotal = startNs + nsPerTick * (t + 1);
+        document.getElementById('vs-rescue-total').textContent = Math.round(rescueTotal).toLocaleString();
+      }
+      rescueTotal = startNs + step.cycles;
+    }
+  })();
+
+  await Promise.all([crimeP, rescueP]);
+
+  await wait(4000);
+  vsRunning = false;
+  runVs();
+}
+
+window.addEventListener('load', () => {
+  setTimeout(runCircle, 800);
+  setTimeout(runVs, 1000);
+});
+
+// Update slowdown multiplier
+function updateSlowdown() {
+  const crimeEl = document.getElementById('vs-crime-total');
+  const rescueEl = document.getElementById('vs-rescue-total');
+  if (!crimeEl || !rescueEl) return;
+  const crime = parseFloat(crimeEl.textContent.replace(/,/g, '')) || 0;
+  const rescue = parseFloat(rescueEl.textContent.replace(/,/g, '')) || 0;
+  const el = document.getElementById('m-slowdown');
+  if (el && rescue > 0 && crime > rescue) {
+    el.textContent = Math.round(crime / rescue) + '× slower';
+  }
+}
+// Hook into existing animation - poll until stable
+const _slowdownInterval = setInterval(updateSlowdown, 500);
+</script>
+
+</body>
+</html>

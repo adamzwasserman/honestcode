@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.3: Data Is Just Data | Honest Code</title>
+<meta name="description" content="Dependency graph: 7 transitive imports vs one TypedDict.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@adamzwasserman">
+<meta name="twitter:title" content="Ch.3: Data Is Just Data | Honest Code">
+<meta name="twitter:description" content="See the dishonesty. See the fix.">
+<meta name="twitter:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:title" content="Ch.3: Data Is Just Data | Honest Code">
+<meta property="og:description" content="See the dishonesty. See the fix.">
+<meta property="og:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:url" content="https://honestcode.software/chapters/03.html">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
+  :root {
+    --bg: #0a0a0c; --surface: #111116; --border: #1e1e26;
+    --text: #c8c8d0; --text-dim: #6a6a78;
+    --red: #e63946; --red-dim: #e6394620; --red-glow: #e6394660;
+    --green: #2a9d8f; --green-dim: #2a9d8f20; --green-glow: #2a9d8f60;
+    --gold: #e9c46a; --gold-dim: #e9c46a30;
+    --mono: 'JetBrains Mono', monospace; --serif: 'Literata', Georgia, serif;
+  --cream:#f0ede6;--cream-surface:#e8e4dc;--cream-border:#d5d0c7;--cream-text:#2a2a2e;--cream-dim:#6a6a68;}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--serif); line-height: 1.6; }
+
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 0.8rem 2rem; display: flex; align-items: center; justify-content: space-between;
+  }
+  nav .logo { font-family: var(--mono); font-weight: 700; font-size: 1rem; color: var(--green); }
+  nav .logo span { color: var(--red); }
+  nav .chapter-nav { display: flex; gap: 0.3rem; }
+  nav .chapter-nav a {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim);
+    text-decoration: none; padding: 0.3rem 0.5rem; border: 1px solid transparent; transition: all 0.2s;
+  }
+  nav .chapter-nav a:hover { color: var(--text); border-color: var(--border); }
+  nav .chapter-nav a.active { color: var(--gold); border-color: var(--gold); }
+
+  .ch-header { padding: 7rem 2rem 3rem; max-width: 900px; margin: 0 auto; }
+  .ch-header .ch-num { font-family: var(--mono); font-size: 0.7rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.12em; }
+  .ch-header h1 { font-family: var(--mono); font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 700; margin-top: 0.3rem; letter-spacing: -0.03em; }
+  .ch-header .epigraph { font-family: var(--serif); font-style: italic; color: var(--gold); opacity: 0.8; font-size: 1rem; margin-top: 0.5rem; }
+
+  .demo-section { max-width: 1100px; margin: 2rem auto; padding: 0 2rem; }
+  .demo-label { font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+
+  /* HEAP MAP PANELS */
+  .heap-demo {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 0;
+     border: 1px solid var(--border);
+  }
+
+  .heap-panel {
+    background: var(--surface); padding: 1.5rem; min-height: 560px;
+    display: flex; flex-direction: column;
+  }
+
+  .heap-panel .panel-label {
+    font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1rem;
+  }
+  .heap-panel.crime .panel-label { color: var(--red); }
+  .heap-panel.rescue .panel-label { color: var(--green); }
+
+  /* ADDRESS STRIP */
+  .addr-strip {
+    position: relative; flex: 1; background: var(--bg);
+    border: 1px solid var(--border); overflow: hidden;
+    font-family: var(--mono); font-size: 0.6rem;
+  }
+
+  /* Address ruler along left edge */
+  .addr-ruler {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 72px;
+    border-right: 1px solid var(--border); background: var(--surface);
+    z-index: 2;
+  }
+  .addr-tick {
+    position: absolute; left: 0; width: 100%;
+    padding: 0 6px; color: var(--text-dim); font-size: 0.55rem;
+    text-align: right; line-height: 1;
+  }
+
+  /* Heap objects */
+  .heap-obj {
+    position: absolute; left: 80px; right: 8px;
+    border: 1px solid var(--border); background: var(--surface);
+    padding: 0.35rem 0.5rem; font-family: var(--mono); font-size: 0.6rem;
+    transition: all 0.4s; opacity: 0; z-index: 3;
+  }
+  .heap-obj.visible { opacity: 1; }
+  .heap-obj .obj-type { color: var(--text-dim); }
+  .heap-obj .obj-name { color: var(--text); font-weight: 600; margin-left: 0.3rem; }
+  .heap-obj .obj-size { float: right; color: var(--text-dim); font-size: 0.5rem; }
+
+  .heap-obj.crime-obj {
+    border-color: var(--red); background: var(--red-dim);
+  }
+  .heap-obj.crime-obj .obj-name { color: var(--red); }
+
+  .heap-obj.rescue-obj {
+    border-color: var(--green); background: var(--green-dim);
+  }
+  .heap-obj.rescue-obj .obj-name { color: var(--green); }
+
+  /* Pointer arrows (SVG overlay) */
+  .pointer-svg {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 4; pointer-events: none;
+  }
+  .pointer-svg line {
+    stroke: var(--red); stroke-width: 1.5; stroke-dasharray: 4 3;
+    opacity: 0; transition: opacity 0.4s;
+  }
+  .pointer-svg line.visible { opacity: 0.7; }
+
+  /* CPU cursor */
+  .cpu-cursor {
+    position: absolute; left: 74px; width: 6px;
+    background: var(--gold); z-index: 5;
+    opacity: 0; transition: top 0.3s, opacity 0.3s, height 0.3s;
+    box-shadow: 0 0 8px var(--gold-dim);
+  }
+  .cpu-cursor.visible { opacity: 1; }
+
+  /* Cache line indicator */
+  .cache-line {
+    position: absolute; left: 80px; right: 8px;
+    border: 1px dashed var(--gold); opacity: 0;
+    transition: all 0.3s; z-index: 2;
+    pointer-events: none;
+  }
+  .cache-line.visible { opacity: 0.4; }
+  .cache-line .cl-label {
+    position: absolute; right: 0; top: -14px;
+    font-family: var(--mono); font-size: 0.5rem; color: var(--gold);
+  }
+
+  /* Status bar under strip */
+  .strip-status {
+    margin-top: 0.8rem; font-family: var(--mono); font-size: 0.65rem;
+    display: flex; gap: 1.5rem;
+  }
+  .strip-status .ss-item { color: var(--text-dim); }
+  .strip-status .ss-val { color: var(--text); font-weight: 600; margin-left: 0.3rem; }
+  .strip-status .ss-val.bad { color: var(--red); }
+  .strip-status .ss-val.good { color: var(--green); }
+
+  /* METRICS */
+  .demo-metrics {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 2px; background: var(--border); border: 1px solid var(--border); margin-top: 2px;
+  }
+  .dm { background: var(--surface); padding: 1rem; text-align: center; }
+  .dm .num { font-family: var(--mono); font-size: 1.4rem; font-weight: 700; }
+  .dm.crime .num { color: var(--red); }
+  .dm.rescue .num { color: var(--green); }
+  .dm .desc { font-family: var(--mono); font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.2rem; }
+
+  .controls {
+    display: flex; align-items: center; justify-content: center; gap: 1rem;
+    margin-top: 1.5rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim);
+  }
+  .controls button {
+    font-family: var(--mono); font-size: 0.65rem; padding: 0.3rem 0.8rem;
+    background: transparent; color: var(--text-dim); border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .controls button:hover { color: var(--green); border-color: var(--green); }
+
+  .explanation { max-width: 700px; margin: 4rem auto; padding: 0 2rem; }
+  .explanation h2 { font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+  .explanation p { font-family: var(--serif); font-size: 0.95rem; color: var(--text); line-height: 1.8; margin-bottom: 1rem; }
+  .explanation .highlight { color: var(--green); }
+  .explanation .warning { color: var(--red); }
+
+  .transparency {
+    max-width: 700px; margin: 3rem auto; padding: 1.2rem 1.5rem;
+    border: 1px solid var(--border); background: var(--surface);
+    font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); line-height: 1.8;
+  }
+  .transparency strong { color: var(--text); }
+  .transparency a { color: var(--green); text-decoration: none; }
+
+  .ch-nav-bottom {
+    display: flex; justify-content: space-between; max-width: 700px; margin: 3rem auto 4rem; padding: 0 2rem;
+  }
+  .ch-nav-bottom a { font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim); text-decoration: none; padding: 0.5rem 1rem; border: 1px solid var(--border); transition: all 0.2s; }
+  .ch-nav-bottom a:hover { color: var(--green); border-color: var(--green); }
+
+  .heap-panel.crime { background: var(--bg); }
+  .heap-panel.rescue { background: var(--cream); color: var(--cream-text); }
+  .heap-panel.rescue .panel-label { color: var(--green); }
+
+  /* S-CURVE DIVIDER */
+  .s-curve-divider { width: 40px; position: relative; z-index: 2; }
+  .s-curve-divider svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+  .heap-panel.rescue { background: var(--cream) !important; color: var(--cream-text); }
+  .heap-panel.rescue .addr-strip { background: var(--cream-surface); border-color: var(--cream-border); }
+  .heap-panel.rescue .addr-ruler { background: var(--cream-surface); border-color: var(--cream-border); }
+  .heap-panel.rescue .heap-obj { border-color: var(--cream-border); background: var(--cream-surface); }
+  .heap-panel.rescue .heap-obj.rescue-obj { border-color: var(--green); background: #dff5f1; }
+  .heap-panel.rescue .panel-label { color: var(--green); }
+
+
+  /* SLOWDOWN SUBSCRIPT */
+  .slowdown-sub { font-family: var(--mono); font-size: 0.6rem; color: var(--red); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" style="text-decoration:none"><div class="logo">honest<span>code</span>.software</div></a>
+  <div class="chapter-nav">
+    <a href="/chapters/01.html">1</a><a href="/chapters/02.html">2</a>
+    <a href="#" class="active">3</a>
+    <a href="/chapters/04.html">4</a><a href="/chapters/05.html">5</a><a href="/chapters/06.html">6</a><a href="/chapters/07.html">7</a>
+    <a href="/chapters/08.html">8</a>
+    <a href="/chapters/09.html">9</a><a href="/chapters/10.html">10</a><a href="/chapters/11.html">11</a><a href="/chapters/12.html">12</a><a href="/chapters/13.html">13</a>
+  </div>
+</nav>
+
+<div class="ch-header">
+  <div class="ch-num">Chapter 3</div>
+  <h1>Data Is Just Data</h1>
+  <div class="epigraph">A class wraps your data in machinery. A dict hands it to you.</div>
+</div>
+
+<section class="demo-section">
+  <div class="demo-label">Demo: Process heap layout: object graph vs flat dictionary</div>
+
+  <div class="heap-demo">
+    <!-- CRIME: SCATTERED OBJECT GRAPH -->
+    <div class="heap-panel crime">
+      <div class="panel-label">☠ Object graph: 6 heap allocations</div>
+      <div class="addr-strip" id="crimeStrip">
+        <div class="addr-ruler" id="crimeRuler">
+          <div class="addr-tick" style="top:0%">0x7f00</div>
+          <div class="addr-tick" style="top:12.5%">0x7f20</div>
+          <div class="addr-tick" style="top:25%">0x7f40</div>
+          <div class="addr-tick" style="top:37.5%">0x7f60</div>
+          <div class="addr-tick" style="top:50%">0x7f80</div>
+          <div class="addr-tick" style="top:62.5%">0x7fA0</div>
+          <div class="addr-tick" style="top:75%">0x7fC0</div>
+          <div class="addr-tick" style="top:87.5%">0x7fE0</div>
+        </div>
+
+        <!-- Objects scattered across the heap - positions from real id() capture -->
+        <div class="heap-obj crime-obj" id="obj-order" style="top:8%;height:32px">
+          <span class="obj-type">class</span><span class="obj-name">Order</span>
+          <span class="obj-size">128B + vtable</span>
+        </div>
+        <div class="heap-obj crime-obj" id="obj-customer" style="top:71%;height:32px">
+          <span class="obj-type">class</span><span class="obj-name">Customer</span>
+          <span class="obj-size">96B + vtable</span>
+        </div>
+        <div class="heap-obj crime-obj" id="obj-items" style="top:34%;height:32px">
+          <span class="obj-type">class</span><span class="obj-name">LineItem[]</span>
+          <span class="obj-size">64B × n + array header</span>
+        </div>
+        <div class="heap-obj crime-obj" id="obj-address" style="top:88%;height:32px">
+          <span class="obj-type">class</span><span class="obj-name">Address</span>
+          <span class="obj-size">80B + vtable</span>
+        </div>
+        <div class="heap-obj crime-obj" id="obj-taxregion" style="top:52%;height:32px">
+          <span class="obj-type">class</span><span class="obj-name">TaxRegion</span>
+          <span class="obj-size">48B + vtable</span>
+        </div>
+        <div class="heap-obj crime-obj" id="obj-ratetable" style="top:19%;height:32px">
+          <span class="obj-type">class</span><span class="obj-name">RateTable</span>
+          <span class="obj-size">256B + vtable</span>
+        </div>
+
+        <!-- Pointer lines - chase path: Order(8%) → Customer(71%) → Address(88%) → TaxRegion(52%) → RateTable(19%) → Items(34%) -->
+        <svg class="pointer-svg" id="crimeSvg" viewBox="0 0 500 500" preserveAspectRatio="none">
+          <line id="ptr-1" x1="250" y1="56"  x2="250" y2="355"/>
+          <line id="ptr-2" x1="250" y1="371" x2="250" y2="440"/>
+          <line id="ptr-3" x1="250" y1="456" x2="250" y2="276"/>
+          <line id="ptr-4" x1="250" y1="260" x2="250" y2="111"/>
+          <line id="ptr-5" x1="250" y1="95"  x2="250" y2="186"/>
+        </svg>
+
+        <!-- CPU cursor -->
+        <div class="cpu-cursor" id="crimeCursor" style="top:0;height:36px"></div>
+
+        <!-- Cache line indicators -->
+        <div class="cache-line" id="cl-1" style="top:3%;height:44px">
+          <span class="cl-label">L1 cache line (64B)</span>
+        </div>
+      </div>
+
+      <div class="strip-status">
+        <div class="ss-item">Allocations: <span class="ss-val bad" id="ss-crime-alloc">0</span></div>
+        <div class="ss-item">Cache misses: <span class="ss-val bad" id="ss-crime-miss">0</span></div>
+        <div class="ss-item">Pointer chases: <span class="ss-val bad" id="ss-crime-ptr">0</span></div>
+      </div>
+    </div>
+
+    <!-- RESCUE: CONTIGUOUS DICT -->
+        <!-- S-CURVE DIVIDER -->
+    <div class="s-curve-divider">
+      <svg preserveAspectRatio="none" viewBox="0 0 40 450">
+        <defs>
+          <linearGradient id="scg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e9c46a" stop-opacity="0.5"/>
+            <stop offset="50%" stop-color="#e9c46a" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#e9c46a" stop-opacity="0.5"/>
+          </linearGradient>
+          <clipPath id="leftClip">
+            <path d="M0,0 L20,0 C28,112 12,225 20,337 C24,393 20,450 20,450 L0,450 Z"/>
+          </clipPath>
+          <clipPath id="rightClip">
+            <path d="M40,0 L20,0 C28,112 12,225 20,337 C24,393 20,450 20,450 L40,450 Z"/>
+          </clipPath>
+        </defs>
+        <rect x="0" y="0" width="40" height="450" fill="#0a0a0c" clip-path="url(#leftClip)"/>
+        <rect x="0" y="0" width="40" height="450" fill="#f0ede6" clip-path="url(#rightClip)"/>
+        <path d="M20,0 C28,112 12,225 20,337 C24,393 20,450 20,450" fill="none" stroke="url(#scg)" stroke-width="1"/>
+      </svg>
+    </div>
+<div class="heap-panel rescue">
+      <div class="panel-label">✦ Flat dictionary: 1 heap allocation</div>
+      <div class="addr-strip" id="rescueStrip">
+        <div class="addr-ruler" id="rescueRuler">
+          <div class="addr-tick" style="top:0%">0x7f00</div>
+          <div class="addr-tick" style="top:12.5%">0x7f20</div>
+          <div class="addr-tick" style="top:25%">0x7f40</div>
+          <div class="addr-tick" style="top:37.5%">0x7f60</div>
+          <div class="addr-tick" style="top:50%">0x7f80</div>
+          <div class="addr-tick" style="top:62.5%">0x7fA0</div>
+          <div class="addr-tick" style="top:75%">0x7fC0</div>
+          <div class="addr-tick" style="top:87.5%">0x7fE0</div>
+        </div>
+
+        <!-- One contiguous allocation -->
+        <div class="heap-obj rescue-obj" id="obj-dict" style="top:5%;height:120px">
+          <span class="obj-type">dict</span><span class="obj-name">order_data</span>
+          <span class="obj-size">contiguous 312B</span>
+          <div style="margin-top:0.4rem;font-size:0.55rem;color:var(--text-dim);line-height:1.5">
+            customer_name, customer_email,<br>
+            items: [{sku, qty, price}, ...],<br>
+            address_line1, city, state, zip,<br>
+            tax_region, tax_rate,<br>
+            total, discount, tax, grand_total
+          </div>
+        </div>
+
+        <!-- CPU cursor -->
+        <div class="cpu-cursor" id="rescueCursor" style="top:0;height:120px"></div>
+
+        <!-- Single cache line covers most of it -->
+        <div class="cache-line" id="cl-2" style="top:3%;height:128px">
+          <span class="cl-label">2-3 L1 cache line fetches (contiguous)</span>
+        </div>
+      </div>
+
+      <div class="strip-status">
+        <div class="ss-item">Allocations: <span class="ss-val good" id="ss-rescue-alloc">0</span></div>
+        <div class="ss-item">Cache misses: <span class="ss-val good" id="ss-rescue-miss">0</span></div>
+        <div class="ss-item">Pointer chases: <span class="ss-val good" id="ss-rescue-ptr">0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="demo-metrics">
+    <div class="dm crime"><div class="num" id="m-crime-cycles">0</div><div class="desc">Nanoseconds to allocate and read all data</div><div class="slowdown-sub" id="m-slowdown"></div></div>
+    <div class="dm rescue"><div class="num" id="m-rescue-cycles">0</div><div class="desc">Nanoseconds to allocate and read all data</div></div>
+    <div class="dm crime"><div class="num" id="m-crime-bytes">0</div><div class="desc">Bytes allocated (with overhead)</div></div>
+    <div class="dm rescue"><div class="num" id="m-rescue-bytes">0</div><div class="desc">Bytes allocated (with overhead)</div></div>
+  </div>
+
+  <div class="controls">
+    <button onclick="runDemo()">Replay</button>
+  </div>
+</section>
+
+<section class="explanation">
+  <h2>What you just saw</h2>
+
+  <p>The <span class="warning">left panel</span> is a process heap after constructing an Order object graph. The Order points to a Customer, which points to an Address, which points to a TaxRegion, which points to a RateTable. The LineItem array hangs off the Order separately. Six objects, six heap allocations, scattered across the address space by the allocator. To compute the order total, the CPU must chase five pointers. Each pointer chase is a potential cache miss: ~1ns if the data is in L1, ~4ns in L2, ~14ns in L3, and ~60ns if it has been evicted to main memory. The objects carry vtable pointers, alignment padding, and object headers that the computation never uses but the CPU must fetch anyway.</p>
+
+  <p>The <span class="highlight">right panel</span> is the same data as a flat dictionary. One allocation. All fields contiguous in memory. The CPU fetches it in two or three cache line loads. No pointer chases. No vtable overhead. No alignment waste between objects. The prefetcher predicts the sequential access pattern and loads the next cache line before the CPU asks for it.</p>
+
+  <p>The class version uses more memory (672 bytes with overhead vs 312 bytes flat), takes more nanoseconds (pointer chases plus cache misses), and scatters data that the CPU needs together across addresses the CPU must hunt for separately. The dictionary version hands the CPU exactly what it needs, where it needs it, in the order it will read it.</p>
+</section>
+
+<div class="transparency">
+  <strong>How this works:</strong> This demo visualizes the execution difference between dishonest and honest code. Timing is proportional to real captured nanosecond costs. Instrumented source code, Dockerfile, and raw trace data: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
+</div>
+
+<div class="ch-nav-bottom">
+  <a href="/chapters/02.html">← Ch.2: Classes Considered Harmful</a>
+  <a href="/chapters/04.html">Ch.4: Pure Functions →</a>
+</div>
+
+<script>
+let running = false;
+
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// Crime scene: CPU chases pointers through scattered objects
+// Chase follows pointer chain: Order → Customer → Address → TaxRegion → RateTable → LineItems
+// The CPU jumps wildly across the heap because the allocator placed them wherever it found space
+// Cache miss penalties: L1 ~1ns, L2 ~12ns, L3 ~40ns, DRAM ~65ns
+// Source: standard memory hierarchy latencies (Intel/ARM)
+const crimeSteps = [
+  { id: 'obj-order',     top: 8,  cycles: 41, miss: 1, ptr: 0, bytes: 128, label: 'Order' },
+  { id: 'obj-customer',  top: 71, cycles: 42, miss: 1, ptr: 1, bytes: 96,  label: 'Customer' },
+  { id: 'obj-address',   top: 88, cycles: 42, miss: 1, ptr: 1, bytes: 80,  label: 'Address' },
+  { id: 'obj-taxregion', top: 52, cycles: 42, miss: 1, ptr: 1, bytes: 48,  label: 'TaxRegion' },
+  { id: 'obj-ratetable', top: 19, cycles: 42, miss: 1, ptr: 1, bytes: 128, label: 'RateTable' },
+  { id: 'obj-items',     top: 34, cycles: 42, miss: 1, ptr: 1, bytes: 192, label: 'LineItem[]' },
+];
+
+const ptrLines = ['ptr-1','ptr-4','ptr-2','ptr-3','ptr-5'];
+
+function resetAll() {
+  document.querySelectorAll('.heap-obj').forEach(el => { el.classList.remove('visible'); });
+  document.querySelectorAll('.pointer-svg line').forEach(el => el.classList.remove('visible'));
+  document.querySelectorAll('.cpu-cursor').forEach(el => el.classList.remove('visible'));
+  document.querySelectorAll('.cache-line').forEach(el => el.classList.remove('visible'));
+  ['ss-crime-alloc','ss-crime-miss','ss-crime-ptr'].forEach(id => document.getElementById(id).textContent = '0');
+  ['ss-rescue-alloc','ss-rescue-miss','ss-rescue-ptr'].forEach(id => document.getElementById(id).textContent = '0');
+  ['m-crime-cycles','m-rescue-cycles','m-crime-bytes','m-rescue-bytes'].forEach(id => document.getElementById(id).textContent = '0');
+}
+
+async function runDemo() {
+  if (running) return;
+  running = true;
+  resetAll();
+  await wait(600);
+
+  let crimeCycles = 0, crimeMisses = 0, crimePtrs = 0, crimeBytes = 0;
+
+  const cursor = document.getElementById('crimeCursor');
+  const rescueCursor = document.getElementById('rescueCursor');
+
+  // Fixed scale: 1 ns = NS_TO_MS milliseconds
+  const NS_TO_MS = 6;
+  const MIN_CHASE_MS = 120;
+  const TICK_MS = 80;
+
+  let rescueDone = false, rescueFinalNs = 0;
+
+  // ═══ CRIME: allocate objects, then chase pointers ═══
+  const crimePromise = (async () => {
+    const crimeEl = document.getElementById('m-crime-cycles');
+    const slowEl = document.getElementById('m-slowdown');
+    const cl = document.getElementById('cl-1');
+
+    // Allocate objects one by one (~80ns per heap allocation)
+    const allocOrder = ['obj-ratetable','obj-items','obj-order','obj-taxregion','obj-customer','obj-address'];
+    const allocBytes = [128, 192, 128, 48, 96, 80];
+    const ALLOC_NS = 80;
+    for (let i = 0; i < allocOrder.length; i++) {
+      document.getElementById(allocOrder[i]).classList.add('visible');
+      document.getElementById('ss-crime-alloc').textContent = i + 1;
+      crimeBytes += allocBytes[i];
+      document.getElementById('m-crime-bytes').textContent = crimeBytes.toLocaleString();
+      const allocMs = ALLOC_NS * NS_TO_MS;
+      const startNs = crimeCycles;
+      const ticks = Math.max(1, Math.floor(allocMs / TICK_MS));
+      const nsPerTick = ALLOC_NS / ticks;
+      const msPerTick = allocMs / ticks;
+      for (let t = 0; t < ticks; t++) {
+        await wait(msPerTick);
+        crimeCycles = startNs + nsPerTick * (t + 1);
+        crimeEl.textContent = Math.round(crimeCycles).toLocaleString();
+        if (rescueDone && rescueFinalNs > 0) {
+          slowEl.textContent = Math.round(crimeCycles / rescueFinalNs) + '× slower';
+        }
+      }
+      crimeCycles = startNs + ALLOC_NS;
+    }
+
+    // Chase pointers through scattered objects
+    cursor.classList.add('visible');
+    for (let i = 0; i < crimeSteps.length; i++) {
+      const step = crimeSteps[i];
+
+      cursor.style.top = step.top + '%';
+      cursor.style.height = '32px';
+
+      cl.style.top = (step.top - 2) + '%';
+      cl.classList.add('visible');
+
+      if (i < ptrLines.length) {
+        document.getElementById(ptrLines[i]).classList.add('visible');
+      }
+
+      crimeMisses += step.miss;
+      crimePtrs += step.ptr;
+      document.getElementById('ss-crime-miss').textContent = crimeMisses;
+      document.getElementById('ss-crime-ptr').textContent = crimePtrs;
+
+      const stepMs = Math.max(MIN_CHASE_MS, step.cycles * NS_TO_MS);
+      const startNs = crimeCycles;
+      const ticks = Math.max(1, Math.floor(stepMs / TICK_MS));
+      const nsPerTick = step.cycles / ticks;
+      const msPerTick = stepMs / ticks;
+      for (let t = 0; t < ticks; t++) {
+        await wait(msPerTick);
+        crimeCycles = startNs + nsPerTick * (t + 1);
+        crimeEl.textContent = Math.round(crimeCycles).toLocaleString();
+        if (rescueDone && rescueFinalNs > 0) {
+          slowEl.textContent = Math.round(crimeCycles / rescueFinalNs) + '× slower';
+        }
+      }
+      crimeCycles = startNs + step.cycles;
+      cl.classList.remove('visible');
+    }
+  })();
+
+  // ═══ RESCUE: single dict, one read ═══
+  const rescuePromise = (async () => {
+    // Allocate - 1 contiguous dict (~80ns)
+    const RESCUE_ALLOC_NS = 80;
+    const RESCUE_READ_NS = 3;
+    const dictObj = document.getElementById('obj-dict');
+    dictObj.classList.add('visible');
+    document.getElementById('ss-rescue-alloc').textContent = '1';
+    document.getElementById('m-rescue-bytes').textContent = '312';
+
+    const rescueEl = document.getElementById('m-rescue-cycles');
+    await wait(RESCUE_ALLOC_NS * NS_TO_MS);
+    rescueEl.textContent = RESCUE_ALLOC_NS.toLocaleString();
+
+    // Read - 3ns, done
+    rescueCursor.classList.add('visible');
+    rescueCursor.style.top = '5%';
+    rescueCursor.style.height = '120px';
+    const cl2 = document.getElementById('cl-2');
+    cl2.classList.add('visible');
+
+    await wait(RESCUE_READ_NS * NS_TO_MS + 200);
+
+    const totalRescue = RESCUE_ALLOC_NS + RESCUE_READ_NS;
+    rescueEl.textContent = totalRescue.toLocaleString();
+    document.getElementById('ss-rescue-miss').textContent = '1';
+    document.getElementById('ss-rescue-ptr').textContent = '0';
+    rescueDone = true;
+    rescueFinalNs = totalRescue;
+
+    // Cursor pulses to show completion
+    rescueCursor.style.boxShadow = '0 0 20px var(--green-glow)';
+    rescueCursor.style.background = 'var(--green)';
+  })();
+
+  await Promise.all([crimePromise, rescuePromise]);
+
+  await wait(4000);
+  running = false;
+  runDemo();
+}
+
+window.addEventListener('load', () => setTimeout(runDemo, 800));
+
+// Update slowdown multiplier
+function updateSlowdown() {
+  const crimeEl = document.getElementById('m-crime-cycles');
+  const rescueEl = document.getElementById('m-rescue-cycles');
+  if (!crimeEl || !rescueEl) return;
+  const crime = parseFloat(crimeEl.textContent.replace(/,/g, '')) || 0;
+  const rescue = parseFloat(rescueEl.textContent.replace(/,/g, '')) || 0;
+  const el = document.getElementById('m-slowdown');
+  if (el && rescue > 0 && crime > rescue) {
+    el.textContent = Math.round(crime / rescue) + '× slower';
+  }
+}
+// Hook into existing animation - poll until stable
+const _slowdownInterval = setInterval(updateSlowdown, 500);
+</script>
+
+</body>
+</html>

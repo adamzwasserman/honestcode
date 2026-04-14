@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.8: Let It Crash | Honest Code</title>
+<meta name="description" content="7-level try-catch bubble vs supervisor restart. The Erlang pattern since 1986.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@adamzwasserman">
+<meta name="twitter:title" content="Ch.8: Let It Crash | Honest Code">
+<meta name="twitter:description" content="See the dishonesty. See the fix.">
+<meta name="twitter:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:title" content="Ch.8: Let It Crash | Honest Code">
+<meta property="og:description" content="See the dishonesty. See the fix.">
+<meta property="og:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:url" content="https://honestcode.software/chapters/08.html">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
+  :root {
+    --bg: #0a0a0c; --surface: #111116; --border: #1e1e26;
+    --text: #c8c8d0; --text-dim: #6a6a78;
+    --red: #e63946; --red-dim: #e6394620; --red-glow: #e6394660;
+    --green: #2a9d8f; --green-dim: #2a9d8f20; --green-glow: #2a9d8f60;
+    --gold: #e9c46a;
+    --mono: 'JetBrains Mono', monospace; --serif: 'Literata', Georgia, serif;
+  --cream:#f0ede6;--cream-surface:#e8e4dc;--cream-border:#d5d0c7;--cream-text:#2a2a2e;--cream-dim:#6a6a68;}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--serif); line-height: 1.6; }
+
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 0.8rem 2rem; display: flex; align-items: center; justify-content: space-between;
+  }
+  nav .logo { font-family: var(--mono); font-weight: 700; font-size: 1rem; color: var(--green); }
+  nav .logo span { color: var(--red); }
+  nav .chapter-nav { display: flex; gap: 0.3rem; }
+  nav .chapter-nav a {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim);
+    text-decoration: none; padding: 0.3rem 0.5rem; border: 1px solid transparent; transition: all 0.2s;
+  }
+  nav .chapter-nav a:hover { color: var(--text); border-color: var(--border); }
+  nav .chapter-nav a.active { color: var(--gold); border-color: var(--gold); }
+
+  .ch-header { padding: 7rem 2rem 3rem; max-width: 900px; margin: 0 auto; }
+  .ch-header .ch-num { font-family: var(--mono); font-size: 0.7rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.12em; }
+  .ch-header h1 { font-family: var(--mono); font-size: clamp(1.5rem, 4vw, 2.5rem); font-weight: 700; margin-top: 0.3rem; letter-spacing: -0.03em; }
+  .ch-header .epigraph { font-family: var(--serif); font-style: italic; color: var(--gold); opacity: 0.8; font-size: 1rem; margin-top: 0.5rem; }
+
+  .demo-section { max-width: 1100px; margin: 2rem auto; padding: 0 2rem; }
+  .demo-label { font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+
+  /* MEMORY MAP PANELS */
+  .mem-demo {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 0;
+     border: 1px solid var(--border);
+  }
+
+  .mem-panel {
+    background: var(--surface); padding: 2rem; min-height: 520px;
+    display: flex; flex-direction: column;
+  }
+
+  .mem-panel .panel-label {
+    font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.5rem;
+  }
+  .mem-panel.crime .panel-label { color: var(--red); }
+  .mem-panel.rescue .panel-label { color: var(--green); }
+
+  /* MEMORY LOCATIONS */
+  .mem-map {
+    display: flex; flex-direction: column; gap: 0.5rem; flex: 1;
+  }
+
+  .mem-location {
+    display: flex; align-items: stretch; border: 1px solid var(--border);
+    background: var(--bg); transition: all 0.4s; overflow: hidden;
+  }
+
+  .mem-location .mem-icon {
+    width: 44px; display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; background: var(--surface); border-right: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .mem-location .mem-body {
+    flex: 1; padding: 0.6rem 0.8rem;
+  }
+
+  .mem-location .mem-name {
+    font-family: var(--mono); font-size: 0.7rem; font-weight: 600; color: var(--text);
+  }
+
+  .mem-location .mem-detail {
+    font-family: var(--mono); font-size: 0.6rem; color: var(--text-dim);
+    margin-top: 0.2rem; line-height: 1.4;
+  }
+
+  .mem-location .mem-status {
+    width: 70px; display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 0.55rem; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text-dim); border-left: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .mem-location.active {
+    border-color: var(--red);
+    box-shadow: 0 0 12px var(--red-glow);
+  }
+  .mem-location.active .mem-name { color: var(--red); }
+  .mem-location.active .mem-status { color: var(--red); }
+
+  .mem-location.active-green {
+    border-color: var(--green);
+    box-shadow: 0 0 12px var(--green-glow);
+  }
+  .mem-location.active-green .mem-name { color: var(--green); }
+  .mem-location.active-green .mem-status { color: var(--green); }
+
+  .mem-location.dead {
+    border-color: var(--red); opacity: 0.4;
+  }
+  .mem-location.dead .mem-status { color: var(--red); }
+
+  /* EVENT LOG */
+  .event-log {
+    margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border);
+    font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim);
+    min-height: 120px;
+  }
+  .event-log .log-title {
+    font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 0.5rem; color: var(--text-dim);
+  }
+  .event-log .log-entry {
+    padding: 0.15rem 0; opacity: 0; transition: opacity 0.3s;
+    line-height: 1.4;
+  }
+  .event-log .log-entry.visible { opacity: 1; }
+  .event-log .log-entry .ts { color: var(--text-dim); }
+  .event-log .log-entry .ev-crime { color: var(--red); }
+  .event-log .log-entry .ev-rescue { color: var(--green); }
+
+  /* METRICS */
+  .demo-metrics {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 2px; background: var(--border); border: 1px solid var(--border); margin-top: 2px;
+  }
+  .dm { background: var(--surface); padding: 1rem; text-align: center; }
+  .dm .num { font-family: var(--mono); font-size: 1.4rem; font-weight: 700; }
+  .dm.crime .num { color: var(--red); }
+  .dm.rescue .num { color: var(--green); }
+  .dm .desc { font-family: var(--mono); font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.2rem; }
+
+  .controls {
+    display: flex; align-items: center; justify-content: center; gap: 1rem;
+    margin-top: 1.5rem; font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim);
+  }
+  .controls button {
+    font-family: var(--mono); font-size: 0.65rem; padding: 0.3rem 0.8rem;
+    background: transparent; color: var(--text-dim); border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .controls button:hover { color: var(--green); border-color: var(--green); }
+
+  .explanation { max-width: 700px; margin: 4rem auto; padding: 0 2rem; }
+  .explanation h2 { font-family: var(--mono); font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+  .explanation p { font-family: var(--serif); font-size: 0.95rem; color: var(--text); line-height: 1.8; margin-bottom: 1rem; }
+  .explanation .highlight { color: var(--green); }
+  .explanation .warning { color: var(--red); }
+
+  .transparency {
+    max-width: 700px; margin: 3rem auto; padding: 1.2rem 1.5rem;
+    border: 1px solid var(--border); background: var(--surface);
+    font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim); line-height: 1.8;
+  }
+  .transparency strong { color: var(--text); }
+  .transparency a { color: var(--green); text-decoration: none; }
+
+  .ch-nav-bottom {
+    display: flex; justify-content: space-between; max-width: 700px; margin: 3rem auto 4rem; padding: 0 2rem;
+  }
+  .ch-nav-bottom a { font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim); text-decoration: none; padding: 0.5rem 1rem; border: 1px solid var(--border); transition: all 0.2s; }
+  .ch-nav-bottom a:hover { color: var(--green); border-color: var(--green); }
+
+  .mem-panel.crime { background: var(--bg); }
+  .mem-panel.rescue { background: var(--cream); color: var(--cream-text); }
+  .mem-panel.rescue .panel-label { color: var(--green); }
+
+  /* S-CURVE DIVIDER */
+  .s-curve-divider { width: 40px; position: relative; z-index: 2; }
+  .s-curve-divider svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+  .mem-panel.rescue { background: var(--cream) !important; color: var(--cream-text); }
+  .mem-panel.rescue .mem-block { background: var(--cream-surface); border-color: var(--cream-border); }
+  .mem-panel.rescue .mem-header { background: var(--cream-surface); border-color: var(--cream-border); color: var(--cream-text); }
+  .mem-panel.rescue .mem-row { border-color: var(--cream-border); color: var(--cream-text); }
+  .mem-panel.rescue .event-log { background: var(--cream-surface); border-color: var(--cream-border); color: var(--cream-dim); }
+  .mem-panel.rescue .log-title { color: var(--cream-text); }
+  .mem-panel.rescue .panel-label { color: var(--green); }
+
+
+  /* SLOWDOWN SUBSCRIPT */
+  .slowdown-sub { font-family: var(--mono); font-size: 0.6rem; color: var(--red); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" style="text-decoration:none"><div class="logo">honest<span>code</span>.software</div></a>
+  <div class="chapter-nav">
+    <a href="/chapters/01.html">1</a><a href="/chapters/02.html">2</a><a href="/chapters/03.html">3</a>
+    <a href="/chapters/04.html">4</a><a href="/chapters/05.html">5</a><a href="/chapters/06.html">6</a><a href="/chapters/07.html">7</a>
+    <a href="#" class="active">8</a>
+    <a href="/chapters/09.html">9</a><a href="/chapters/10.html">10</a><a href="/chapters/11.html">11</a><a href="/chapters/12.html">12</a><a href="/chapters/13.html">13</a>
+  </div>
+</nav>
+
+<div class="ch-header">
+  <div class="ch-num">Chapter 8</div>
+  <h1>Let It Crash</h1>
+  <div class="epigraph">Every catch block is a lie about recovery.</div>
+</div>
+
+<section class="demo-section">
+  <div class="demo-label">Demo: Error recovery state: where does it live?</div>
+
+  <div class="mem-demo">
+    <!-- CRIME: SCATTERED RECOVERY STATE -->
+    <div class="mem-panel crime">
+      <div class="panel-label">☠ Try-catch recovery: 6 address spaces</div>
+      <div class="mem-map">
+        <div class="mem-location" id="c-stack">
+          <div class="mem-icon">📋</div>
+          <div class="mem-body">
+            <div class="mem-name">Thread Stack</div>
+            <div class="mem-detail">Stack frames, catch block references, finally cleanup pointers</div>
+          </div>
+          <div class="mem-status" id="c-stack-s">idle</div>
+        </div>
+        <div class="mem-location" id="c-heap">
+          <div class="mem-icon">🗄️</div>
+          <div class="mem-body">
+            <div class="mem-name">Process Heap</div>
+            <div class="mem-detail">Exception objects allocated, wrapped, re-wrapped at each catch level</div>
+          </div>
+          <div class="mem-status" id="c-heap-s">idle</div>
+        </div>
+        <div class="mem-location" id="c-redis">
+          <div class="mem-icon">⚡</div>
+          <div class="mem-body">
+            <div class="mem-name">Redis (external key-value store)</div>
+            <div class="mem-detail">Retry counter, circuit breaker state, backoff timer</div>
+          </div>
+          <div class="mem-status" id="c-redis-s">idle</div>
+        </div>
+        <div class="mem-location" id="c-db">
+          <div class="mem-icon">💾</div>
+          <div class="mem-body">
+            <div class="mem-name">RDBMS (transaction log)</div>
+            <div class="mem-detail">Partial writes pending rollback, WAL entries</div>
+          </div>
+          <div class="mem-status" id="c-db-s">idle</div>
+        </div>
+        <div class="mem-location" id="c-log">
+          <div class="mem-icon">📝</div>
+          <div class="mem-body">
+            <div class="mem-name">Filesystem (application log)</div>
+            <div class="mem-detail">Swallowed exception written to disk "for later investigation"</div>
+          </div>
+          <div class="mem-status" id="c-log-s">idle</div>
+        </div>
+        <div class="mem-location" id="c-queue">
+          <div class="mem-icon">📨</div>
+          <div class="mem-body">
+            <div class="mem-name">Message Broker (dead letter queue)</div>
+            <div class="mem-detail">Failed message requeued with retry metadata and backoff schedule</div>
+          </div>
+          <div class="mem-status" id="c-queue-s">idle</div>
+        </div>
+      </div>
+      <div class="event-log" id="crimeLog">
+        <div class="log-title">Event trace</div>
+      </div>
+    </div>
+
+    <!-- RESCUE: TWO LOCATIONS -->
+        <!-- S-CURVE DIVIDER -->
+    <div class="s-curve-divider">
+      <svg preserveAspectRatio="none" viewBox="0 0 40 450">
+        <defs>
+          <linearGradient id="scg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e9c46a" stop-opacity="0.5"/>
+            <stop offset="50%" stop-color="#e9c46a" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#e9c46a" stop-opacity="0.5"/>
+          </linearGradient>
+          <clipPath id="leftClip">
+            <path d="M0,0 L20,0 C28,112 12,225 20,337 C24,393 20,450 20,450 L0,450 Z"/>
+          </clipPath>
+          <clipPath id="rightClip">
+            <path d="M40,0 L20,0 C28,112 12,225 20,337 C24,393 20,450 20,450 L40,450 Z"/>
+          </clipPath>
+        </defs>
+        <rect x="0" y="0" width="40" height="450" fill="#0a0a0c" clip-path="url(#leftClip)"/>
+        <rect x="0" y="0" width="40" height="450" fill="#f0ede6" clip-path="url(#rightClip)"/>
+        <path d="M20,0 C28,112 12,225 20,337 C24,393 20,450 20,450" fill="none" stroke="url(#scg)" stroke-width="1"/>
+      </svg>
+    </div>
+<div class="mem-panel rescue">
+      <div class="panel-label">✦ Let it crash: 2 address spaces</div>
+      <div class="mem-map">
+        <div class="mem-location" id="r-process" style="min-height:80px">
+          <div class="mem-icon">⬡</div>
+          <div class="mem-body">
+            <div class="mem-name">Isolated Process (stack + heap)</div>
+            <div class="mem-detail">All state lives in the process address space. When the process dies, the OS reclaims everything. Nothing to clean up.</div>
+          </div>
+          <div class="mem-status" id="r-process-s">running</div>
+        </div>
+        <div class="mem-location" id="r-supervisor" style="min-height:80px">
+          <div class="mem-icon">👁️</div>
+          <div class="mem-body">
+            <div class="mem-name">Supervisor Process</div>
+            <div class="mem-detail">Monitors child process via OS signals. On exit, spawns a replacement. The entire recovery strategy is one conditional.</div>
+          </div>
+          <div class="mem-status" id="r-supervisor-s">watching</div>
+        </div>
+      </div>
+      <div class="event-log" id="rescueLog">
+        <div class="log-title">Event trace</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="demo-metrics">
+    <div class="dm crime"><div class="num" id="m-crime-locations">0</div><div class="desc">Address spaces touched</div><div class="slowdown-sub" id="m-slowdown"></div></div>
+    <div class="dm rescue"><div class="num" id="m-rescue-locations">0</div><div class="desc">Address spaces touched</div></div>
+    <div class="dm crime"><div class="num" id="m-crime-steps">0</div><div class="desc">Recovery steps</div></div>
+    <div class="dm rescue"><div class="num" id="m-rescue-steps">0</div><div class="desc">Recovery steps</div></div>
+  </div>
+
+  <div class="controls">
+    <button onclick="runDemo()">Replay</button>
+  </div>
+</section>
+
+<section class="explanation">
+  <h2>What you just saw</h2>
+  <p>The <span class="warning">left panel</span> is what happens when you try to recover from an error using try-catch. The error originates on the call stack. An exception object is allocated on the heap. The catch block checks Redis for the retry count. It increments the circuit breaker. It attempts to roll back the partial database write. It logs the swallowed exception. It pushes a retry message to the dead letter queue. Six memory locations, touched in sequence, each one a place where recovery state can go wrong, become stale, or be forgotten.</p>
+
+  <p>The <span class="highlight">right panel</span> is the let-it-crash alternative. The process fails. It dies. All its state dies with it; nothing to roll back, nothing to clean up, nothing to log. The supervisor notices the process is gone and starts a fresh one. Two memory locations. Two events. The new process starts from a known-good state because it has never seen the bad input that killed its predecessor.</p>
+
+  <p>Every catch block is a bet that you can anticipate the failure mode and write correct recovery logic for it. The more catch blocks you write, the more recovery state you scatter across your infrastructure. The let-it-crash model bets that a fresh start from a known-good state is safer than trying to recover from an unknown-bad state. Thirty years of Erlang in telecom systems proved that bet correct.</p>
+</section>
+
+<div class="transparency">
+  <strong>How this works:</strong> This demo visualizes error recovery complexity, not timing. The try/catch side touches 6 address spaces during recovery (heap, Redis, RDBMS, filesystem, message broker). The let-it-crash side touches 2 (process, supervisor). Counts are architectural facts. Java harness confirms the cost: try/catch recovery is 16.8× slower in nanoseconds. Source: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
+</div>
+
+<div class="ch-nav-bottom">
+  <a href="/chapters/07.html">← Ch.7: Compose Flat, Never Deep</a>
+  <a href="/chapters/09.html">Ch.9: The Performance Lie →</a>
+</div>
+
+<script>
+let running = false;
+
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function addLog(containerId, timestamp, text, cls) {
+  const log = document.getElementById(containerId);
+  const entry = document.createElement('div');
+  entry.className = 'log-entry';
+  entry.innerHTML = `<span class="ts">${timestamp}</span> <span class="${cls}">${text}</span>`;
+  log.appendChild(entry);
+  requestAnimationFrame(() => entry.classList.add('visible'));
+}
+
+function activate(id, statusId, statusText) {
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  if (statusId) document.getElementById(statusId).textContent = statusText;
+}
+
+function deactivate(id, statusId, statusText) {
+  const el = document.getElementById(id);
+  el.classList.remove('active');
+  if (statusId) document.getElementById(statusId).textContent = statusText || 'idle';
+}
+
+function resetAll() {
+  document.querySelectorAll('.mem-location').forEach(el => {
+    el.classList.remove('active', 'active-green', 'dead');
+  });
+  ['c-stack-s','c-heap-s','c-redis-s','c-db-s','c-log-s','c-queue-s'].forEach(id => {
+    document.getElementById(id).textContent = 'idle';
+  });
+  document.getElementById('r-process-s').textContent = 'running';
+  document.getElementById('r-supervisor-s').textContent = 'watching';
+
+  // Clear logs
+  ['crimeLog','rescueLog'].forEach(id => {
+    const log = document.getElementById(id);
+    const title = log.querySelector('.log-title');
+    log.innerHTML = '';
+    log.appendChild(title);
+  });
+
+  ['m-crime-locations','m-rescue-locations','m-crime-steps','m-rescue-steps'].forEach(id => {
+    document.getElementById(id).textContent = '0';
+  });
+}
+
+async function runDemo() {
+  if (running) return;
+  running = true;
+  resetAll();
+  await wait(600);
+
+  let crimeLocations = 0, rescueLocations = 0;
+  let crimeSteps = 0, rescueSteps = 0;
+
+  // ═══ CRIME SCENE ═══
+  const crimePromise = (async () => {
+    // Step 1: Error hits call stack
+    await wait(400);
+    activate('c-stack', 'c-stack-s', 'ERROR');
+    crimeLocations++; crimeSteps++;
+    document.getElementById('m-crime-locations').textContent = crimeLocations;
+    document.getElementById('m-crime-steps').textContent = crimeSteps;
+    addLog('crimeLog', '00:00.001', 'ConnectionError in processOrder()', 'ev-crime');
+
+    // Step 2: Exception allocated on heap
+    await wait(600);
+    deactivate('c-stack', 'c-stack-s', 'unwinding');
+    activate('c-heap', 'c-heap-s', 'ALLOC');
+    crimeLocations++; crimeSteps++;
+    document.getElementById('m-crime-locations').textContent = crimeLocations;
+    document.getElementById('m-crime-steps').textContent = crimeSteps;
+    addLog('crimeLog', '00:00.003', 'new RetryableException(cause, context)', 'ev-crime');
+
+    // Step 3: Wrap exception at next catch level
+    await wait(600);
+    document.getElementById('c-heap-s').textContent = 'WRAP';
+    crimeSteps++;
+    document.getElementById('m-crime-steps').textContent = crimeSteps;
+    addLog('crimeLog', '00:00.004', 'new ServiceException(wrapped, retryable)', 'ev-crime');
+
+    // Step 4: Check Redis retry count
+    await wait(600);
+    deactivate('c-heap', 'c-heap-s', 'allocated');
+    activate('c-redis', 'c-redis-s', 'READ');
+    crimeLocations++; crimeSteps++;
+    document.getElementById('m-crime-locations').textContent = crimeLocations;
+    document.getElementById('m-crime-steps').textContent = crimeSteps;
+    addLog('crimeLog', '00:00.012', 'GET retry:order:4821 → 2', 'ev-crime');
+
+    // Step 5: Increment circuit breaker
+    await wait(600);
+    document.getElementById('c-redis-s').textContent = 'WRITE';
+    crimeSteps++;
+    document.getElementById('m-crime-steps').textContent = crimeSteps;
+    addLog('crimeLog', '00:00.015', 'INCR circuit:payment-svc → 47', 'ev-crime');
+
+    // Step 6: Rollback database
+    await wait(600);
+    deactivate('c-redis', 'c-redis-s', 'updated');
+    activate('c-db', 'c-db-s', 'ROLLBACK');
+    crimeLocations++; crimeSteps++;
+    document.getElementById('m-crime-locations').textContent = crimeLocations;
+    document.getElementById('m-crime-steps').textContent = crimeSteps;
+    addLog('crimeLog', '00:00.034', 'ROLLBACK partial_order txn_8291', 'ev-crime');
+
+    // Step 7: Log the swallowed exception
+    await wait(600);
+    deactivate('c-db', 'c-db-s', 'rolled back');
+    activate('c-log', 'c-log-s', 'WRITE');
+    crimeLocations++; crimeSteps++;
+    document.getElementById('m-crime-locations').textContent = crimeLocations;
+    document.getElementById('m-crime-steps').textContent = crimeSteps;
+    addLog('crimeLog', '00:00.036', 'WARN "Swallowed exception, will retry"', 'ev-crime');
+
+    // Step 8: Push to dead letter queue
+    await wait(600);
+    deactivate('c-log', 'c-log-s', 'written');
+    activate('c-queue', 'c-queue-s', 'ENQUEUE');
+    crimeLocations++; crimeSteps++;
+    document.getElementById('m-crime-locations').textContent = crimeLocations;
+    document.getElementById('m-crime-steps').textContent = crimeSteps;
+    addLog('crimeLog', '00:00.041', 'LPUSH dlq:orders {retry:3, backoff:8s}', 'ev-crime');
+
+    // Step 9: Back to stack: catch block "handled" it
+    await wait(600);
+    deactivate('c-queue', 'c-queue-s', 'queued');
+    activate('c-stack', 'c-stack-s', 'RESUME');
+    crimeSteps++;
+    document.getElementById('m-crime-steps').textContent = crimeSteps;
+    addLog('crimeLog', '00:00.043', 'return ErrorResponse(503, "try again")', 'ev-crime');
+
+    await wait(400);
+    deactivate('c-stack', 'c-stack-s', 'done');
+  })();
+
+  // ═══ RESCUE ═══
+  const rescuePromise = (async () => {
+    // Process is running
+    document.getElementById('r-process').classList.add('active-green');
+    rescueLocations++;
+    document.getElementById('m-rescue-locations').textContent = rescueLocations;
+    addLog('rescueLog', '00:00.001', 'process running: order_worker_4821', 'ev-rescue');
+
+    // Wait a beat, then crash
+    await wait(1200);
+    document.getElementById('r-process').classList.remove('active-green');
+    document.getElementById('r-process').classList.add('dead');
+    document.getElementById('r-process-s').textContent = 'CRASHED';
+    rescueSteps++;
+    document.getElementById('m-rescue-steps').textContent = rescueSteps;
+    addLog('rescueLog', '00:00.001', 'ConnectionError → process died', 'ev-crime');
+
+    // Supervisor detects
+    await wait(800);
+    document.getElementById('r-supervisor').classList.add('active-green');
+    document.getElementById('r-supervisor-s').textContent = 'RESTART';
+    rescueLocations++;
+    rescueSteps++;
+    document.getElementById('m-rescue-locations').textContent = rescueLocations;
+    document.getElementById('m-rescue-steps').textContent = rescueSteps;
+    addLog('rescueLog', '00:00.002', 'supervisor: child exited, restarting', 'ev-rescue');
+
+    // New process spawns
+    await wait(800);
+    document.getElementById('r-process').classList.remove('dead');
+    document.getElementById('r-process').classList.add('active-green');
+    document.getElementById('r-process-s').textContent = 'RUNNING';
+    document.getElementById('r-supervisor').classList.remove('active-green');
+    document.getElementById('r-supervisor-s').textContent = 'watching';
+    rescueSteps++;
+    document.getElementById('m-rescue-steps').textContent = rescueSteps;
+    addLog('rescueLog', '00:00.003', 'new process: order_worker_4822 (clean state)', 'ev-rescue');
+  })();
+
+  await Promise.all([crimePromise, rescuePromise]);
+
+  await wait(4500);
+  running = false;
+  runDemo();
+}
+
+window.addEventListener('load', () => setTimeout(runDemo, 800));
+
+// Update slowdown multiplier
+function updateSlowdown() {
+  const crimeEl = document.getElementById('m-crime-locations');
+  const rescueEl = document.getElementById('m-rescue-locations');
+  if (!crimeEl || !rescueEl) return;
+  const crime = parseFloat(crimeEl.textContent.replace(/,/g, '')) || 0;
+  const rescue = parseFloat(rescueEl.textContent.replace(/,/g, '')) || 0;
+  const el = document.getElementById('m-slowdown');
+  if (el && rescue > 0 && crime > rescue) {
+    el.textContent = Math.round(crime / rescue) + '× slower';
+  }
+}
+// Hook into existing animation - poll until stable
+const _slowdownInterval = setInterval(updateSlowdown, 500);
+</script>
+
+</body>
+</html>

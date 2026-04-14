@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ch.5: State Has an Address | Honest Code</title>
+<meta name="description" content="The DOM is the state. HTMX proves it with zero JavaScript.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@adamzwasserman">
+<meta name="twitter:title" content="Ch.5: State Has an Address | Honest Code">
+<meta name="twitter:description" content="See the dishonesty. See the fix.">
+<meta name="twitter:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:title" content="Ch.5: State Has an Address | Honest Code">
+<meta property="og:description" content="See the dishonesty. See the fix.">
+<meta property="og:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:url" content="https://honestcode.software/chapters/05.html">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
+  :root { --bg:#0a0a0c;--surface:#111116;--border:#1e1e26;--text:#c8c8d0;--text-dim:#6a6a78;--red:#e63946;--red-dim:#e6394620;--red-glow:#e6394660;--green:#2a9d8f;--green-dim:#2a9d8f20;--green-glow:#2a9d8f60;--gold:#e9c46a;--mono:'JetBrains Mono',monospace;--serif:'Literata',Georgia,serif; --cream:#f0ede6;--cream-surface:#e8e4dc;--cream-border:#d5d0c7;--cream-text:#2a2a2e;--cream-dim:#6a6a68;}
+  * { margin:0;padding:0;box-sizing:border-box; }
+  body { background:var(--bg);color:var(--text);font-family:var(--serif);line-height:1.6; }
+  nav { position:fixed;top:0;width:100%;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:0.8rem 2rem;display:flex;align-items:center;justify-content:space-between; }
+  nav .logo { font-family:var(--mono);font-weight:700;font-size:1rem;color:var(--green); } nav .logo span { color:var(--red); }
+  nav .chapter-nav { display:flex;gap:0.3rem; }
+  nav .chapter-nav a { font-family:var(--mono);font-size:0.65rem;color:var(--text-dim);text-decoration:none;padding:0.3rem 0.5rem;border:1px solid transparent;transition:all 0.2s; }
+  nav .chapter-nav a:hover { color:var(--text);border-color:var(--border); }
+  nav .chapter-nav a.active { color: var(--gold);border-color: var(--gold); }
+  .ch-header { padding:7rem 2rem 3rem;max-width:900px;margin:0 auto; }
+  .ch-header .ch-num { font-family:var(--mono);font-size:0.7rem;color: var(--gold);text-transform:uppercase;letter-spacing:0.12em; }
+  .ch-header h1 { font-family:var(--mono);font-size:clamp(1.5rem,4vw,2.5rem);font-weight:700;margin-top:0.3rem; }
+  .ch-header .epigraph { font-family:var(--serif);font-style:italic;color: var(--gold); opacity: 0.8;font-size:1rem;margin-top:0.5rem; }
+  .demo-section { max-width:1100px;margin:2rem auto;padding:0 2rem; }
+  .demo-label { font-family:var(--mono);font-size:0.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem; }
+
+  .state-demo { display:grid;grid-template-columns: 1fr auto 1fr;gap: 0;border:1px solid var(--border); }
+  .state-panel { background:var(--surface);padding:1.5rem;min-height:480px;display:flex;flex-direction:column; }
+  .state-panel .panel-label { font-family:var(--mono);font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.5rem; }
+  .state-panel.crime .panel-label { color:var(--red); }
+  .state-panel.rescue .panel-label { color:var(--green); }
+
+  .locations { display:flex;flex-direction:column;gap:0.5rem;flex:1; }
+  .loc {
+    border:1px solid var(--border);background:var(--bg);padding:0.6rem 0.8rem;
+    font-family:var(--mono);font-size:0.65rem;transition:all 0.4s;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .loc .loc-name { color:var(--text); }
+  .loc .loc-val { color:var(--text-dim);font-size:0.6rem; }
+  .loc.pulse { border-color:var(--red);background:var(--red-dim);box-shadow:0 0 10px var(--red-glow); }
+  .loc.pulse .loc-name { color:var(--red); }
+  .loc.pulse .loc-val { color:var(--red); }
+  .loc.stale { border-color:var(--gold);background:var(--gold-dim); }
+  .loc.stale .loc-val { color:var(--gold); }
+  .loc.stale .loc-val::after { content:' (stale)';font-size:0.5rem; }
+
+  .state-panel.rescue .loc.pulse { border-color:var(--green);background:var(--green-dim);box-shadow:0 0 10px var(--green-glow); }
+  .state-panel.rescue .loc.pulse .loc-name { color:var(--green); }
+  .state-panel.rescue .loc.pulse .loc-val { color:var(--green); }
+
+  .event-log { margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);min-height:80px; }
+  .event-log .log-title { font-size:0.55rem;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4rem; }
+  .log-entry { padding:0.1rem 0;opacity:0;transition:opacity 0.3s; }
+  .log-entry.visible { opacity:1; }
+  .log-entry .ev-crime { color:var(--red); }
+  .log-entry .ev-rescue { color:var(--green); }
+  .log-entry .ev-warn { color:var(--gold); }
+
+  .demo-metrics { display:grid;grid-template-columns:repeat(4,1fr);gap:2px;background:var(--border);border:1px solid var(--border);margin-top:2px; }
+  .dm { background:var(--surface);padding:1rem;text-align:center; }
+  .dm .num { font-family:var(--mono);font-size:1.4rem;font-weight:700; }
+  .dm.crime .num { color:var(--red); }
+  .dm.rescue .num { color:var(--green); }
+  .dm .desc { font-family:var(--mono);font-size:0.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-top:0.2rem; }
+
+  .controls { display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:1.5rem; }
+  .controls button { font-family:var(--mono);font-size:0.65rem;padding:0.3rem 0.8rem;background:transparent;color:var(--text-dim);border:1px solid var(--border);cursor:pointer;transition:all 0.2s; }
+  .controls button:hover { color:var(--green);border-color:var(--green); }
+
+  .explanation { max-width:700px;margin:4rem auto;padding:0 2rem; }
+  .explanation h2 { font-family:var(--mono);font-size:0.8rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:1rem; }
+  .explanation p { font-family:var(--serif);font-size:0.95rem;color:var(--text);line-height:1.8;margin-bottom:1rem; }
+  .explanation .highlight { color:var(--green); } .explanation .warning { color:var(--red); }
+  .transparency { max-width:700px;margin:3rem auto;padding:1.2rem 1.5rem;border:1px solid var(--border);background:var(--surface);font-family:var(--mono);font-size:0.65rem;color:var(--text-dim);line-height:1.8; }
+  .transparency strong { color:var(--text); } .transparency a { color:var(--green);text-decoration:none; }
+  .ch-nav-bottom { display:flex;justify-content:space-between;max-width:700px;margin:3rem auto 4rem;padding:0 2rem; }
+  .ch-nav-bottom a { font-family:var(--mono);font-size:0.75rem;color:var(--text-dim);text-decoration:none;padding:0.5rem 1rem;border:1px solid var(--border);transition:all 0.2s; }
+  .ch-nav-bottom a:hover { color:var(--green);border-color:var(--green); }
+  .gold-dim { background: #e9c46a20; }
+
+  .state-panel.crime { background: var(--bg); }
+  .state-panel.rescue { background: var(--cream); color: var(--cream-text); }
+  .state-panel.rescue .panel-label { color: var(--green); }
+
+  /* S-CURVE DIVIDER */
+  .s-curve-divider { width: 40px; position: relative; z-index: 2; }
+  .s-curve-divider svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+  .state-panel.rescue { background: var(--cream) !important; color: var(--cream-text); }
+  .state-panel.rescue .loc { border-color: var(--cream-border); background: var(--cream-surface); color: var(--cream-text); }
+  .state-panel.rescue .event-log { background: var(--cream-surface); border-color: var(--cream-border); color: var(--cream-dim); }
+  .state-panel.rescue .log-title { color: var(--cream-text); }
+  .state-panel.rescue .panel-label { color: var(--green); }
+
+
+  /* SLOWDOWN SUBSCRIPT */
+  .slowdown-sub { font-family: var(--mono); font-size: 0.6rem; color: var(--red); margin-top: 2px; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" style="text-decoration:none"><div class="logo">honest<span>code</span>.software</div></a>
+  <div class="chapter-nav">
+    <a href="/chapters/01.html">1</a><a href="/chapters/02.html">2</a><a href="/chapters/03.html">3</a>
+    <a href="/chapters/04.html">4</a><a href="#" class="active">5</a><a href="/chapters/06.html">6</a><a href="/chapters/07.html">7</a>
+    <a href="/chapters/08.html">8</a><a href="/chapters/09.html">9</a><a href="/chapters/10.html">10</a><a href="/chapters/11.html">11</a><a href="/chapters/12.html">12</a><a href="/chapters/13.html">13</a>
+  </div>
+</nav>
+
+<div class="ch-header">
+  <div class="ch-num">Chapter 5</div>
+  <h1>State Has an Address</h1>
+  <div class="epigraph">If you can't point to where the state lives, you can't know what the state is.</div>
+</div>
+
+<section class="demo-section">
+  <div class="demo-label">Demo: User updates their email: where does the change propagate?</div>
+  <div class="state-demo">
+    <div class="state-panel crime">
+      <div class="panel-label">☠ React + Redux: 6 state locations</div>
+      <div class="locations">
+        <div class="loc" id="c-store"><span class="loc-name">Redux Store</span><span class="loc-val" id="cv-store">user@old.com</span></div>
+        <div class="loc" id="c-component"><span class="loc-name">Component State</span><span class="loc-val" id="cv-component">user@old.com</span></div>
+        <div class="loc" id="c-form"><span class="loc-name">Form Input Value</span><span class="loc-val" id="cv-form">user@old.com</span></div>
+        <div class="loc" id="c-url"><span class="loc-name">URL Search Params</span><span class="loc-val" id="cv-url">?email=user@old.com</span></div>
+        <div class="loc" id="c-local"><span class="loc-name">localStorage</span><span class="loc-val" id="cv-local">user@old.com</span></div>
+        <div class="loc" id="c-derived"><span class="loc-name">Derived / Memoized</span><span class="loc-val" id="cv-derived">greeting: Hello user@old</span></div>
+      </div>
+      <div class="event-log" id="crimeLog"><div class="log-title">Propagation trace</div></div>
+    </div>
+        <!-- S-CURVE DIVIDER -->
+    <div class="s-curve-divider">
+      <svg preserveAspectRatio="none" viewBox="0 0 40 450">
+        <defs>
+          <linearGradient id="scg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#e9c46a" stop-opacity="0.5"/>
+            <stop offset="50%" stop-color="#e9c46a" stop-opacity="0.2"/>
+            <stop offset="100%" stop-color="#e9c46a" stop-opacity="0.5"/>
+          </linearGradient>
+          <clipPath id="leftClip">
+            <path d="M0,0 L20,0 C28,112 12,225 20,337 C24,393 20,450 20,450 L0,450 Z"/>
+          </clipPath>
+          <clipPath id="rightClip">
+            <path d="M40,0 L20,0 C28,112 12,225 20,337 C24,393 20,450 20,450 L40,450 Z"/>
+          </clipPath>
+        </defs>
+        <rect x="0" y="0" width="40" height="450" fill="#0a0a0c" clip-path="url(#leftClip)"/>
+        <rect x="0" y="0" width="40" height="450" fill="#f0ede6" clip-path="url(#rightClip)"/>
+        <path d="M20,0 C28,112 12,225 20,337 C24,393 20,450 20,450" fill="none" stroke="url(#scg)" stroke-width="1"/>
+      </svg>
+    </div>
+<div class="state-panel rescue">
+      <div class="panel-label">✦ HTMX: 1 state location</div>
+      <div class="locations">
+        <div class="loc" id="r-dom"><span class="loc-name">Server-rendered DOM</span><span class="loc-val" id="rv-dom">user@old.com</span></div>
+      </div>
+      <div class="event-log" id="rescueLog"><div class="log-title">Propagation trace</div></div>
+    </div>
+  </div>
+
+  <div class="demo-metrics">
+    <div class="dm crime"><div class="num" id="m-crime-loc">0</div><div class="desc">State locations</div><div class="slowdown-sub" id="m-slowdown"></div></div>
+    <div class="dm rescue"><div class="num" id="m-rescue-loc">0</div><div class="desc">State locations</div></div>
+    <div class="dm crime"><div class="num" id="m-crime-stale">0</div><div class="desc">Stale copies</div></div>
+    <div class="dm rescue"><div class="num" id="m-rescue-stale">0</div><div class="desc">Stale copies</div></div>
+  </div>
+  <div class="controls"><button onclick="runDemo()">Replay</button></div>
+</section>
+
+<section class="explanation">
+  <h2>What you just saw</h2>
+  <p>The <span class="warning">left panel</span> is a React/Redux application. The user's email address lives in six places: the Redux store, component local state, the form input's value, URL search params, localStorage, and a memoized derived value. When the user updates their email, the change propagates through dispatch, reducers, selectors, and side effects. Each location updates at a different time. Between updates, some locations hold the old value while others hold the new value. The application is in an inconsistent state until all six locations have been updated, and there is no single point where you can verify they agree.</p>
+  <p>The <span class="highlight">right panel</span> is an HTMX application. The user submits the form. The server processes the change and returns new HTML. The browser swaps the HTML into the DOM. The email address lives in one place: the DOM, as rendered by the server. There is nothing to synchronize because there is only one copy.</p>
+</section>
+
+<div class="transparency">
+  <strong>How this works:</strong> This demo visualizes state fragmentation, not timing. The dishonest side scatters the same value across six locations that must be kept in sync. The honest side stores it once. Counts are architectural facts, not nanosecond measurements. Source: <a href="https://github.com/adamzwasserman/honest-code-traces">github.com/adamzwasserman/honest-code-traces</a>
+</div>
+
+<div class="ch-nav-bottom">
+  <a href="/chapters/04.html">← Ch.4: Pure Functions</a>
+  <a href="/chapters/06.html">Ch.6: Declare, Don't Instruct →</a>
+</div>
+
+<script>
+// Update slowdown multiplier
+function updateSlowdown() {
+  const crimeEl = document.getElementById('m-crime-loc');
+  const rescueEl = document.getElementById('m-rescue-loc');
+  if (!crimeEl || !rescueEl) return;
+  const crime = parseFloat(crimeEl.textContent.replace(/,/g, '')) || 0;
+  const rescue = parseFloat(rescueEl.textContent.replace(/,/g, '')) || 0;
+  const el = document.getElementById('m-slowdown');
+  if (el && rescue > 0 && crime > rescue) {
+    el.textContent = Math.round(crime / rescue) + '× slower';
+  }
+}
+// Hook into existing animation - poll until stable
+const _slowdownInterval = setInterval(updateSlowdown, 500);
+
+let running = false;
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+function addLog(cid, text, cls) {
+  const log = document.getElementById(cid);
+  const e = document.createElement('div'); e.className = 'log-entry';
+  e.innerHTML = `<span class="${cls}">${text}</span>`;
+  log.appendChild(e); requestAnimationFrame(() => e.classList.add('visible'));
+}
+
+function pulse(id) { const el = document.getElementById(id); el.classList.add('pulse'); setTimeout(() => el.classList.remove('pulse'), 600); }
+function markStale(id) { document.getElementById(id).classList.add('stale'); }
+function clearStale(id) { document.getElementById(id).classList.remove('stale'); }
+
+function resetAll() {
+  document.querySelectorAll('.loc').forEach(l => { l.classList.remove('pulse','stale'); });
+  ['cv-store','cv-component','cv-form','cv-local','cv-derived'].forEach(id => document.getElementById(id).textContent = 'user@old.com');
+  document.getElementById('cv-url').textContent = '?email=user@old.com';
+  document.getElementById('cv-derived').textContent = 'greeting: Hello user@old';
+  document.getElementById('rv-dom').textContent = 'user@old.com';
+  ['crimeLog','rescueLog'].forEach(id => { const l = document.getElementById(id); const t = l.querySelector('.log-title'); l.innerHTML = ''; l.appendChild(t); });
+  ['m-crime-loc','m-rescue-loc','m-crime-stale','m-rescue-stale'].forEach(id => document.getElementById(id).textContent = '0');
+}
+
+async function runDemo() {
+  if (running) return;
+  running = true; resetAll(); await wait(600);
+
+  let crimeStale = 0;
+
+  const crimePromise = (async () => {
+    // User types in form
+    await wait(400);
+    pulse('c-form');
+    document.getElementById('cv-form').textContent = 'user@new.com';
+    document.getElementById('m-crime-loc').textContent = '1';
+    addLog('crimeLog', 'form.onChange → local value updated', 'ev-crime');
+    // Everything else is stale
+    markStale('c-store'); markStale('c-component'); markStale('c-url'); markStale('c-local'); markStale('c-derived');
+    crimeStale = 5; document.getElementById('m-crime-stale').textContent = crimeStale;
+
+    // Dispatch to Redux
+    await wait(600);
+    pulse('c-store');
+    document.getElementById('cv-store').textContent = 'user@new.com';
+    clearStale('c-store');
+    document.getElementById('m-crime-loc').textContent = '2';
+    crimeStale--; document.getElementById('m-crime-stale').textContent = crimeStale;
+    addLog('crimeLog', 'dispatch(updateEmail) → store updated', 'ev-crime');
+
+    // Component re-renders from selector
+    await wait(500);
+    pulse('c-component');
+    document.getElementById('cv-component').textContent = 'user@new.com';
+    clearStale('c-component');
+    document.getElementById('m-crime-loc').textContent = '3';
+    crimeStale--; document.getElementById('m-crime-stale').textContent = crimeStale;
+    addLog('crimeLog', 'useSelector → component re-render', 'ev-crime');
+
+    // URL params via side effect
+    await wait(600);
+    pulse('c-url');
+    document.getElementById('cv-url').textContent = '?email=user@new.com';
+    clearStale('c-url');
+    document.getElementById('m-crime-loc').textContent = '4';
+    crimeStale--; document.getElementById('m-crime-stale').textContent = crimeStale;
+    addLog('crimeLog', 'useEffect → history.replaceState()', 'ev-crime');
+
+    // localStorage sync
+    await wait(500);
+    pulse('c-local');
+    document.getElementById('cv-local').textContent = 'user@new.com';
+    clearStale('c-local');
+    document.getElementById('m-crime-loc').textContent = '5';
+    crimeStale--; document.getElementById('m-crime-stale').textContent = crimeStale;
+    addLog('crimeLog', 'middleware → localStorage.setItem()', 'ev-crime');
+
+    // Derived recomputes
+    await wait(500);
+    pulse('c-derived');
+    document.getElementById('cv-derived').textContent = 'greeting: Hello user@new';
+    clearStale('c-derived');
+    document.getElementById('m-crime-loc').textContent = '6';
+    crimeStale--; document.getElementById('m-crime-stale').textContent = crimeStale;
+    addLog('crimeLog', 'useMemo recompute → derived updated', 'ev-crime');
+    addLog('crimeLog', '<span class="ev-warn">⚠ 5 propagation steps, 5 stale windows</span>', 'ev-warn');
+  })();
+
+  const rescuePromise = (async () => {
+    await wait(300);
+    pulse('r-dom');
+    document.getElementById('rv-dom').textContent = 'user@new.com';
+    document.getElementById('m-rescue-loc').textContent = '1';
+    document.getElementById('m-rescue-stale').textContent = '0';
+    addLog('rescueLog', 'hx-post → server renders new HTML', 'ev-rescue');
+    await wait(300);
+    addLog('rescueLog', 'hx-swap → DOM updated. Done.', 'ev-rescue');
+  })();
+
+  await Promise.all([crimePromise, rescuePromise]);
+
+  await wait(4000);
+  running = false;
+  runDemo();
+}
+
+window.addEventListener('load', () => setTimeout(runDemo, 800));
+</script>
+</body>
+</html>
+</html>

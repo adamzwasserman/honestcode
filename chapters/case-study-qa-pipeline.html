@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Study: A Day Building an Honest QA Pipeline | Honest Code</title>
+<meta name="description" content="The parallelization was three lines. The pure functions never changed. A real-world payoff of Honest Code architecture.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@adamzwasserman">
+<meta name="twitter:title" content="Case Study: A Day Building an Honest QA Pipeline">
+<meta name="twitter:description" content="The parallelization was three lines. The pure functions never changed.">
+<meta name="twitter:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:title" content="Case Study: A Day Building an Honest QA Pipeline">
+<meta property="og:description" content="The parallelization was three lines. The pure functions never changed.">
+<meta property="og:image" content="https://honestcode.software/front-cover.png">
+<meta property="og:url" content="https://honestcode.software/chapters/case-study-qa-pipeline.html">
+<meta property="og:type" content="article">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Literata:ital,wght@0,400;0,700;1,400&display=swap');
+  :root {
+    --bg: #0a0a0c; --surface: #111116; --border: #1e1e26;
+    --text: #c8c8d0; --text-dim: #6a6a78;
+    --red: #e63946; --green: #2a9d8f; --gold: #e9c46a;
+    --mono: 'JetBrains Mono', monospace; --serif: 'Literata', Georgia, serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: var(--serif); line-height: 1.6; }
+
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+    padding: 0.8rem 2rem; display: flex; align-items: center; justify-content: space-between;
+    backdrop-filter: blur(12px);
+  }
+  nav .logo { font-family: var(--mono); font-weight: 700; font-size: 1rem; color: var(--green); }
+  nav .logo span { color: var(--red); }
+  nav a { color: var(--text-dim); text-decoration: none; font-family: var(--mono); font-size: 0.75rem; }
+  nav a:hover { color: var(--green); }
+
+  .container {
+    max-width: 740px; margin: 6rem auto 4rem; padding: 0 2rem;
+  }
+
+  h1 {
+    font-family: var(--mono); font-size: 1.4rem; font-weight: 700;
+    color: var(--gold); margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    font-family: var(--serif); font-style: italic; color: var(--text-dim);
+    font-size: 1rem; margin-bottom: 2.5rem;
+  }
+
+  h2 {
+    font-family: var(--mono); font-size: 0.8rem; color: var(--green);
+    text-transform: uppercase; letter-spacing: 0.1em; margin: 2.5rem 0 1rem;
+  }
+
+  h3 {
+    font-family: var(--mono); font-size: 0.85rem; color: var(--gold);
+    margin: 2rem 0 0.75rem;
+  }
+
+  p {
+    font-family: var(--serif); font-size: 0.95rem; color: var(--text);
+    line-height: 1.8; margin-bottom: 1rem;
+  }
+
+  .code-block {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto; position: relative;
+  }
+  .code-block pre {
+    font-family: var(--mono); font-size: 0.8rem; color: var(--text);
+    line-height: 1.7; white-space: pre-wrap; word-wrap: break-word;
+  }
+  .code-block .label {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem; display: block;
+  }
+
+  .dishonest { color: var(--red); }
+  .honest { color: var(--green); }
+
+  .callout {
+    font-family: var(--mono); font-size: 0.85rem; color: var(--gold);
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 1.2rem 1.5rem; margin: 1.5rem 0;
+    letter-spacing: 0.02em; line-height: 1.7;
+  }
+
+  .timeline {
+    border-left: 2px solid var(--border); margin: 1.5rem 0; padding-left: 1.5rem;
+  }
+  .timeline .event {
+    margin-bottom: 1.5rem; position: relative;
+  }
+  .timeline .event::before {
+    content: ''; position: absolute; left: -1.75rem; top: 0.5rem;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--green); border: 2px solid var(--bg);
+  }
+  .timeline .event .time {
+    font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.25rem;
+  }
+  .timeline .event p { margin-bottom: 0.5rem; }
+
+  .back-link {
+    display: inline-block; margin-top: 2rem;
+    font-family: var(--mono); font-size: 0.75rem; color: var(--text-dim);
+    text-decoration: none;
+  }
+  .back-link:hover { color: var(--green); }
+
+  .principle-tag {
+    font-family: var(--mono); font-size: 0.65rem; color: var(--green);
+    border: 1px solid var(--green); padding: 0.15rem 0.5rem;
+    display: inline-block; margin: 0.25rem 0.25rem 0.25rem 0;
+    letter-spacing: 0.05em;
+  }
+
+  .metric {
+    font-family: var(--mono); font-size: 1.8rem; font-weight: 700;
+    color: var(--green); display: block; margin: 0.5rem 0;
+  }
+  .metric-label {
+    font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+  .metrics-row {
+    display: flex; gap: 2rem; margin: 1.5rem 0; flex-wrap: wrap;
+  }
+  .metrics-row > div { flex: 1; min-width: 120px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" style="text-decoration:none"><div class="logo">honest<span>code</span>.software</div></a>
+  <a href="/">Home</a>
+</nav>
+
+<div class="container">
+  <h1>Case Study: A Day Building an Honest QA Pipeline</h1>
+  <div class="subtitle">How five principles turned a messy validation script into a parallel, testable, extensible system&mdash;in one sitting.</div>
+
+  <h2>The problem</h2>
+
+  <p>A financial data API serves 27,273 JSON files&mdash;equities, mutual funds, ETFs&mdash;to a compliance reporting system. The upstream data provider sends a fresh export every few days. Every export has problems: bare <code>NaN</code> values that crash JSON parsers, European comma decimals, missing fields, phantom peer references, duplicate records. Each bug causes an HTTP 500 in production.</p>
+
+  <p>The team needed a QA gate: a script that runs on the raw data <em>before</em> it enters the system, catches every category of defect, and reports what the upstream provider needs to fix.</p>
+
+  <p>This is the story of building that gate in a single day using Honest Code principles, and how each principle paid for itself in a concrete, measurable way.</p>
+
+  <h2>Hour 1: The schema</h2>
+
+  <h3>Principle: <span class="honest">Typed dicts over classes</span></h3>
+
+  <p>The first instinct is to reach for a class. A <code>RecordValidator</code> with an <code>__init__</code> that loads the schema, a <code>validate()</code> method that sets instance state, maybe a <code>Report</code> class to accumulate results.</p>
+
+  <p>Instead: a plain dict. Two hundred eighty-one key-value pairs, field name to type string.</p>
+
+  <div class="code-block">
+    <span class="label">The entire schema declaration</span>
+<pre>EQUITY_SCHEMA: dict[str, str] = {
+    "id": "str", "symbol": "str", "name": "str",
+    "sector": "str", "industry": "str", "country": "str",
+    "market_cap": "num", "pe": "num", "ev_ebitda": "num",
+    "buckler_score": "num", "growth_score": "num",
+    # ... 281 fields total
+}</pre>
+  </div>
+
+  <p>No class hierarchy. No abstract base validator. No <code>FieldType</code> enum. Just a dict that says "these fields exist, and they're either strings or numbers." The check functions iterate over it. Adding a new field means adding one line.</p>
+
+  <div class="callout">The schema is <em>data</em>. It declares what's true. The functions enforce it. Honest Code never confuses declaration with enforcement.</div>
+
+  <h2>Hour 2: The checks</h2>
+
+  <h3>Principle: <span class="honest">Pure functions over methods</span></h3>
+
+  <p>Each check is a standalone function. Data goes in, a list of issues comes out. No <code>self</code>, no instance state, no side effects.</p>
+
+  <div class="code-block">
+    <span class="label">A typical check function</span>
+<pre>def check_score_range(data: dict, filename: str) -> list[dict]:
+    """Scores should be 0-100."""
+    issues = []
+    for key in SCORE_FIELDS:
+        val = data.get(key)
+        if val is None or not isinstance(val, (int, float)):
+            continue
+        if val < 0 or val > 100:
+            issues.append({
+                "file": filename,
+                "check": "score_out_of_range",
+                "severity": "WARN",
+                "detail": f"'{key}' = {val} — expected 0-100.",
+            })
+    return issues</pre>
+  </div>
+
+  <p>Every check follows the same shape: take a dict, return a list. No check knows about any other check. No check reads files. No check prints anything. The function is its own complete specification.</p>
+
+  <p>We wrote eleven of these in under an hour:</p>
+
+  <div class="code-block">
+    <span class="label">The check catalog</span>
+<pre>check_valid_json()           # Bare NaN, comma decimals, parse errors
+check_filename()             # UUID format validation
+check_id_matches_filename()  # Internal ID must match the filename
+check_missing_keys()         # All schema fields must be present
+check_types()                # String fields hold strings, numbers hold numbers
+check_sentinel_values()      # "--", "N/A", "null" should be actual null
+check_name_present()         # Every security needs a name
+check_score_range()          # Scores must be 0-100
+check_zero_score_with_peers()# Zero score with nonzero peers = calculation failure
+check_duplicate_peers()      # No repeated peers, no self-as-peer
+check_numeric_strings()      # "14.89" should be 14.89</pre>
+  </div>
+
+  <p>Testing any check is one line: <code>assert check_score_range({"buckler_score": 150}, "test.json") == [expected_issue]</code>. No mocks. No setup. No teardown.</p>
+
+  <span class="principle-tag">PURE FUNCTIONS OVER METHODS</span>
+  <span class="principle-tag">ASSERTIONS OVER MOCKS</span>
+
+  <h2>Hour 3: Composition</h2>
+
+  <h3>Principle: <span class="honest">Flat composition over inheritance</span></h3>
+
+  <p>How do you wire eleven independent checks together? Not with a base class and abstract methods. Not with a plugin registry. With one function that calls them in sequence:</p>
+
+  <div class="code-block">
+    <span class="label">The dispatch table</span>
+<pre>def validate_record(raw: str, filename: str) -> list[dict]:
+    issues = []
+
+    issues.extend(check_filename(filename))
+
+    data, parse_issues = check_valid_json(raw, filename)
+    issues.extend(parse_issues)
+    if data is None:
+        return issues
+
+    issues.extend(check_id_matches_filename(data, filename))
+    issues.extend(check_name_present(data, filename))
+    issues.extend(check_sentinel_values(data, filename))
+    issues.extend(check_duplicate_peers(data, filename))
+
+    if is_equity(data):
+        issues.extend(check_missing_keys(data, filename, EQUITY_SCHEMA))
+        issues.extend(check_types(data, filename, EQUITY_SCHEMA))
+        issues.extend(check_score_range(data, filename))
+
+    return issues</pre>
+  </div>
+
+  <p>Adding a new check is one line. Removing a check is deleting one line. The composition is visible at a glance&mdash;no method resolution order, no <code>super()</code> chains, no plugin discovery. A junior engineer can read this function and understand every check that runs, in what order, with what data.</p>
+
+  <span class="principle-tag">FLAT COMPOSITION OVER INHERITANCE</span>
+
+  <h2>Hour 4: I/O at the boundary</h2>
+
+  <h3>Principle: <span class="honest">I/O at the boundary</span></h3>
+
+  <p>Here's what <code>main()</code> looks like. Read files. Call pure functions. Write results.</p>
+
+  <div class="code-block">
+    <span class="label">The I/O boundary</span>
+<pre>def main():
+    # I/O: read all files from disk
+    records = read_all_files(data_dir)
+
+    # Pure: validate every record
+    per_record_issues = validate_all(records)
+
+    # Pure: build indexes for batch checks
+    indexes = build_indexes(records)
+
+    # I/O: load baseline from previous run
+    baseline = load_baseline()
+
+    # Pure: run batch checks
+    batch_issues = run_batch_checks(indexes, baseline)
+
+    # Pure: build structured report
+    report = build_report(all_issues, len(files), ...)
+
+    # I/O: write report, save baseline, print verdict
+    write_report(report)
+    save_baseline(indexes)
+    print_verdict(report)</pre>
+  </div>
+
+  <p>Every line is either I/O or a pure function call. You can see the data flow. The pure functions in the middle don't know files exist. They don't know about baselines on disk. They don't know about stdout. They take data in and return data out.</p>
+
+  <p>This is not an aesthetic preference. It has an immediate, practical consequence.</p>
+
+  <span class="principle-tag">I/O AT THE BOUNDARY</span>
+
+  <h2>Hour 5: The payoff</h2>
+
+  <h3>Principle: <span class="honest">Pure functions unlock parallelism for free</span></h3>
+
+  <p>The script took 11.7 seconds to validate 27,273 files. We wanted it faster. Here's the question we asked:</p>
+
+  <div class="callout">Can <code>validate_record()</code> run in parallel?</div>
+
+  <p>Because we followed Honest Code principles, the answer was immediately obvious. <code>validate_record()</code> is pure. It takes a string and a filename. It returns a list. It reads no files. It mutates no shared state. It has no side effects.</p>
+
+  <p>Of course it can run in parallel. It's embarrassingly parallel <em>by construction</em>.</p>
+
+  <p>If we had written a <code>Validator</code> class with instance state&mdash;a running issue count, a reference to a shared report object, a file handle for logging&mdash;parallelism would have required locks, queues, careful synchronization, and a rewrite. Instead:</p>
+
+  <div class="code-block">
+    <span class="label">Three lines to parallelize</span>
+<pre># Before: sequential
+results = [validate_record(raw, fname) for fname, raw in records]
+
+# After: parallel across all CPU cores
+with ProcessPoolExecutor() as pool:
+    results = list(pool.map(validate_chunk, chunks))</pre>
+  </div>
+
+  <p>That's it. We split the records into chunks, farmed them out to worker processes, and collected the results. The pure functions didn't change at all. The only code that changed was in <code>main()</code>&mdash;at the I/O boundary.</p>
+
+  <p>We had to use <code>ProcessPoolExecutor</code> (separate processes) instead of <code>ThreadPoolExecutor</code> (threads) because Python's GIL prevents threads from running CPU-bound Python code in parallel. We benchmarked both:</p>
+
+  <div class="metrics-row">
+    <div>
+      <span class="metric-label">Sequential</span>
+      <span class="metric">3.49s</span>
+    </div>
+    <div>
+      <span class="metric-label">ThreadPool</span>
+      <span class="metric" style="color: var(--red);">4.66s</span>
+      <span class="metric-label">slower (GIL contention)</span>
+    </div>
+    <div>
+      <span class="metric-label">ProcessPool</span>
+      <span class="metric">1.35s</span>
+      <span class="metric-label">2.6x faster</span>
+    </div>
+  </div>
+
+  <p>Threads made it <em>worse</em>. Processes made it 2.6x faster. But neither change required touching the validation logic. The I/O boundary absorbed the change. The pure functions stayed pure.</p>
+
+  <span class="principle-tag">PURE FUNCTIONS OVER METHODS</span>
+  <span class="principle-tag">I/O AT THE BOUNDARY</span>
+
+  <h2>The architecture</h2>
+
+  <p>By the end of the day, the file had a clean three-layer structure:</p>
+
+  <div class="code-block">
+    <span class="label">The honest architecture</span>
+<pre>
+┌─────────────────────────────────────────────────┐
+│  SCHEMA DECLARATION                             │
+│  EQUITY_SCHEMA = {"field": "type", ...}         │
+│  Just data. 281 fields. One dict.               │
+├─────────────────────────────────────────────────┤
+│  PURE CHECK FUNCTIONS                           │
+│  check_valid_json()    → list[dict]             │
+│  check_score_range()   → list[dict]             │
+│  check_dead_columns()  → list[dict]             │
+│  ... 16 functions, all pure, all testable       │
+├─────────────────────────────────────────────────┤
+│  COMPOSITION (DISPATCH TABLES)                  │
+│  validate_record()  — per-record dispatch       │
+│  run_batch_checks() — batch dispatch            │
+│  build_report()     — pure report builder       │
+├─────────────────────────────────────────────────┤
+│  I/O BOUNDARY (main only)                       │
+│  Read files → pure functions → write results    │
+│  Parallelism lives here, not in the logic       │
+└─────────────────────────────────────────────────┘</pre>
+  </div>
+
+  <h2>What we caught</h2>
+
+  <p>On the first real run, the QA gate found:</p>
+
+  <div class="code-block">
+    <span class="label">First run results</span>
+<pre>884  files with bare NaN values           (REJECT)
+108  completely dead columns               (REJECT)
+1333 suspicious zero scores                (WARN)
+1225 peer name mismatches                  (WARN)
+108  peer symbols not in dataset           (WARN)
+84   duplicate peer symbols                (WARN)
+36   duplicate ticker symbols              (WARN)
+6    sentinel placeholder strings          (WARN)</pre>
+  </div>
+
+  <p>The peer name mismatches revealed a systematic upstream bug: the data provider was matching peers by ticker symbol without considering the exchange. WFC on the Toronto Stock Exchange is Wall Financial Corporation. WFC on the New York Stock Exchange is Wells Fargo. The provider was crossing the streams.</p>
+
+  <p>This bug had been silently corrupting peer comparison data for months. A pure function found it in 1.35 seconds.</p>
+
+  <h2>How to add a new check</h2>
+
+  <p>This is the entire process for adding a new validation rule:</p>
+
+  <div class="code-block">
+    <span class="label">Step 1: Write a pure function</span>
+<pre>def check_negative_market_cap(data: dict, filename: str) -> list[dict]:
+    val = data.get("market_cap")
+    if isinstance(val, (int, float)) and val < 0:
+        return [{"file": filename, "check": "negative_market_cap",
+                 "severity": "REJECT",
+                 "detail": f"market_cap is {val} — cannot be negative."}]
+    return []</pre>
+  </div>
+
+  <div class="code-block">
+    <span class="label">Step 2: Add one line to the dispatch table</span>
+<pre>def validate_record(raw, filename):
+    ...
+    issues.extend(check_negative_market_cap(data, filename))  # ← this line
+    ...
+    return issues</pre>
+  </div>
+
+  <p>No base class to extend. No interface to implement. No configuration file to update. No registration mechanism. Write the function, add it to the list.</p>
+
+  <h2>The principles in practice</h2>
+
+  <div class="timeline">
+    <div class="event">
+      <div class="time">Typed dicts over classes</div>
+      <p>The schema is a plain dict. Issues are plain dicts. No <code>__init__</code>, no <code>self</code>, no inheritance. Adding a field or check means adding a line, not a class.</p>
+    </div>
+    <div class="event">
+      <div class="time">Pure functions over methods</div>
+      <p>Every check is input-in, output-out. Testable with <code>assert</code>. No mocks needed. And because they're pure, they're automatically parallelizable.</p>
+    </div>
+    <div class="event">
+      <div class="time">I/O at the boundary</div>
+      <p>File reads, printing, and report writing happen only in <code>main()</code>. This made parallelism a three-line change at the boundary instead of a rewrite of the logic.</p>
+    </div>
+    <div class="event">
+      <div class="time">Flat composition</div>
+      <p><code>validate_record()</code> is a visible list of function calls. Adding a check is one line. No plugin system, no abstract methods, no hidden dispatch.</p>
+    </div>
+    <div class="event">
+      <div class="time">Declarative schema</div>
+      <p>The schema dict declares truth. The functions enforce it. Changing what's valid means changing the declaration, not rewriting validation logic.</p>
+    </div>
+  </div>
+
+  <h2>The takeaway</h2>
+
+  <p>None of these principles felt like extra work while writing the code. Typed dicts are <em>less</em> code than classes. Pure functions are <em>simpler</em> than methods with state. Flat composition is <em>more readable</em> than inheritance hierarchies. I/O at the boundary is <em>fewer lines</em> than scattered file access.</p>
+
+  <p>The payoff came later&mdash;when we needed parallelism and it was three lines, when we needed a new check and it was one line, when we needed to understand the data flow and it was one function.</p>
+
+  <p>Honest Code isn't a tax on your productivity. It's an investment that compounds every time you touch the code again.</p>
+
+  <div class="callout">The code described in this case study is real, in production, and validates 27,273 financial records in 9.3 seconds across 8 CPU cores. Every principle described here is visible in the source.</div>
+
+  <a class="back-link" href="/">&larr; Back to home</a>
+</div>
+
+</body>
+</html>
