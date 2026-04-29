@@ -4,3 +4,7 @@
 *.log
 *.bak
 node_modules/
+
+# AI-readable directory summaries (local context, not versioned)
+.agents.md
+AGENTS.md
