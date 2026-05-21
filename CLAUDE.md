@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is the public website for **Honest Code: Keep Your State Out of My Code** by Adam Zachary Wasserman. It contains:
+This is the public website for **Honest Code: Stop Fighting the Machine** by Adam Zachary Wasserman. It contains:
 
 - `index.html` — landing page (self-contained, all CSS/JS inline)
 - `chapters/01.html` through `chapters/13.html` — full chapter text, publicly readable
