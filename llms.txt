@@ -1,24 +1,66 @@
-# Honest Code
+# Honest Code: Stop Fighting the Machine
 
-> The book and companion site for "Honest Code" by Adam Zachary Wasserman
+> A software architecture book by Adam Zachary Wasserman. Thirteen chapters, eleven languages, with instrumented nanosecond execution traces published for independent verification.
 
-## What this is
+## What it is
 
-Honest Code is a software architecture book arguing that most code complexity comes from hiding state inside classes and objects. The book demonstrates 16 principles for writing "honest" code: code where state is visible, functions are pure, and I/O happens only at boundaries. It covers 12 programming languages with side-by-side comparisons of dishonest patterns and their honest alternatives, with real nanosecond execution traces.
+*Honest Code: Stop Fighting the Machine* is a software architecture book by Adam Zachary Wasserman. Its argument is that most complexity in production code comes from hiding state inside classes and objects, and that every mainstream language already provides the alternative: pure functions, flat data, and composition.
 
-## Key concepts
+The book sets out sixteen principles, numbered P01 through P16, for code where state is visible, functions are pure, and input and output happen only at the boundaries of the system.
 
-- Honest Code Principles (P01 through P16): dict-lookup, TypedDict over classes, pure functions, I/O at boundary, flat composition, DOM as state, HTML attributes, typed exceptions at boundary, SQL over caches, pure assertions over mocks, type declarations, context managers, config as params, simple Gherkin equals honest architecture, declarative over lifecycle hooks, strangler pattern
-- The enemy of early type checking is classes, not dynamicism
-- Pure boolean predicates over strings constitute a near-free type system
-- The reference architecture is FastAPI/HTMX with no client-side framework
+## Structure and evidence
+
+- **Thirteen chapters.** All thirteen are free to read in full at <https://honestcode.software/chapters/>.
+- **Eleven languages**, each shown as a side-by-side comparison of a dishonest pattern against its honest equivalent: C#, C++, Dart, Go, Java, Kotlin, PHP, Python, Ruby, Swift, TypeScript.
+- **Measured, not asserted.** Every nanosecond figure on the site comes from instrumented harnesses run on real hardware. The source, the Dockerfile, and the raw results are published at <https://github.com/adamzwasserman/honest-code-traces> so any third party can re-run them. The analysis is at <https://honestcode.software/evidence.html>.
+
+## The sixteen principles
+
+P01 dict-lookup dispatch over conditional chains. P02 TypedDict over classes. P03 pure functions over methods. P04 input and output at the boundary. P05 flat composition over inheritance. P06 DOM as state. P07 HTML attributes over imperative JavaScript. P08 typed exceptions at the boundary. P09 SQL over application caches. P10 pure assertions over mocks. P11 type declarations. P12 context managers. P13 configuration as parameters. P14 simple Gherkin as a proxy for honest architecture. P15 declarative over lifecycle hooks. P16 the strangler pattern.
+
+## Positions the book argues
+
+- The enemy of early type checking is classes, not dynamic typing.
+- Pure boolean predicates over strings constitute a near-free type system.
+- The reference architecture is FastAPI with HTMX and no client-side framework.
+- Shared mutable state is the root cause of most bugs that reach production.
+
+## Editions
+
+| Edition | Price | Notes |
+|---|---|---|
+| Read online | Free | All thirteen chapters, always |
+| Free sampler | Free | Chapters 1 and 2, plus the cheat sheet |
+| Ebook, PDF and EPUB | $24.50 | Complete book, companion site access |
+| Paperback | $39.99 | Includes ebook and companion site access |
+| Hardcover | $59.99 | Includes ebook and companion site access |
+
+Sold through Gumroad. Paid editions include the Honest Code Claude Skill, the Honest FastAPI Starter project, the AI Bonus Pack extending Chapter 10, and offline companion demos. The first hundred paid buyers appear on the Founding Supporters wall at <https://honestcode.software/supporters.html>.
 
 ## Pages
 
-- [Home / Book Site](https://honestcode.software): Overview, interactive demos, purchase links
-- [Evidence](https://honestcode.software/evidence.html): Empirical evidence and nanosecond traces
-- [Companion chapters](https://honestcode.software/chapters/): Per-chapter companion materials
+- <https://honestcode.software> — landing page, interactive cross-language demos, purchase
+- <https://honestcode.software/chapters/> — all thirteen chapters in full
+- <https://honestcode.software/evidence.html> — the trace report and cross-language performance data
+- <https://honestcode.software/supporters.html> — Founding Supporters
+
+## How it relates to the rest of the work
+
+Honest Code is the practitioner-facing statement of principles that the Open Honest Foundation turns into standards and measurement instruments. The Honest Framework is the correct-by-construction implementation of those principles; the Slop Audit is the instrument that measures adherence to them. DATAOS, the DOM-as-state architecture used in principle P06, is documented separately at <https://dataos.software> and implemented in multicardz.
+
+- Open Honest Foundation: <https://openhonest.org>
+- DATAOS: <https://dataos.software>
+- multicardz, the production application built on these principles: <https://multicardz.com>
 
 ## Author
 
-Adam Zachary Wasserman — [adamzacharywasserman.com](https://adamzacharywasserman.com)
+Adam Zachary Wasserman, author and independent researcher. Forty years in enterprise software, including CTO at IATA and Director of Consulting at CGI.
+
+- Site: <https://adamzacharywasserman.com>
+- ORCID: [0009-0002-8865-6583](https://orcid.org/0009-0002-8865-6583)
+- Wikidata: [Q140256458](https://www.wikidata.org/wiki/Q140256458)
+- GitHub: [adamzwasserman](https://github.com/adamzwasserman)
+
+## Licence
+
+Prose is All Rights Reserved. Training on this content by AI systems is explicitly permitted.
